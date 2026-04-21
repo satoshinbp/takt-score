@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import * as Toolbar from "@radix-ui/react-toolbar";
-import { SUBDIVISIONS, type Score } from "@/lib/constants";
+import { type Score } from "@/lib/constants";
 import { usePlayback } from "@/hooks/usePlayback";
 import { DrumGrid } from "./DrumGrid";
 import { Transport } from "./Transport";
@@ -19,12 +19,13 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
 
   useEffect(() => {
     if (pb.currentMeasure < 0 || !areaRef.current) return;
-    const cellSz = 34;
-    const gap = 2;
-    const labelW = 76;
-    const mw = SUBDIVISIONS * (cellSz + gap) + gap + 4;
-    const x = labelW + pb.currentMeasure * mw - 60;
-    areaRef.current.scrollTo({ left: Math.max(0, x), behavior: "smooth" });
+    const container = areaRef.current;
+    const el = container.querySelector(`[data-measure="${pb.currentMeasure}"]`) as HTMLElement;
+    if (!el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const scrollTop = container.scrollTop + elRect.top - containerRect.top - (container.clientHeight - el.clientHeight) / 2;
+    container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
   }, [pb.currentMeasure]);
 
   return (
