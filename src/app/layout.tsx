@@ -25,7 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="ja"
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+    >
       <body style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
         {children}
       </body>
