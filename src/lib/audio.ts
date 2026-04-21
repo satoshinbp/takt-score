@@ -21,14 +21,19 @@ const noise = (ctx: AC, t: number, dur: number, freq: number, q: number, g: numb
   src.stop(t + dur);
 }
 
-const tone = (ctx: AC, t: number, dur: number, f0: number, f1: number | null, g: number) => {
+const tone = (ctx: AC, t: number, dur: number, f0: number, f1: number | null, g: number, atk = 0) => {
   const osc = ctx.createOscillator();
   const gn = ctx.createGain();
   osc.connect(gn);
   gn.connect(ctx.destination);
   osc.frequency.setValueAtTime(f0, t);
   if (f1) osc.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.6);
-  gn.gain.setValueAtTime(g, t);
+  if (atk > 0) {
+    gn.gain.setValueAtTime(0.0001, t);
+    gn.gain.linearRampToValueAtTime(g, t + atk);
+  } else {
+    gn.gain.setValueAtTime(g, t);
+  }
   gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
   osc.start(t);
   osc.stop(t + dur);
@@ -43,7 +48,7 @@ export const SOUNDS: Partial<Record<string, SoundFn>> = {
   HH_OPEN: (c, t) => { noise(c, t, 0.32, 8000, 0.8, 0.55); },
   CRASH:   (c, t) => { noise(c, t, 0.65, 5000, 0.4, 0.7); noise(c, t, 0.65, 11000, 0.6, 0.4); },
   RIDE:    (c, t) => { noise(c, t, 0.22, 8000, 1.2, 0.45); tone(c, t, 0.16, 580, null, 0.22); },
-  HI_TOM:  (c, t) => { tone(c, t, 0.18, 310, 95, 0.9); noise(c, t, 0.04, 800, 0.5, 0.2); },
-  MID_TOM: (c, t) => { tone(c, t, 0.22, 230, 75, 0.9); noise(c, t, 0.04, 600, 0.5, 0.2); },
+  HI_TOM:  (c, t) => { tone(c, t, 0.28, 280, 130, 0.85, 0.010); noise(c, t, 0.05, 600, 0.4, 0.12); },
+  MID_TOM: (c, t) => { tone(c, t, 0.33, 210, 100, 0.85, 0.010); noise(c, t, 0.05, 450, 0.4, 0.12); },
   LO_TOM:  (c, t) => { tone(c, t, 0.28, 140, 58, 1.0); noise(c, t, 0.05, 400, 0.5, 0.2); },
 };
