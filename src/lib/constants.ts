@@ -7,8 +7,8 @@ export type PartId =
   | "HH"
   | "HI_TOM"
   | "MID_TOM"
-  | "LO_TOM"
   | "SNARE"
+  | "LO_TOM"
   | "BD";
 
 export const PART_IDS: PartId[] = [
@@ -18,8 +18,8 @@ export const PART_IDS: PartId[] = [
   "HH",
   "HI_TOM",
   "MID_TOM",
-  "LO_TOM",
   "SNARE",
+  "LO_TOM",
   "BD",
 ];
 
@@ -37,8 +37,8 @@ export const PARTS: PartConfig[] = [
   { id: "HH",      label: "Hi-Hat",  short: "HH", color: "#38bdf8" },
   { id: "HI_TOM",  label: "Tom 1",   short: "T1", color: "#34d399" },
   { id: "MID_TOM", label: "Tom 2",   short: "T2", color: "#86efac" },
-  { id: "LO_TOM",  label: "Floor",   short: "FT", color: "#a3e635" },
   { id: "SNARE",   label: "Snare",   short: "SN", color: "#fb923c" },
+  { id: "LO_TOM",  label: "Floor",   short: "FT", color: "#a3e635" },
   { id: "BD",      label: "Bass",    short: "BD", color: "#f87171" },
 ];
 
