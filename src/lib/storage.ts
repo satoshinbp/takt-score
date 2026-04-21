@@ -1,20 +1,15 @@
 import type { Score } from "./constants";
 
-const KEY = "drummaster_v1";
-
-export const loadScores = (): Score[] | null => {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Score[]) : null;
-  } catch {
-    return null;
-  }
+export const loadScores = async (): Promise<Score[]> => {
+  const res = await fetch("/api/scores");
+  if (!res.ok) return [];
+  return res.json();
 };
 
-export const saveScores = (scores: Score[]): void => {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(scores));
-  } catch {
-    // storage full or unavailable — silently ignore
-  }
+export const saveScores = async (scores: Score[]): Promise<void> => {
+  await fetch("/api/scores", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(scores),
+  });
 };

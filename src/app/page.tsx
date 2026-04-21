@@ -1,20 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { makeSamples } from "@/lib/constants";
-import { loadScores } from "@/lib/storage";
+import { makeSamples, type Score } from "@/lib/constants";
+import { loadScores, saveScores } from "@/lib/storage";
 import { Header } from "@/components/Header";
 import { Dashboard } from "@/components/Dashboard";
 
 export default function Page() {
-  const [scores] = useState(() => loadScores() ?? makeSamples());
+  const [scores, setScores] = useState<Score[] | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    loadScores().then((data) => {
+      if (data.length === 0) {
+        const samples = makeSamples();
+        saveScores(samples).then(() => setScores(samples));
+      } else {
+        setScores(data);
+      }
+    });
+  }, []);
+
+  if (!scores) return null;
 
   return (
     <div
-      className="flex flex-col overflow-hidden"
-      style={{ height: "100vh", background: "var(--bg)", color: "var(--t)" }}
+      className="flex flex-col overflow-hidden h-screen bg-[var(--bg)] text-[var(--t)]"
     >
       <Header />
       <Dashboard

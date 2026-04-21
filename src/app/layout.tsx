@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="ja"
       className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
-      <body style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+      <body className="font-sans">
         {children}
       </body>
     </html>

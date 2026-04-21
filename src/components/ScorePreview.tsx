@@ -18,7 +18,8 @@ export function ScorePreview({ measures }: Props) {
         return (
           <div
             key={s}
-            style={{ flex: 1, height: h, background: col, borderRadius: 2, opacity: 0.75 }}
+            className="flex-1 rounded-[2px] opacity-75"
+            style={{ height: h, background: col }}
           />
         );
       })}

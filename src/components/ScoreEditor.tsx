@@ -91,15 +91,9 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
   const selSorted = [...sel].sort((a, b) => a - b);
 
   return (
-    <div
-      className="page-fade flex flex-col h-full overflow-hidden"
-      style={{ background: "var(--bg)" }}
-    >
+    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--bg)]">
       {/* Top bar */}
-      <div
-        className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b"
-        style={{ background: "var(--s1)", borderColor: "var(--bd)" }}
-      >
+      <div className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)]">
         <button
           onClick={() => { pb.stop(); onBack(); }}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--bd)] text-[var(--td)] hover:bg-[var(--s2)] hover:text-[var(--t)]"
@@ -110,70 +104,38 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
           value={draft.title}
           onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
           placeholder="タイトル..."
-          className="text-[17px] font-semibold flex-1 min-w-0 px-1.5 py-0.5 rounded"
-          style={{
-            background: "transparent",
-            border: "1px solid transparent",
-            color: "var(--t)",
-            outline: "none",
-            transition: "border-color 0.15s",
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "var(--bd)";
-            e.currentTarget.style.background = "var(--s2)";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "transparent";
-            e.currentTarget.style.background = "transparent";
-          }}
+          className="text-[17px] font-semibold flex-1 min-w-0 px-1.5 py-0.5 rounded bg-transparent border border-transparent text-[var(--t)] outline-none transition-[border-color,background] duration-150 focus:border-[var(--bd)] focus:bg-[var(--s2)]"
         />
         <button
           onClick={handleSave}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms]"
-          style={{ background: "var(--acc)", color: "#09090c" }}
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-[var(--acc)] text-[#09090c]"
         >
           {isNew ? "作成" : "保存"}
         </button>
       </div>
 
       {/* Toolbar */}
-      <Toolbar.Root
-        className="flex items-center gap-1.5 px-[18px] py-1.5 flex-shrink-0 border-b flex-wrap min-h-[42px]"
-        style={{ background: "var(--s1)", borderColor: "var(--bd)" }}
-      >
-        <span
-          className="text-[10px] uppercase mr-0.5"
-          style={{ color: "var(--tm)", letterSpacing: "0.05em" }}
-        >
+      <Toolbar.Root className="flex items-center gap-1.5 px-[18px] py-1.5 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)] flex-wrap min-h-[42px]">
+        <span className="text-[10px] uppercase mr-0.5 text-[var(--tm)] tracking-[0.05em]">
           追加
         </span>
         <GhostBtn sm onClick={addBlank}>＋ 空の小節</GhostBtn>
         <GhostBtn sm onClick={addDupe}>
           {sel.length ? "⊕ 選択を複製" : "⊕ 末尾を複製"}
         </GhostBtn>
-        <Toolbar.Separator className="w-px h-[18px] flex-shrink-0" style={{ background: "var(--bd)" }} />
+        <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--bd)]" />
 
-        <span
-          className="text-[10px] uppercase mr-0.5"
-          style={{ color: "var(--tm)", letterSpacing: "0.05em" }}
-        >
+        <span className="text-[10px] uppercase mr-0.5 text-[var(--tm)] tracking-[0.05em]">
           選択操作
         </span>
 
         {sel.length === 0 ? (
-          <span className="text-[11px] flex items-center gap-1 px-1" style={{ color: "var(--tm)" }}>
-            <span style={{ opacity: 0.6 }}>↓</span> 下のM番号をクリックして小節を選択
+          <span className="text-[11px] flex items-center gap-1 px-1 text-[var(--tm)]">
+            <span className="opacity-60">↓</span> 下のM番号をクリックして小節を選択
           </span>
         ) : (
           <>
-            <span
-              className="text-[11px] font-semibold px-2 py-0.5 rounded"
-              style={{
-                color: "var(--acc)",
-                background: "var(--acc-d)",
-                border: "1px solid rgba(245,200,66,.25)",
-              }}
-            >
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded text-[var(--acc)] bg-[var(--acc-d)] border border-[rgba(245,200,66,.25)]">
               M{selSorted.map((i) => i + 1).join(", ")} 選択中
             </span>
             <GhostBtn sm onClick={copyMeas}>📋 コピー</GhostBtn>
@@ -192,7 +154,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
 
         {clip && sel.length === 0 && (
           <>
-            <Toolbar.Separator className="w-px h-[18px] flex-shrink-0" style={{ background: "var(--bd)" }} />
+            <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--bd)]" />
             <GhostBtn sm onClick={pasteMeas}>
               📌 貼り付け ({clip.length})
             </GhostBtn>

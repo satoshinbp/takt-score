@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import * as Toolbar from "@radix-ui/react-toolbar";
-import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { SUBDIVISIONS, type Score } from "@/lib/constants";
 import { usePlayback } from "@/hooks/usePlayback";
 import { DrumGrid } from "./DrumGrid";
@@ -29,15 +28,9 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
   }, [pb.currentMeasure]);
 
   return (
-    <div
-      className="page-fade flex flex-col h-full overflow-hidden"
-      style={{ background: "var(--bg)" }}
-    >
+    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--bg)]">
       {/* Top bar */}
-      <Toolbar.Root
-        className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b"
-        style={{ background: "var(--s1)", borderColor: "var(--bd)" }}
-      >
+      <Toolbar.Root className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)]">
         <Toolbar.Button
           onClick={() => { pb.stop(); onBack(); }}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--bd)] text-[var(--td)] hover:bg-[var(--s2)] hover:text-[var(--t)]"
@@ -47,13 +40,11 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
         <div className="text-[17px] font-semibold flex-1 min-w-0 truncate px-1.5">
           {score.title}
         </div>
-        {/* View / Edit toggle */}
         <Toolbar.ToggleGroup
           type="single"
           value="view"
           onValueChange={(v) => { if (v === "edit") { pb.stop(); onEdit(); } }}
-          className="flex overflow-hidden rounded"
-          style={{ border: "1px solid var(--bd)" }}
+          className="flex overflow-hidden rounded border border-[var(--bd)]"
         >
           <Toolbar.ToggleItem
             value="view"
@@ -70,25 +61,16 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
         </Toolbar.ToggleGroup>
       </Toolbar.Root>
 
-      {/* Performance bar (visible while playing) */}
+      {/* Performance bar */}
       {pb.isPlaying && (
-        <div
-          className="flex items-baseline gap-3 px-[18px] py-2 flex-shrink-0 border-b"
-          style={{ background: "var(--s2)", borderColor: "var(--bd)" }}
-        >
-          <span
-            className="text-[20px] font-bold"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace", color: "var(--acc)" }}
-          >
+        <div className="flex items-baseline gap-3 px-[18px] py-2 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s2)]">
+          <span className="text-[20px] font-bold font-mono text-[var(--acc)]">
             M{pb.currentMeasure + 1}
           </span>
-          <span
-            className="text-[13px]"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace", color: "var(--td)" }}
-          >
+          <span className="text-[13px] font-mono text-[var(--td)]">
             Beat {pb.currentBeat + 1}
           </span>
-          <span className="text-[11px] ml-auto" style={{ color: "var(--tm)" }}>
+          <span className="text-[11px] ml-auto text-[var(--tm)]">
             {score.measures.length}小節
           </span>
         </div>

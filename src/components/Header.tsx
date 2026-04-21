@@ -11,18 +11,11 @@ type Props = {
 export function Header({ breadcrumb, actions }: Props) {
   return (
     <Toolbar.Root asChild>
-      <header
-        className="flex items-center gap-3 px-5 flex-shrink-0 border-b z-[100]"
-        style={{ height: 50, background: "var(--s1)", borderColor: "var(--bd)" }}
-      >
+      <header className="flex items-center gap-3 px-5 h-[50px] flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)] z-[100]">
         <Toolbar.Button asChild>
           <Link
             href="/"
-            className="flex items-center gap-1.5 text-[15px] font-bold tracking-[0.06em] flex-shrink-0"
-            style={{
-              color: "var(--acc)",
-              fontFamily: "var(--font-space-grotesk), sans-serif",
-            }}
+            className="flex items-center gap-1.5 text-[15px] font-bold tracking-[0.06em] flex-shrink-0 font-sans text-[var(--acc)]"
           >
             <span className="text-lg">🥁</span>
             <span>DRUM MASTER</span>
@@ -30,10 +23,7 @@ export function Header({ breadcrumb, actions }: Props) {
         </Toolbar.Button>
 
         {breadcrumb && (
-          <span
-            className="text-[11px] uppercase tracking-[0.06em]"
-            style={{ color: "var(--tm)" }}
-          >
+          <span className="text-[11px] uppercase tracking-[0.06em] text-[var(--tm)]">
             {breadcrumb}
           </span>
         )}
