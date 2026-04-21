@@ -23,6 +23,8 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
   const [clip, setClip] = useState<ReturnType<typeof cloneMeasure>[] | null>(null);
   const pb = usePlayback(draft);
 
+  const areaRef = useRef<HTMLDivElement>(null);
+
   const prevBpm = useRef(pb.bpm);
   useEffect(() => {
     if (pb.bpm !== prevBpm.current) {
@@ -30,6 +32,17 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
       prevBpm.current = pb.bpm;
     }
   }, [pb.bpm]);
+
+  useEffect(() => {
+    if (pb.currentMeasure < 0 || !areaRef.current) return;
+    const container = areaRef.current;
+    const el = container.querySelector(`[data-measure="${pb.currentMeasure}"]`) as HTMLElement;
+    if (!el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const scrollTop = container.scrollTop + elRect.top - containerRect.top - (container.clientHeight - el.clientHeight) / 2;
+    container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
+  }, [pb.currentMeasure]);
 
   const handleToggle = useCallback((mi: number, partIdx: number, si: number) => {
     const partId = PARTS[partIdx].id;
@@ -163,7 +176,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
       </Toolbar.Root>
 
       {/* Grid */}
-      <div className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5">
+      <div ref={areaRef} className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5">
         <DrumGrid
           measures={draft.measures}
           currentStep={pb.currentStep}
