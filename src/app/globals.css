@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --bg: #09090c;
+  --s1: #101014;
+  --s2: #17171d;
+  --s3: #1e1e26;
+  --bd: #252530;
+  --bd2: #33333f;
+  --t: #dddde8;
+  --tm: #52526a;
+  --td: #888898;
+  --acc: #f5c842;
+  --acc-d: rgba(245, 200, 66, 0.12);
+  --danger: #ff4466;
+  --r: 6px;
+  --rl: 10px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#__next {
+  height: 100%;
+  background: var(--bg);
+  color: var(--t);
+  font-size: 14px;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--s1);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bd2);
+  border-radius: 3px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+  opacity: 0.5;
+}
+
+/* page fade */
+.page-fade {
+  animation: fadeUp 0.18s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Step cells */
+.step-cell {
+  border-radius: 3px;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  transition:
+    background 0.07s,
+    box-shadow 0.07s;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.step-cell:hover {
+  border-color: var(--bd2);
+  background: var(--s3);
+}
+
+.step-cell.beat {
+  background: var(--s3);
+  border-color: var(--bd2);
+}
+
+.step-cell.active {
+  border-color: transparent;
+}
+
+.step-cell.cur {
+  background: rgba(245, 200, 66, 0.12) !important;
+  border-color: rgba(245, 200, 66, 0.3) !important;
+}
+
+.step-cell.cur.active {
+  border-color: transparent !important;
+}
