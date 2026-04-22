@@ -65,7 +65,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     ref.scheduled = ref.scheduled.filter((e) => e.time > now - 0.05);
     let disp = -1;
     for (const e of ref.scheduled) if (e.time <= now + 0.01) disp = e.step;
-    setCurrentStep(disp);
+    if (disp >= 0) setCurrentStep(disp);
     ref.raf = requestAnimationFrame(rafLoop);
   }, []);
 
