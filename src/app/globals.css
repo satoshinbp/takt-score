@@ -110,7 +110,7 @@
 }
 
 .step-cell.cur {
-  background: rgba(245, 200, 66, 0.12) !important;
+  background: rgba(245, 200, 66, 0.12);
   border-color: rgba(245, 200, 66, 0.3) !important;
 }
 

@@ -20,11 +20,17 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
   useEffect(() => {
     if (pb.currentMeasure < 0 || !areaRef.current) return;
     const container = areaRef.current;
-    const el = container.querySelector(`[data-measure="${pb.currentMeasure}"]`) as HTMLElement;
+    const el = container.querySelector(
+      `[data-measure="${pb.currentMeasure}"]`,
+    ) as HTMLElement;
     if (!el) return;
     const containerRect = container.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
-    const scrollTop = container.scrollTop + elRect.top - containerRect.top - (container.clientHeight - el.clientHeight) / 2;
+    const scrollTop =
+      container.scrollTop +
+      elRect.top -
+      containerRect.top -
+      (container.clientHeight - el.clientHeight) / 2;
     container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
   }, [pb.currentMeasure]);
 
@@ -33,7 +39,10 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
       {/* Top bar */}
       <Toolbar.Root className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)]">
         <Toolbar.Button
-          onClick={() => { pb.stop(); onBack(); }}
+          onClick={() => {
+            pb.stop();
+            onBack();
+          }}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--bd)] text-[var(--td)] hover:bg-[var(--s2)] hover:text-[var(--t)]"
         >
           ← 戻る
@@ -44,7 +53,12 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
         <Toolbar.ToggleGroup
           type="single"
           value="view"
-          onValueChange={(v) => { if (v === "edit") { pb.stop(); onEdit(); } }}
+          onValueChange={(v) => {
+            if (v === "edit") {
+              pb.stop();
+              onEdit();
+            }
+          }}
           className="flex overflow-hidden rounded border border-[var(--bd)]"
         >
           <Toolbar.ToggleItem
@@ -77,9 +91,11 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
         </div>
       )}
 
-      {/* Grid */}
-      <div ref={areaRef} className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5">
-        <DrumGrid measures={score.measures} currentStep={pb.currentStep} mode="view" />
+      <div
+        ref={areaRef}
+        className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5"
+      >
+        <DrumGrid measures={score.measures} currentStep={pb.currentStep} />
       </div>
 
       <Transport
