@@ -104,12 +104,12 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
   const selSorted = [...sel].sort((a, b) => a - b);
 
   return (
-    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--bg)]">
+    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--background)]">
       {/* Top bar */}
-      <div className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)]">
+      <div className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)]">
         <button
           onClick={() => { pb.stop(); onBack(); }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--bd)] text-[var(--td)] hover:bg-[var(--s2)] hover:text-[var(--t)]"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--border)] text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
         >
           ← 戻る
         </button>
@@ -117,38 +117,38 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
           value={draft.title}
           onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
           placeholder="タイトル..."
-          className="text-[17px] font-semibold flex-1 min-w-0 px-1.5 py-0.5 rounded bg-transparent border border-transparent text-[var(--t)] outline-none transition-[border-color,background] duration-150 focus:border-[var(--bd)] focus:bg-[var(--s2)]"
+          className="text-[17px] font-semibold flex-1 min-w-0 px-1.5 py-0.5 rounded bg-transparent border border-transparent text-[var(--text)] outline-none transition-[border-color,background] duration-150 focus:border-[var(--border)] focus:bg-[var(--surface-2)]"
         />
         <button
           onClick={handleSave}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-[var(--acc)] text-[#09090c]"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-[var(--accent)] text-[#09090c]"
         >
           {isNew ? "作成" : "保存"}
         </button>
       </div>
 
       {/* Toolbar */}
-      <Toolbar.Root className="flex items-center gap-1.5 px-[18px] py-1.5 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)] flex-wrap min-h-[42px]">
-        <span className="text-[10px] uppercase mr-0.5 text-[var(--tm)] tracking-[0.05em]">
+      <Toolbar.Root className="flex items-center gap-1.5 px-[18px] py-1.5 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)] flex-wrap min-h-[42px]">
+        <span className="text-[10px] uppercase mr-0.5 text-[var(--text-muted)] tracking-[0.05em]">
           追加
         </span>
         <GhostBtn sm onClick={addBlank}>＋ 空の小節</GhostBtn>
         <GhostBtn sm onClick={addDupe}>
           {sel.length ? "⊕ 選択を複製" : "⊕ 末尾を複製"}
         </GhostBtn>
-        <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--bd)]" />
+        <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--border)]" />
 
-        <span className="text-[10px] uppercase mr-0.5 text-[var(--tm)] tracking-[0.05em]">
+        <span className="text-[10px] uppercase mr-0.5 text-[var(--text-muted)] tracking-[0.05em]">
           選択操作
         </span>
 
         {sel.length === 0 ? (
-          <span className="text-[11px] flex items-center gap-1 px-1 text-[var(--tm)]">
+          <span className="text-[11px] flex items-center gap-1 px-1 text-[var(--text-muted)]">
             <span className="opacity-60">↓</span> 下のM番号をクリックして小節を選択
           </span>
         ) : (
           <>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded text-[var(--acc)] bg-[var(--acc-d)] border border-[rgba(245,200,66,.25)]">
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded text-[var(--accent)] bg-[var(--accent-subtle)] border border-[rgba(245,200,66,.25)]">
               M{selSorted.map((i) => i + 1).join(", ")} 選択中
             </span>
             <GhostBtn sm onClick={copyMeas}>📋 コピー</GhostBtn>
@@ -167,7 +167,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
 
         {clip && sel.length === 0 && (
           <>
-            <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--bd)]" />
+            <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--border)]" />
             <GhostBtn sm onClick={pasteMeas}>
               📌 貼り付け ({clip.length})
             </GhostBtn>
@@ -215,7 +215,7 @@ const GhostBtn = ({
   <Toolbar.Button
     onClick={onClick}
     disabled={disabled}
-    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-35 disabled:pointer-events-none bg-transparent border border-[var(--bd)] text-[var(--td)] hover:bg-[var(--s2)] hover:text-[var(--t)] hover:border-[var(--bd2)]"
+    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-35 disabled:pointer-events-none bg-transparent border border-[var(--border)] text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)] hover:border-[var(--border-strong)]"
     style={{ padding: sm ? "4px 10px" : "5px 13px", fontSize: sm ? 11 : 12 }}
   >
     {children}

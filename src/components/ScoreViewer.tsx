@@ -35,15 +35,15 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
   }, [pb.currentMeasure]);
 
   return (
-    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--bg)]">
+    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--background)]">
       {/* Top bar */}
-      <Toolbar.Root className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s1)]">
+      <Toolbar.Root className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)]">
         <Toolbar.Button
           onClick={() => {
             pb.stop();
             onBack();
           }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--bd)] text-[var(--td)] hover:bg-[var(--s2)] hover:text-[var(--t)]"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--border)] text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
         >
           ← 戻る
         </Toolbar.Button>
@@ -59,17 +59,17 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
               onEdit();
             }
           }}
-          className="flex overflow-hidden rounded border border-[var(--bd)]"
+          className="flex overflow-hidden rounded border border-[var(--border)]"
         >
           <Toolbar.ToggleItem
             value="view"
-            className="px-3 py-1 text-[11px] font-semibold tracking-[0.04em] transition-all duration-[120ms] data-[state=on]:bg-[var(--s2)] data-[state=on]:text-[var(--t)] data-[state=off]:bg-transparent data-[state=off]:text-[var(--tm)]"
+            className="px-3 py-1 text-[11px] font-semibold tracking-[0.04em] transition-all duration-[120ms] data-[state=on]:bg-[var(--surface-2)] data-[state=on]:text-[var(--text)] data-[state=off]:bg-transparent data-[state=off]:text-[var(--text-muted)]"
           >
             ビュー
           </Toolbar.ToggleItem>
           <Toolbar.ToggleItem
             value="edit"
-            className="px-3 py-1 text-[11px] font-semibold tracking-[0.04em] transition-all duration-[120ms] data-[state=on]:bg-[var(--s2)] data-[state=on]:text-[var(--t)] data-[state=off]:bg-transparent data-[state=off]:text-[var(--tm)] hover:text-[var(--t)]"
+            className="px-3 py-1 text-[11px] font-semibold tracking-[0.04em] transition-all duration-[120ms] data-[state=on]:bg-[var(--surface-2)] data-[state=on]:text-[var(--text)] data-[state=off]:bg-transparent data-[state=off]:text-[var(--text-muted)] hover:text-[var(--text)]"
           >
             編集
           </Toolbar.ToggleItem>
@@ -78,14 +78,14 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
 
       {/* Performance bar */}
       {pb.isPlaying && (
-        <div className="flex items-baseline gap-3 px-[18px] py-2 flex-shrink-0 border-b border-[var(--bd)] bg-[var(--s2)]">
-          <span className="text-[20px] font-bold font-mono text-[var(--acc)]">
+        <div className="flex items-baseline gap-3 px-[18px] py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-2)]">
+          <span className="text-[20px] font-bold font-mono text-[var(--accent)]">
             M{pb.currentMeasure + 1}
           </span>
-          <span className="text-[13px] font-mono text-[var(--td)]">
+          <span className="text-[13px] font-mono text-[var(--text-dim)]">
             Beat {pb.currentBeat + 1}
           </span>
-          <span className="text-[11px] ml-auto text-[var(--tm)]">
+          <span className="text-[11px] ml-auto text-[var(--text-muted)]">
             {score.measures.length}小節
           </span>
         </div>

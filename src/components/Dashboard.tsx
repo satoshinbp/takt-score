@@ -15,7 +15,7 @@ type Props = {
 
 export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
   return (
-    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-(--bg)">
+    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-(--background)">
       <div className="flex-1 overflow-y-auto space-y-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
         <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
@@ -45,7 +45,7 @@ function DashboardHeader({
     <div className="flex justify-between items-end">
       <div>
         <div className="text-2xl font-bold tracking-tight">My Scores</div>
-        <div className="text-sm text-(--tm)">{count}件</div>
+        <div className="text-sm text-(--text-muted)">{count}件</div>
       </div>
       <Button onClick={onCreate}>
         <Plus size={16} />
@@ -69,8 +69,8 @@ function ScoreCard({
       onClick={() => onSelect(score)}
       className={cn(
         "rounded-md p-4 cursor-pointer transition-all",
-        "relative overflow-hidden bg-(--s1) border border-(--bd)",
-        "hover:border-(--bd2) hover:bg-(--s2) hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
+        "relative overflow-hidden bg-(--surface-1) border border-(--border)",
+        "hover:border-(--border-strong) hover:bg-(--surface-2) hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
       )}
     >
       <ScorePreview measures={score.measures} />
@@ -79,7 +79,7 @@ function ScoreCard({
         <span
           className={cn(
             "text-xs font-semibold px-1.5 py-0.5 rounded-full",
-            "bg-(--s2) text-(--tm) tracking-[0.03em]",
+            "bg-(--surface-2) text-(--text-muted) tracking-[0.03em]",
           )}
         >
           {score.bpm} BPM
@@ -87,7 +87,7 @@ function ScoreCard({
         <span
           className={cn(
             "text-xs font-semibold px-1.5 py-0.5 rounded-full",
-            "bg-(--s2) text-(--tm) tracking-[0.03em]",
+            "bg-(--surface-2) text-(--text-muted) tracking-[0.03em]",
           )}
         >
           {score.measures.length}小節
@@ -116,8 +116,8 @@ function NewScoreCard({ onClick }: { onClick: () => void }) {
       className={cn(
         "rounded-md p-4 cursor-pointer transition-all",
         "flex flex-col items-center justify-center gap-2 min-h-[130px]",
-        "border border-dashed border-(--bd) text-(--tm)",
-        "hover:text-(--t) hover:border-(--acc) hover:bg-(--acc-d)",
+        "border border-dashed border-(--border) text-(--text-muted)",
+        "hover:text-(--text) hover:border-(--accent) hover:bg-(--accent-subtle) hover:-translate-y-px",
       )}
     >
       <Plus />

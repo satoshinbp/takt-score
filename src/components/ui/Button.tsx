@@ -7,10 +7,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        solid: "bg-(--acc) text-[#09090c] hover:opacity-75 active:opacity-50",
-        ghost: "text-(--tm) hover:text-(--t) hover:bg-(--s2)",
+        solid: "bg-(--accent) text-[#09090c] hover:opacity-75 active:opacity-50",
+        ghost: "text-(--text-muted) hover:text-(--text) hover:bg-(--surface-2)",
         outline:
-          "border border-(--bd) text-(--t) hover:border-(--bd2) hover:bg-(--s2)",
+          "border border-(--border) text-(--text) hover:border-(--border-strong) hover:bg-(--surface-2)",
       },
       size: {
         sm: "px-3 py-1.5 text-xs",

@@ -26,7 +26,7 @@ export default function Page() {
 
   return (
     <div
-      className="flex flex-col overflow-hidden h-screen bg-[var(--bg)] text-[var(--t)]"
+      className="flex flex-col overflow-hidden h-screen bg-[var(--background)] text-[var(--text)]"
     >
       <Header />
       <Dashboard

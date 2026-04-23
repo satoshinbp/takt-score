@@ -7,20 +7,20 @@
 }
 
 :root {
-  --bg: #09090c;
-  --s1: #101014;
-  --s2: #17171d;
-  --s3: #1e1e26;
-  --bd: #252530;
-  --bd2: #33333f;
-  --t: #dddde8;
-  --tm: #52526a;
-  --td: #888898;
-  --acc: #f5c842;
-  --acc-d: rgba(245, 200, 66, 0.12);
+  --background: #09090c;
+  --surface-1: #101014;
+  --surface-2: #17171d;
+  --surface-3: #1e1e26;
+  --border: #252530;
+  --border-strong: #33333f;
+  --text: #dddde8;
+  --text-muted: #52526a;
+  --text-dim: #888898;
+  --accent: #f5c842;
+  --accent-subtle: rgba(245, 200, 66, 0.12);
   --danger: #ff4466;
-  --r: 6px;
-  --rl: 10px;
+  --radius: 6px;
+  --radius-lg: 10px;
 }
 
 @layer base {
@@ -36,8 +36,8 @@
   body,
   #__next {
     height: 100%;
-    background: var(--bg);
-    color: var(--t);
+    background: var(--background);
+    color: var(--text);
     font-size: 14px;
     overflow: hidden;
   }
@@ -47,10 +47,10 @@
     height: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--s1);
+    background: var(--surface-1);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--bd2);
+    background: var(--border-strong);
     border-radius: 3px;
   }
 
@@ -86,8 +86,8 @@
 /* Step cells */
 .step-cell {
   border-radius: 3px;
-  background: var(--s2);
-  border: 1px solid var(--bd);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   transition:
     background 0.07s,
     box-shadow 0.07s;
@@ -96,13 +96,13 @@
 }
 
 .step-cell:hover {
-  border-color: var(--bd2);
-  background: var(--s3);
+  border-color: var(--border-strong);
+  background: var(--surface-3);
 }
 
 .step-cell.beat {
-  background: var(--s3);
-  border-color: var(--bd2);
+  background: var(--surface-3);
+  border-color: var(--border-strong);
 }
 
 .step-cell.active {

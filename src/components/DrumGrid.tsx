@@ -58,13 +58,13 @@ export function DrumGrid({
             <div className="flex items-center mb-1.5">
               <div
                 onClick={() => onSelMeasure?.(mi)}
-                className={`w-[62px] min-w-[62px] shrink-0 cursor-pointer font-mono font-bold text-[10px] pr-2.5 text-right border-b-2 transition-all duration-[120ms] ${isSel || isCur ? "text-[var(--acc)]" : "text-[var(--tm)]"} ${isSel ? "border-[var(--acc)]" : "border-transparent"}`}
+                className={`w-[62px] min-w-[62px] shrink-0 cursor-pointer font-mono font-bold text-[10px] pr-2.5 text-right border-b-2 transition-all duration-[120ms] ${isSel || isCur ? "text-[var(--accent)]" : "text-[var(--text-muted)]"} ${isSel ? "border-[var(--accent)]" : "border-transparent"}`}
               >
                 M{mi + 1}
               </div>
               {[1, 2, 3, 4].map((b) => (
                 <span key={b} className="flex">
-                  <span className="w-6 mx-px flex items-center justify-center font-mono text-[9px] text-[var(--tm)] shrink-0">
+                  <span className="w-6 mx-px flex items-center justify-center font-mono text-[9px] text-[var(--text-muted)] shrink-0">
                     {b}
                   </span>
                   {[0, 1, 2].map((sub) => (

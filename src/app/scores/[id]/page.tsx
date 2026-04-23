@@ -34,9 +34,9 @@ export default function ScoreDetailPage() {
 
   if (!score) {
     return (
-      <div className="flex flex-col overflow-hidden h-screen bg-[var(--bg)] text-[var(--t)]">
+      <div className="flex flex-col overflow-hidden h-screen bg-[var(--background)] text-[var(--text)]">
         <Header />
-        <div className="flex-1 flex items-center justify-center text-sm text-[var(--tm)]">
+        <div className="flex-1 flex items-center justify-center text-sm text-[var(--text-muted)]">
           スコアが見つかりません
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function ScoreDetailPage() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden h-screen bg-[var(--bg)] text-[var(--t)]">
+    <div className="flex flex-col overflow-hidden h-screen bg-[var(--background)] text-[var(--text)]">
       <Header
         breadcrumb={score.title}
         actions={
