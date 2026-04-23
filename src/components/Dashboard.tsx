@@ -15,16 +15,16 @@ type Props = {
 
 export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
   return (
-    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-[var(--bg)]">
+    <div
+      className={cn(
+        "page-fade flex flex-col flex-1 p-4",
+        "overflow-hidden bg-(--bg)",
+      )}
+    >
       <div className="flex-1 overflow-y-auto space-y-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
 
-        <div
-          className="grid gap-2"
-          style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          }}
-        >
+        <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
           {scores.map((s) => (
             <ScoreCard
               key={s.id}
@@ -52,41 +52,48 @@ function DashboardHeader({
     <div className="flex justify-between items-end">
       <div>
         <div className="text-2xl font-bold tracking-[-0.02em]">My Scores</div>
-        <div className="text-sm mt-0.5 text-[var(--tm)]">{count}件</div>
+        <div className="text-sm mt-0.5 text-(--tm)">{count}件</div>
       </div>
       <Button
         onClick={onCreate}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all duration-[120ms] bg-[var(--acc)] text-[#09090c]"
+        className={cn(
+          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded",
+          "text-xs font-semibold transition-all duration-[120ms]",
+          "bg-(--acc) text-[#09090c]",
+        )}
       >
-        ＋ 新規作成
+        <Plus size={16} />
+        新規ドラム譜
       </Button>
     </div>
   );
 }
 
-type ScoreCardProps = {
+function ScoreCard({
+  score: s,
+  onSelect,
+  onCopy,
+}: {
   score: Score;
   onSelect: (s: Score) => void;
   onCopy: (s: Score) => void;
-};
-
-function ScoreCard({ score: s, onSelect, onCopy }: ScoreCardProps) {
+}) {
   return (
     <div
       onClick={() => onSelect(s)}
       className={cn(
         "rounded-md p-4 cursor-pointer transition-all",
-        "relative overflow-hidden bg-[var(--s1)] border border-[var(--bd)]",
-        "hover:border-[var(--bd2)] hover:bg-[var(--s2)] hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
+        "relative overflow-hidden bg-(--s1) border border-(--bd)",
+        "hover:border-(--bd2) hover:bg-(--s2) hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
       )}
     >
       <ScorePreview measures={s.measures} />
       <div className="text-base font-semibold truncate">{s.title}</div>
       <div className="flex items-center gap-1.5 mt-2">
-        <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-[var(--s2)] text-[var(--tm)] tracking-[0.03em]">
+        <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-(--s2) text-(--tm) tracking-[0.03em]">
           {s.bpm} BPM
         </span>
-        <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-[var(--s2)] text-[var(--tm)] tracking-[0.03em]">
+        <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-(--s2) text-(--tm) tracking-[0.03em]">
           {s.measures.length}小節
         </span>
         <button
@@ -95,7 +102,7 @@ function ScoreCard({ score: s, onSelect, onCopy }: ScoreCardProps) {
             onCopy(s);
           }}
           title="複製"
-          className="ml-auto p-1 rounded text-[var(--tm)] hover:text-[var(--t)] hover:bg-[var(--s3)] transition-colors duration-[120ms]"
+          className="ml-auto p-1 rounded text-(--tm) hover:text-(--t) hover:bg-(--s3) transition-colors duration-[120ms]"
         >
           <svg
             width="13"
@@ -123,8 +130,8 @@ function NewScoreCard({ onClick }: { onClick: () => void }) {
       className={cn(
         "rounded-md p-4 cursor-pointer transition-all",
         "flex flex-col items-center justify-center gap-2 min-h-[130px]",
-        "border border-dashed border-[var(--bd)] text-[var(--tm)]",
-        "hover:text-[var(--t)] hover:border-[var(--acc)] hover:bg-[var(--acc-d)]",
+        "border border-dashed border-(--bd) text-(--tm)",
+        "hover:text-(--t) hover:border-(--acc) hover:bg-(--acc-d)",
       )}
     >
       <Plus />
