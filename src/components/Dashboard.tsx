@@ -15,28 +15,12 @@ type Props = {
 
 export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
   return (
-    <div className="page-fade flex flex-col flex-1 overflow-hidden bg-[var(--bg)]">
-      <div className="flex-1 overflow-y-auto">
-        {/* Header */}
-        <div className="flex justify-between items-end px-6 pt-9 pb-5">
-          <div>
-            <div className="text-2xl font-bold tracking-[-0.02em]">
-              My Scores
-            </div>
-            <div className="text-sm mt-0.5 text-[var(--tm)]">
-              {scores.length}件
-            </div>
-          </div>
-          <Button
-            onClick={onCreate}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all duration-[120ms] bg-[var(--acc)] text-[#09090c]"
-          >
-            ＋ 新規作成
-          </Button>
-        </div>
+    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-[var(--bg)]">
+      <div className="flex-1 overflow-y-auto space-y-4">
+        <DashboardHeader count={scores.length} onCreate={onCreate} />
 
         <div
-          className="grid gap-2.5 px-6 pb-10"
+          className="grid gap-2"
           style={{
             gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
           }}
@@ -53,6 +37,29 @@ export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
           <NewScoreCard onClick={onCreate} />
         </div>
       </div>
+    </div>
+  );
+}
+
+function DashboardHeader({
+  count,
+  onCreate,
+}: {
+  count: number;
+  onCreate: () => void;
+}) {
+  return (
+    <div className="flex justify-between items-end">
+      <div>
+        <div className="text-2xl font-bold tracking-[-0.02em]">My Scores</div>
+        <div className="text-sm mt-0.5 text-[var(--tm)]">{count}件</div>
+      </div>
+      <Button
+        onClick={onCreate}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all duration-[120ms] bg-[var(--acc)] text-[#09090c]"
+      >
+        ＋ 新規作成
+      </Button>
     </div>
   );
 }
