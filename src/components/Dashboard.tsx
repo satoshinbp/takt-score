@@ -1,6 +1,7 @@
 "use client";
 
 import type { Score } from "@/lib/constants";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Copy, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -76,22 +77,8 @@ function ScoreCard({
       <ScorePreview measures={score.measures} />
       <div className="text-base font-semibold truncate">{score.title}</div>
       <div className="flex items-center gap-1.5 mt-2">
-        <span
-          className={cn(
-            "text-xs font-semibold px-1.5 py-0.5 rounded-full",
-            "bg-(--surface-2) text-(--text-muted) tracking-[0.03em]",
-          )}
-        >
-          {score.bpm} BPM
-        </span>
-        <span
-          className={cn(
-            "text-xs font-semibold px-1.5 py-0.5 rounded-full",
-            "bg-(--surface-2) text-(--text-muted) tracking-[0.03em]",
-          )}
-        >
-          {score.measures.length}小節
-        </span>
+        <Badge>{score.bpm} BPM</Badge>
+        <Badge>{score.measures.length}小節</Badge>
         <Button
           variant="ghost"
           size="icon"
