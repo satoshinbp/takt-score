@@ -2,7 +2,7 @@
 
 import type { Score } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
-import { Plus } from "lucide-react";
+import { Copy, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScorePreview } from "./ScorePreview";
 
@@ -104,31 +104,18 @@ function ScoreCard({
         >
           {score.measures.length}小節
         </span>
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={(e) => {
             e.stopPropagation();
             onCopy(score);
           }}
           title="複製"
-          className={cn(
-            "ml-auto p-1 rounded text-(--tm)",
-            "hover:text-(--t) hover:bg-(--s3) transition-colors",
-          )}
+          className="ml-auto"
         >
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="5" y="5" width="9" height="9" rx="1.5" />
-            <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2H3.5A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" />
-          </svg>
-        </button>
+          <Copy size={12} />
+        </Button>
       </div>
     </div>
   );
