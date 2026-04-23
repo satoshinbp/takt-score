@@ -1,7 +1,7 @@
 "use client";
 
 import type { Score } from "@/lib/constants";
-import { Button } from "@radix-ui/themes";
+import { Button } from "@/components/ui/Button";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScorePreview } from "./ScorePreview";
@@ -24,7 +24,12 @@ export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
       <div className="flex-1 overflow-y-auto space-y-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
 
-        <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+        <div
+          className={cn(
+            "grid gap-2",
+            "grid-cols-[repeat(auto-fill,minmax(250px,1fr))]",
+          )}
+        >
           {scores.map((s) => (
             <ScoreCard
               key={s.id}
@@ -54,14 +59,7 @@ function DashboardHeader({
         <div className="text-2xl font-bold tracking-[-0.02em]">My Scores</div>
         <div className="text-sm mt-0.5 text-(--tm)">{count}件</div>
       </div>
-      <Button
-        onClick={onCreate}
-        className={cn(
-          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded",
-          "text-xs font-semibold transition-all duration-[120ms]",
-          "bg-(--acc) text-[#09090c]",
-        )}
-      >
+      <Button onClick={onCreate}>
         <Plus size={16} />
         新規ドラム譜
       </Button>
@@ -70,7 +68,7 @@ function DashboardHeader({
 }
 
 function ScoreCard({
-  score: s,
+  score,
   onSelect,
   onCopy,
 }: {
@@ -80,29 +78,42 @@ function ScoreCard({
 }) {
   return (
     <div
-      onClick={() => onSelect(s)}
+      onClick={() => onSelect(score)}
       className={cn(
         "rounded-md p-4 cursor-pointer transition-all",
         "relative overflow-hidden bg-(--s1) border border-(--bd)",
         "hover:border-(--bd2) hover:bg-(--s2) hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
       )}
     >
-      <ScorePreview measures={s.measures} />
-      <div className="text-base font-semibold truncate">{s.title}</div>
+      <ScorePreview measures={score.measures} />
+      <div className="text-base font-semibold truncate">{score.title}</div>
       <div className="flex items-center gap-1.5 mt-2">
-        <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-(--s2) text-(--tm) tracking-[0.03em]">
-          {s.bpm} BPM
+        <span
+          className={cn(
+            "text-xs font-semibold px-1.5 py-0.5 rounded-full",
+            "bg-(--s2) text-(--tm) tracking-[0.03em]",
+          )}
+        >
+          {score.bpm} BPM
         </span>
-        <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-(--s2) text-(--tm) tracking-[0.03em]">
-          {s.measures.length}小節
+        <span
+          className={cn(
+            "text-xs font-semibold px-1.5 py-0.5 rounded-full",
+            "bg-(--s2) text-(--tm) tracking-[0.03em]",
+          )}
+        >
+          {score.measures.length}小節
         </span>
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onCopy(s);
+            onCopy(score);
           }}
           title="複製"
-          className="ml-auto p-1 rounded text-(--tm) hover:text-(--t) hover:bg-(--s3) transition-colors duration-[120ms]"
+          className={cn(
+            "ml-auto p-1 rounded text-(--tm)",
+            "hover:text-(--t) hover:bg-(--s3) transition-colors",
+          )}
         >
           <svg
             width="13"
