@@ -15,21 +15,10 @@ type Props = {
 
 export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
   return (
-    <div
-      className={cn(
-        "page-fade flex flex-col flex-1 p-4",
-        "overflow-hidden bg-(--bg)",
-      )}
-    >
+    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-(--bg)">
       <div className="flex-1 overflow-y-auto space-y-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
-
-        <div
-          className={cn(
-            "grid gap-2",
-            "grid-cols-[repeat(auto-fill,minmax(250px,1fr))]",
-          )}
-        >
+        <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
           {scores.map((s) => (
             <ScoreCard
               key={s.id}
@@ -38,7 +27,6 @@ export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
               onCopy={onCopy}
             />
           ))}
-
           <NewScoreCard onClick={onCreate} />
         </div>
       </div>
@@ -56,8 +44,8 @@ function DashboardHeader({
   return (
     <div className="flex justify-between items-end">
       <div>
-        <div className="text-2xl font-bold tracking-[-0.02em]">My Scores</div>
-        <div className="text-sm mt-0.5 text-(--tm)">{count}件</div>
+        <div className="text-2xl font-bold tracking-tight">My Scores</div>
+        <div className="text-sm text-(--tm)">{count}件</div>
       </div>
       <Button onClick={onCreate}>
         <Plus size={16} />
