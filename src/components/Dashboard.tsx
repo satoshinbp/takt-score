@@ -68,10 +68,18 @@ function ScoreCard({
   return (
     <div
       onClick={() => onSelect(score)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(score);
+        }
+      }}
       className={cn(
-        "rounded-md p-4 cursor-pointer transition-all",
-        "relative overflow-hidden bg-(--surface-1) border border-(--border)",
-        "hover:border-(--border-strong) hover:bg-(--surface-2) hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
+        "p-4 cursor-pointer transition-all",
+        "relative overflow-hidden bg-surface-1 border border-border",
+        "hover:border-strong hover:bg-surface-2 hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
       )}
     >
       <ScorePreview measures={score.measures} />
@@ -98,17 +106,16 @@ function ScoreCard({
 
 function NewScoreCard({ onClick }: { onClick: () => void }) {
   return (
-    <div
+    <button
       onClick={onClick}
       className={cn(
-        "rounded-md p-4 cursor-pointer transition-all",
-        "flex flex-col items-center justify-center gap-2 min-h-[130px]",
-        "border border-dashed border-(--border) text-(--text-muted)",
-        "hover:text-(--text) hover:border-(--accent) hover:bg-(--accent-subtle) hover:-translate-y-px",
+        "p-4 flex flex-col items-center justify-center gap-2 min-h-[130px] w-full",
+        "cursor-pointer transition-all border-border border-dashed text-muted",
+        "hover:text-(--text) hover:border-accent hover:bg-(--accent-subtle) hover:-translate-y-px",
       )}
     >
       <Plus />
       <div className="text-xs font-medium">新規ドラム譜</div>
-    </div>
+    </button>
   );
 }
