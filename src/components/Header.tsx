@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import * as Toolbar from "@radix-ui/react-toolbar";
+import { cn } from "@/lib/utils";
 
 type Props = {
   breadcrumb?: string;
@@ -11,19 +12,23 @@ type Props = {
 export function Header({ breadcrumb, actions }: Props) {
   return (
     <Toolbar.Root asChild>
-      <header className="flex items-center gap-3 px-5 h-[50px] flex-shrink-0 border-b border-[var(--border)] bg-accent-foreground z-[100]">
+      <header
+        className={cn(
+          "flex items-center gap-4 px-4 h-[50px] flex-shrink-0",
+          "border-b bg-accent-foreground z-[100]",
+        )}
+      >
         <Toolbar.Button asChild>
           <Link
             href="/"
-            className="flex items-center gap-1.5 text-[15px] font-bold tracking-[0.06em] flex-shrink-0 font-sans text-accent"
+            className="text-lg font-bold tracking-wider flex-shrink-0 font-sans text-accent"
           >
-            <span className="text-lg">🥁</span>
-            <span>DRUM MASTER</span>
+            🥁 DRUM MASTER
           </Link>
         </Toolbar.Button>
 
         {breadcrumb && (
-          <span className="text-[11px] uppercase tracking-[0.06em] text-muted">
+          <span className="text-xs uppercase tracking-wider text-muted">
             {breadcrumb}
           </span>
         )}

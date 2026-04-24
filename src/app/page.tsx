@@ -25,9 +25,7 @@ export default function Page() {
   if (!scores) return null;
 
   return (
-    <div
-      className="flex flex-col overflow-hidden h-screen bg-[var(--background)] text-[var(--text)]"
-    >
+    <div className="flex flex-col overflow-hidden h-screen">
       <Header />
       <Dashboard
         scores={scores}
