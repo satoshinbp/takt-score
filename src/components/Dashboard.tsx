@@ -46,7 +46,7 @@ function DashboardHeader({
     <div className="flex justify-between items-end">
       <div>
         <div className="text-2xl font-bold tracking-tight">My Scores</div>
-        <div className="text-sm text-(--text-muted)">{count}件</div>
+        <div className="text-sm text-muted">{count}件</div>
       </div>
       <Button onClick={onCreate}>
         <Plus size={16} />
@@ -111,7 +111,7 @@ function NewScoreCard({ onClick }: { onClick: () => void }) {
       className={cn(
         "p-4 flex flex-col items-center justify-center gap-2 min-h-[130px] w-full",
         "cursor-pointer transition-all border-border border-dashed text-muted",
-        "hover:text-(--text) hover:border-accent hover:bg-(--accent-subtle) hover:-translate-y-px",
+        "hover:text-text hover:border-accent hover:bg-(--accent-subtle) hover:-translate-y-px",
       )}
     >
       <Plus />

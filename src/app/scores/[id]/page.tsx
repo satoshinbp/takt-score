@@ -36,7 +36,7 @@ export default function ScoreDetailPage() {
     return (
       <div className="flex flex-col overflow-hidden h-screen bg-[var(--background)] text-[var(--text)]">
         <Header />
-        <div className="flex-1 flex items-center justify-center text-sm text-[var(--text-muted)]">
+        <div className="flex-1 flex items-center justify-center text-sm text-muted">
           スコアが見つかりません
         </div>
       </div>
@@ -50,7 +50,7 @@ export default function ScoreDetailPage() {
         actions={
           <button
             onClick={handleDelete}
-            className="text-[11px] px-2.5 py-1 rounded transition-all duration-[120ms] border border-transparent text-[var(--danger)] hover:bg-[rgba(255,68,102,.1)]"
+            className="text-[11px] px-2.5 py-1 rounded transition-all duration-[120ms] border border-transparent text-destructive hover:bg-[rgba(255,68,102,.1)]"
           >
             削除
           </button>

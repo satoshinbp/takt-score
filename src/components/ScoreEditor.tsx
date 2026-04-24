@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import * as Toolbar from "@radix-ui/react-toolbar";
-import { PARTS, cloneMeasure, emptyMeasure, type Score } from "@/lib/constants";
 import { usePlayback } from "@/hooks/usePlayback";
+import { PARTS, cloneMeasure, emptyMeasure, type Score } from "@/lib/constants";
+import * as Toolbar from "@radix-ui/react-toolbar";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DrumGrid } from "./DrumGrid";
 import { Transport } from "./Transport";
 
@@ -20,7 +20,9 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
     measures: score.measures.map(cloneMeasure),
   }));
   const [sel, setSel] = useState<number[]>([]);
-  const [clip, setClip] = useState<ReturnType<typeof cloneMeasure>[] | null>(null);
+  const [clip, setClip] = useState<ReturnType<typeof cloneMeasure>[] | null>(
+    null,
+  );
   const pb = usePlayback(draft);
 
   const areaRef = useRef<HTMLDivElement>(null);
@@ -36,22 +38,31 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
   useEffect(() => {
     if (pb.currentMeasure < 0 || !areaRef.current) return;
     const container = areaRef.current;
-    const el = container.querySelector(`[data-measure="${pb.currentMeasure}"]`) as HTMLElement;
+    const el = container.querySelector(
+      `[data-measure="${pb.currentMeasure}"]`,
+    ) as HTMLElement;
     if (!el) return;
     const containerRect = container.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
-    const scrollTop = container.scrollTop + elRect.top - containerRect.top - (container.clientHeight - el.clientHeight) / 2;
+    const scrollTop =
+      container.scrollTop +
+      elRect.top -
+      containerRect.top -
+      (container.clientHeight - el.clientHeight) / 2;
     container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
   }, [pb.currentMeasure]);
 
-  const handleToggle = useCallback((mi: number, partIdx: number, si: number) => {
-    const partId = PARTS[partIdx].id;
-    setDraft((d) => {
-      const ms = d.measures.map(cloneMeasure);
-      ms[mi][partId][si] = ms[mi][partId][si] ? 0 : 1;
-      return { ...d, measures: ms };
-    });
-  }, []);
+  const handleToggle = useCallback(
+    (mi: number, partIdx: number, si: number) => {
+      const partId = PARTS[partIdx].id;
+      setDraft((d) => {
+        const ms = d.measures.map(cloneMeasure);
+        ms[mi][partId][si] = ms[mi][partId][si] ? 0 : 1;
+        return { ...d, measures: ms };
+      });
+    },
+    [],
+  );
 
   const toggleSel = (mi: number) =>
     setSel((s) => (s.includes(mi) ? s.filter((i) => i !== mi) : [...s, mi]));
@@ -60,17 +71,18 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
     setDraft((d) => ({ ...d, measures: [...d.measures, emptyMeasure()] }));
 
   const addDupe = () => {
-    const src =
-      sel.length
-        ? draft.measures[sel[sel.length - 1]]
-        : draft.measures[draft.measures.length - 1];
+    const src = sel.length
+      ? draft.measures[sel[sel.length - 1]]
+      : draft.measures[draft.measures.length - 1];
     setDraft((d) => ({ ...d, measures: [...d.measures, cloneMeasure(src)] }));
   };
 
   const copyMeas = () => {
     if (!sel.length) return;
     setClip(
-      [...sel].sort((a, b) => a - b).map((i) => cloneMeasure(draft.measures[i]))
+      [...sel]
+        .sort((a, b) => a - b)
+        .map((i) => cloneMeasure(draft.measures[i])),
     );
   };
 
@@ -88,14 +100,19 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
     if (!sel.length) return;
     setDraft((d) => ({
       ...d,
-      measures: d.measures.map((m, i) => (sel.includes(i) ? emptyMeasure() : cloneMeasure(m))),
+      measures: d.measures.map((m, i) =>
+        sel.includes(i) ? emptyMeasure() : cloneMeasure(m),
+      ),
     }));
   };
 
   const delMeas = () => {
     if (draft.measures.length <= 1 || !sel.length) return;
     const s = new Set(sel);
-    setDraft((d) => ({ ...d, measures: d.measures.filter((_, i) => !s.has(i)) }));
+    setDraft((d) => ({
+      ...d,
+      measures: d.measures.filter((_, i) => !s.has(i)),
+    }));
     setSel([]);
   };
 
@@ -108,8 +125,11 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
       {/* Top bar */}
       <div className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)]">
         <button
-          onClick={() => { pb.stop(); onBack(); }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--border)] text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+          onClick={() => {
+            pb.stop();
+            onBack();
+          }}
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--border)] text-muted hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
         >
           ← 戻る
         </button>
@@ -129,39 +149,52 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
 
       {/* Toolbar */}
       <Toolbar.Root className="flex items-center gap-1.5 px-[18px] py-1.5 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)] flex-wrap min-h-[42px]">
-        <span className="text-[10px] uppercase mr-0.5 text-[var(--text-muted)] tracking-[0.05em]">
+        <span className="text-[10px] uppercase mr-0.5 text-muted tracking-[0.05em]">
           追加
         </span>
-        <GhostBtn sm onClick={addBlank}>＋ 空の小節</GhostBtn>
+        <GhostBtn sm onClick={addBlank}>
+          ＋ 空の小節
+        </GhostBtn>
         <GhostBtn sm onClick={addDupe}>
           {sel.length ? "⊕ 選択を複製" : "⊕ 末尾を複製"}
         </GhostBtn>
         <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--border)]" />
 
-        <span className="text-[10px] uppercase mr-0.5 text-[var(--text-muted)] tracking-[0.05em]">
+        <span className="text-[10px] uppercase mr-0.5 text-muted tracking-[0.05em]">
           選択操作
         </span>
 
         {sel.length === 0 ? (
-          <span className="text-[11px] flex items-center gap-1 px-1 text-[var(--text-muted)]">
-            <span className="opacity-60">↓</span> 下のM番号をクリックして小節を選択
+          <span className="text-[11px] flex items-center gap-1 px-1 text-muted">
+            <span className="opacity-60">↓</span>{" "}
+            下のM番号をクリックして小節を選択
           </span>
         ) : (
           <>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded text-[var(--accent)] bg-[var(--accent-subtle)] border border-[rgba(245,200,66,.25)]">
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded text-[var(--accent)] border border-[rgba(245,200,66,.25)]">
               M{selSorted.map((i) => i + 1).join(", ")} 選択中
             </span>
-            <GhostBtn sm onClick={copyMeas}>📋 コピー</GhostBtn>
+            <GhostBtn sm onClick={copyMeas}>
+              📋 コピー
+            </GhostBtn>
             {clip && (
               <GhostBtn sm onClick={pasteMeas}>
                 📌 貼り付け ({clip.length})
               </GhostBtn>
             )}
-            <GhostBtn sm onClick={clearMeas}>🗑 クリア</GhostBtn>
-            <DangerBtn sm onClick={delMeas} disabled={draft.measures.length <= 1}>
+            <GhostBtn sm onClick={clearMeas}>
+              🗑 クリア
+            </GhostBtn>
+            <DangerBtn
+              sm
+              onClick={delMeas}
+              disabled={draft.measures.length <= 1}
+            >
               ✕ 削除
             </DangerBtn>
-            <GhostBtn sm onClick={() => setSel([])}>解除</GhostBtn>
+            <GhostBtn sm onClick={() => setSel([])}>
+              解除
+            </GhostBtn>
           </>
         )}
 
@@ -176,7 +209,10 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
       </Toolbar.Root>
 
       {/* Grid */}
-      <div ref={areaRef} className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5">
+      <div
+        ref={areaRef}
+        className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5"
+      >
         <DrumGrid
           measures={draft.measures}
           currentStep={pb.currentStep}
@@ -215,7 +251,7 @@ const GhostBtn = ({
   <Toolbar.Button
     onClick={onClick}
     disabled={disabled}
-    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-35 disabled:pointer-events-none bg-transparent border border-[var(--border)] text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)] hover:border-[var(--border-strong)]"
+    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-35 disabled:pointer-events-none bg-transparent border border-[var(--border)] text-muted hover:bg-[var(--surface-2)] hover:text-[var(--text)] hover:border-[var(--border-strong)]"
     style={{ padding: sm ? "4px 10px" : "5px 13px", fontSize: sm ? 11 : 12 }}
   >
     {children}
@@ -236,7 +272,7 @@ const DangerBtn = ({
   <Toolbar.Button
     onClick={onClick}
     disabled={disabled}
-    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-30 disabled:pointer-events-none bg-transparent border border-transparent text-[var(--danger)] hover:bg-[rgba(255,68,102,.1)]"
+    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-30 disabled:pointer-events-none bg-transparent border border-transparent text-destructive hover:bg-[rgba(255,68,102,.1)]"
     style={{ padding: sm ? "4px 10px" : "5px 13px", fontSize: sm ? 11 : 12 }}
   >
     {children}

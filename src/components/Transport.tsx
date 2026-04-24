@@ -29,13 +29,13 @@ export function Transport({
       <Toggle.Root
         pressed={isPlaying}
         onPressedChange={onToggle}
-        className={`w-[38px] h-[38px] rounded-full flex items-center justify-center text-sm flex-shrink-0 transition-all duration-[130ms] hover:scale-105 text-[#09090c] ${isPlaying ? "bg-[var(--danger)]" : "bg-[var(--accent)]"}`}
+        className={`w-[38px] h-[38px] rounded-full flex items-center justify-center text-sm flex-shrink-0 transition-all duration-[130ms] hover:scale-105 text-[#09090c] ${isPlaying ? "bg-destructive" : "bg-[var(--accent)]"}`}
       >
         {isPlaying ? "⏸" : "▶"}
       </Toggle.Root>
 
       {/* BPM */}
-      <div className="flex items-center gap-1.5 text-xs text-[var(--text-dim)]">
+      <div className="flex items-center gap-1.5 text-xs text-muted">
         <span>BPM</span>
         <input
           type="number"
@@ -43,13 +43,15 @@ export function Transport({
           min={30}
           max={300}
           onChange={(e) => onBpmChange(+e.target.value)}
-          onBlur={(e) => onBpmChange(Math.max(30, Math.min(300, +e.target.value)))}
+          onBlur={(e) =>
+            onBpmChange(Math.max(30, Math.min(300, +e.target.value)))
+          }
           className="w-[58px] text-center text-[15px] font-semibold px-1.5 py-0.5 rounded font-mono bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)]"
         />
       </div>
 
       {/* Position */}
-      <div className="text-xs font-mono text-[var(--text-muted)]">
+      <div className="text-xs font-mono text-muted">
         {isPlaying ? (
           <>
             <strong className="text-[var(--text)]">
@@ -67,7 +69,7 @@ export function Transport({
         <Toggle.Root
           pressed={loop}
           onPressedChange={onLoopToggle}
-          className={`w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-[120ms] ${loop ? "border border-[rgba(245,200,66,.35)] bg-[var(--accent-subtle)] text-[var(--accent)]" : "border border-[var(--border)] bg-transparent text-[var(--text-dim)]"}`}
+          className={`w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-[120ms] ${loop ? "border border-[rgba(245,200,66,.35)] text-[var(--accent)]" : "border border-[var(--border)] bg-transparent text-muted"}`}
           title="Loop"
         >
           ⟳

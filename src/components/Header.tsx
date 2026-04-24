@@ -23,7 +23,7 @@ export function Header({ breadcrumb, actions }: Props) {
         </Toolbar.Button>
 
         {breadcrumb && (
-          <span className="text-[11px] uppercase tracking-[0.06em] text-[var(--text-muted)]">
+          <span className="text-[11px] uppercase tracking-[0.06em] text-muted">
             {breadcrumb}
           </span>
         )}

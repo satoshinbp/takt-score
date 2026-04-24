@@ -15,10 +15,6 @@
   --surface-3: #151928;
   --border-strong: #222540;
   --text: #b8c8e6;
-  --text-muted: #38406a;
-  --text-dim: #5c6898;
-  --accent-subtle: rgba(245, 200, 66, 0.12);
-  --danger: #ff4466;
   --radius: 0.25rem;
   --background: #0a0c14;
   --foreground: #b8c8e6;
@@ -30,7 +26,7 @@
   --primary-foreground: #0a0c14;
   --secondary: #151928;
   --secondary-foreground: #b8c8e6;
-  --muted: #151928;
+  --muted: #6878a8;
   --muted-foreground: #5c6898;
   --accent: #f5c842;
   --accent-foreground: #151928;
