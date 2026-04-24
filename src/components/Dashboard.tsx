@@ -6,29 +6,24 @@ import { Button } from "@/components/ui/Button";
 import { Copy, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScorePreview } from "./ScorePreview";
+import Link from "next/link";
 
 type Props = {
   scores: Score[];
-  onSelect: (s: Score) => void;
   onCreate: () => void;
   onCopy: (s: Score) => void;
 };
 
-export function Dashboard({ scores, onSelect, onCreate, onCopy }: Props) {
+export function Dashboard({ scores, onCreate, onCopy }: Props) {
   return (
     <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-(--background)">
       <div className="flex-1 overflow-y-auto space-y-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
         <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
           {scores.map((s) => (
-            <ScoreCard
-              key={s.id}
-              score={s}
-              onSelect={onSelect}
-              onCopy={onCopy}
-            />
+            <ScoreCard key={s.id} score={s} onCopy={onCopy} />
           ))}
-          <NewScoreCard onClick={onCreate} />
+          <NewScoreCard />
         </div>
       </div>
     </div>
@@ -58,64 +53,55 @@ function DashboardHeader({
 
 function ScoreCard({
   score,
-  onSelect,
   onCopy,
 }: {
   score: Score;
-  onSelect: (s: Score) => void;
   onCopy: (s: Score) => void;
 }) {
   return (
     <div
-      onClick={() => onSelect(score)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onSelect(score);
-        }
-      }}
       className={cn(
-        "p-4 cursor-pointer transition-all",
-        "relative overflow-hidden bg-surface-1 border border-border",
+        "relative p-4 transition-all",
+        "overflow-hidden bg-surface-1 border border-border",
         "hover:border-strong hover:bg-surface-2 hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
       )}
     >
       <ScorePreview measures={score.measures} />
       <div className="text-base font-semibold truncate">{score.title}</div>
-      <div className="flex items-center gap-1.5 mt-2">
+      <div className="flex items-center gap-1 mt-2">
         <Badge variant="outline">{score.bpm} BPM</Badge>
         <Badge variant="outline">{score.measures.length}小節</Badge>
         <Button
           variant="ghost"
           size="icon"
-          onClick={(e) => {
-            e.stopPropagation();
-            onCopy(score);
-          }}
+          onClick={() => onCopy(score)}
           title="複製"
-          className="ml-auto"
+          className="relative z-20 ml-auto"
         >
           <Copy size={12} />
         </Button>
       </div>
+      <Link
+        href={`/scores/${score.id}`}
+        className="absolute inset-0 z-10"
+        aria-label={score.title}
+      />
     </div>
   );
 }
 
-function NewScoreCard({ onClick }: { onClick: () => void }) {
+function NewScoreCard() {
   return (
-    <button
-      onClick={onClick}
+    <Link
+      href="/scores/new"
       className={cn(
         "p-4 flex flex-col items-center justify-center gap-2 min-h-[130px] w-full",
-        "cursor-pointer transition-all border border-border border-dashed text-muted",
+        "transition-all border border-border border-dashed text-muted",
         "hover:text-primary hover:border-accent hover:-translate-y-px",
       )}
     >
       <Plus />
       <div className="text-xs font-medium">新規ドラム譜</div>
-    </button>
+    </Link>
   );
 }

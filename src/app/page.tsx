@@ -31,7 +31,6 @@ export default function Page() {
       <Header />
       <Dashboard
         scores={scores}
-        onSelect={(s) => router.push(`/scores/${s.id}`)}
         onCreate={() => router.push("/scores/new")}
         onCopy={(s) => {
           const copied: Score = {
