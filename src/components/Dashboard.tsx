@@ -77,8 +77,8 @@ function ScoreCard({
       <ScorePreview measures={score.measures} />
       <div className="text-base font-semibold truncate">{score.title}</div>
       <div className="flex items-center gap-1.5 mt-2">
-        <Badge>{score.bpm} BPM</Badge>
-        <Badge>{score.measures.length}小節</Badge>
+        <Badge variant="outline">{score.bpm} BPM</Badge>
+        <Badge variant="outline">{score.measures.length}小節</Badge>
         <Button
           variant="ghost"
           size="icon"
