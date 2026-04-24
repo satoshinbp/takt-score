@@ -110,8 +110,8 @@ function NewScoreCard({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       className={cn(
         "p-4 flex flex-col items-center justify-center gap-2 min-h-[130px] w-full",
-        "cursor-pointer transition-all border-border border-dashed text-muted",
-        "hover:text-text hover:border-accent hover:bg-(--accent-subtle) hover:-translate-y-px",
+        "cursor-pointer transition-all border border-border border-dashed text-muted",
+        "hover:text-primary hover:border-accent hover:-translate-y-px",
       )}
     >
       <Plus />
