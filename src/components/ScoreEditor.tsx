@@ -121,7 +121,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
   return (
     <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--background)]">
       {/* Top bar */}
-      <div className="flex items-center gap-2.5 px-[18px] py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)]">
+      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)]">
         <button
           onClick={() => {
             pb.stop();
@@ -159,7 +159,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
       />
 
       {/* Grid */}
-      <div ref={areaRef} className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5">
+      <div ref={areaRef} className="flex-1 overflow-auto px-4 py-3.5 pb-2.5">
         <DrumGrid
           measures={draft.measures}
           currentStep={pb.currentStep}

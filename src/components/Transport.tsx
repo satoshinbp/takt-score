@@ -24,7 +24,7 @@ export function Transport({
   currentBeat,
 }: Props) {
   return (
-    <div className="flex items-center gap-3.5 px-[18px] py-2.5 flex-shrink-0 border-t border-[var(--border)] bg-[var(--surface-1)]">
+    <div className="flex items-center gap-3.5 px-4 py-2.5 flex-shrink-0 border-t border-[var(--border)] bg-[var(--surface-1)]">
       {/* Play / Pause */}
       <Toggle.Root
         pressed={isPlaying}
