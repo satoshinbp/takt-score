@@ -2,9 +2,9 @@
 
 import { usePlayback } from "@/hooks/usePlayback";
 import { PARTS, cloneMeasure, emptyMeasure, type Score } from "@/lib/constants";
-import * as Toolbar from "@radix-ui/react-toolbar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DrumGrid } from "./DrumGrid";
+import { EditorToolbar } from "./EditorToolbar";
 import { Transport } from "./Transport";
 
 type Props = {
@@ -118,8 +118,6 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
 
   const handleSave = () => onSave({ ...draft, updatedAt: Date.now() });
 
-  const selSorted = [...sel].sort((a, b) => a - b);
-
   return (
     <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--background)]">
       {/* Top bar */}
@@ -147,72 +145,21 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
         </button>
       </div>
 
-      {/* Toolbar */}
-      <Toolbar.Root className="flex items-center gap-1.5 px-[18px] py-1.5 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)] flex-wrap min-h-[42px]">
-        <span className="text-[10px] uppercase mr-0.5 text-muted tracking-[0.05em]">
-          追加
-        </span>
-        <GhostBtn sm onClick={addBlank}>
-          ＋ 空の小節
-        </GhostBtn>
-        <GhostBtn sm onClick={addDupe}>
-          {sel.length ? "⊕ 選択を複製" : "⊕ 末尾を複製"}
-        </GhostBtn>
-        <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--border)]" />
-
-        <span className="text-[10px] uppercase mr-0.5 text-muted tracking-[0.05em]">
-          選択操作
-        </span>
-
-        {sel.length === 0 ? (
-          <span className="text-[11px] flex items-center gap-1 px-1 text-muted">
-            <span className="opacity-60">↓</span>{" "}
-            下のM番号をクリックして小節を選択
-          </span>
-        ) : (
-          <>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded text-[var(--accent)] border border-[rgba(245,200,66,.25)]">
-              M{selSorted.map((i) => i + 1).join(", ")} 選択中
-            </span>
-            <GhostBtn sm onClick={copyMeas}>
-              📋 コピー
-            </GhostBtn>
-            {clip && (
-              <GhostBtn sm onClick={pasteMeas}>
-                📌 貼り付け ({clip.length})
-              </GhostBtn>
-            )}
-            <GhostBtn sm onClick={clearMeas}>
-              🗑 クリア
-            </GhostBtn>
-            <DangerBtn
-              sm
-              onClick={delMeas}
-              disabled={draft.measures.length <= 1}
-            >
-              ✕ 削除
-            </DangerBtn>
-            <GhostBtn sm onClick={() => setSel([])}>
-              解除
-            </GhostBtn>
-          </>
-        )}
-
-        {clip && sel.length === 0 && (
-          <>
-            <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--border)]" />
-            <GhostBtn sm onClick={pasteMeas}>
-              📌 貼り付け ({clip.length})
-            </GhostBtn>
-          </>
-        )}
-      </Toolbar.Root>
+      <EditorToolbar
+        sel={sel}
+        clipSize={clip?.length ?? 0}
+        canDelete={draft.measures.length > 1}
+        onAddBlank={addBlank}
+        onAddDupe={addDupe}
+        onCopy={copyMeas}
+        onPaste={pasteMeas}
+        onClear={clearMeas}
+        onDelete={delMeas}
+        onDeselect={() => setSel([])}
+      />
 
       {/* Grid */}
-      <div
-        ref={areaRef}
-        className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5"
-      >
+      <div ref={areaRef} className="flex-1 overflow-auto px-[18px] py-3.5 pb-2.5">
         <DrumGrid
           measures={draft.measures}
           currentStep={pb.currentStep}
@@ -236,45 +183,3 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
     </div>
   );
 }
-
-const GhostBtn = ({
-  children,
-  onClick,
-  disabled,
-  sm,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  sm?: boolean;
-}) => (
-  <Toolbar.Button
-    onClick={onClick}
-    disabled={disabled}
-    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-35 disabled:pointer-events-none bg-transparent border border-[var(--border)] text-muted hover:bg-[var(--surface-2)] hover:text-[var(--text)] hover:border-[var(--border-strong)]"
-    style={{ padding: sm ? "4px 10px" : "5px 13px", fontSize: sm ? 11 : 12 }}
-  >
-    {children}
-  </Toolbar.Button>
-);
-
-const DangerBtn = ({
-  children,
-  onClick,
-  disabled,
-  sm,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  sm?: boolean;
-}) => (
-  <Toolbar.Button
-    onClick={onClick}
-    disabled={disabled}
-    className="inline-flex items-center gap-1 rounded font-medium transition-all duration-[120ms] whitespace-nowrap disabled:opacity-30 disabled:pointer-events-none bg-transparent border border-transparent text-destructive hover:bg-[rgba(255,68,102,.1)]"
-    style={{ padding: sm ? "4px 10px" : "5px 13px", fontSize: sm ? 11 : 12 }}
-  >
-    {children}
-  </Toolbar.Button>
-);
