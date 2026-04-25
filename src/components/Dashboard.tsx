@@ -16,10 +16,10 @@ type Props = {
 
 export function Dashboard({ scores, onCreate, onCopy }: Props) {
   return (
-    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-(--background)">
+    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-background">
       <div className="flex-1 overflow-y-auto space-y-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
-        <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+        <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
           {scores.map((s) => (
             <ScoreCard key={s.id} score={s} onCopy={onCopy} />
           ))}
@@ -62,8 +62,8 @@ function ScoreCard({
     <div
       className={cn(
         "relative p-4 transition-all",
-        "overflow-hidden bg-surface-1 border border-border",
-        "hover:border-strong hover:bg-surface-2 hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(0,0,0,.4)]",
+        "overflow-hidden bg-background border border-border",
+        "hover:border-border hover:bg-card hover:-translate-y-px hover:shadow-lg",
       )}
     >
       <ScorePreview measures={score.measures} />
@@ -95,7 +95,7 @@ function NewScoreCard() {
     <Link
       href="/scores/new"
       className={cn(
-        "p-4 flex flex-col items-center justify-center gap-2 min-h-[130px] w-full",
+        "p-4 flex flex-col items-center justify-center gap-2 min-h-32 w-full",
         "transition-all border border-border border-dashed text-muted",
         "hover:text-primary hover:border-accent hover:-translate-y-px",
       )}

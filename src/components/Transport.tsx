@@ -1,6 +1,7 @@
 "use client";
 
 import * as Toggle from "@radix-ui/react-toggle";
+import { cn } from "@/lib/utils";
 
 type Props = {
   isPlaying: boolean;
@@ -24,12 +25,16 @@ export function Transport({
   currentBeat,
 }: Props) {
   return (
-    <div className="flex items-center gap-3.5 px-4 py-2.5 flex-shrink-0 border-t border-[var(--border)] bg-[var(--surface-1)]">
+    <div className="flex items-center gap-3.5 px-4 py-2.5 flex-shrink-0 border-t border-border bg-background">
       {/* Play / Pause */}
       <Toggle.Root
         pressed={isPlaying}
         onPressedChange={onToggle}
-        className={`w-[38px] h-[38px] rounded-full flex items-center justify-center text-sm flex-shrink-0 transition-all duration-[130ms] hover:scale-105 text-[#09090c] ${isPlaying ? "bg-destructive" : "bg-[var(--accent)]"}`}
+        className={cn(
+          "w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0",
+          "transition-all duration-150 hover:scale-105 text-accent-foreground",
+          isPlaying ? "bg-destructive" : "bg-accent",
+        )}
       >
         {isPlaying ? "⏸" : "▶"}
       </Toggle.Root>
@@ -46,7 +51,10 @@ export function Transport({
           onBlur={(e) =>
             onBpmChange(Math.max(30, Math.min(300, +e.target.value)))
           }
-          className="w-[58px] text-center text-[15px] font-semibold px-1.5 py-0.5 rounded font-mono bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)]"
+          className={cn(
+            "w-14 text-center text-sm font-semibold px-1.5 py-0.5 rounded font-mono",
+            "bg-card border border-border text-foreground",
+          )}
         />
       </div>
 
@@ -54,7 +62,7 @@ export function Transport({
       <div className="text-xs font-mono text-muted">
         {isPlaying ? (
           <>
-            <strong className="text-[var(--text)]">
+            <strong className="text-foreground">
               {String(currentMeasure + 1).padStart(2, "0")}
             </strong>
             :{currentBeat + 1}
@@ -69,7 +77,12 @@ export function Transport({
         <Toggle.Root
           pressed={loop}
           onPressedChange={onLoopToggle}
-          className={`w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-[120ms] ${loop ? "border border-[rgba(245,200,66,.35)] text-[var(--accent)]" : "border border-[var(--border)] bg-transparent text-muted"}`}
+          className={cn(
+            "w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-150",
+            loop
+              ? "border border-accent/30 text-accent"
+              : "border border-border bg-transparent text-muted",
+          )}
           title="Loop"
         >
           ⟳

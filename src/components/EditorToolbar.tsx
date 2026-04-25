@@ -36,7 +36,7 @@ const ToolbarBtn = ({
 );
 
 const ToolbarSeparator = () => (
-  <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-border" />
+  <Toolbar.Separator className="w-px h-5 flex-shrink-0 bg-border" />
 );
 
 type Props = {

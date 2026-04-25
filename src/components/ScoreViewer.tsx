@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import * as Toolbar from "@radix-ui/react-toolbar";
 import { type Score } from "@/lib/constants";
 import { usePlayback } from "@/hooks/usePlayback";
+import { cn } from "@/lib/utils";
 import { DrumGrid } from "./DrumGrid";
 import { Transport } from "./Transport";
 
@@ -35,19 +36,23 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
   }, [pb.currentMeasure]);
 
   return (
-    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--background)]">
+    <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
       {/* Top bar */}
-      <Toolbar.Root className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)]">
+      <Toolbar.Root className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
         <Toolbar.Button
           onClick={() => {
             pb.stop();
             onBack();
           }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--border)] text-muted hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+          className={cn(
+            "inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium",
+            "transition-all duration-150 bg-transparent border border-border",
+            "text-muted hover:bg-card hover:text-foreground",
+          )}
         >
           ← 戻る
         </Toolbar.Button>
-        <div className="text-[17px] font-semibold flex-1 min-w-0 truncate px-1.5">
+        <div className="text-lg font-semibold flex-1 min-w-0 truncate px-1.5">
           {score.title}
         </div>
         <Toolbar.ToggleGroup
@@ -59,17 +64,26 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
               onEdit();
             }
           }}
-          className="flex overflow-hidden rounded border border-[var(--border)]"
+          className="flex overflow-hidden rounded border border-border"
         >
           <Toolbar.ToggleItem
             value="view"
-            className="px-3 py-1 text-[11px] font-semibold tracking-[0.04em] transition-all duration-[120ms] data-[state=on]:bg-[var(--surface-2)] data-[state=on]:text-[var(--text)] data-[state=off]:bg-transparent data-[state=off]:text-muted"
+            className={cn(
+              "px-3 py-1 text-xs font-semibold tracking-wider transition-all duration-150",
+              "data-[state=on]:bg-card data-[state=on]:text-foreground",
+              "data-[state=off]:bg-transparent data-[state=off]:text-muted",
+            )}
           >
             ビュー
           </Toolbar.ToggleItem>
           <Toolbar.ToggleItem
             value="edit"
-            className="px-3 py-1 text-[11px] font-semibold tracking-[0.04em] transition-all duration-[120ms] data-[state=on]:bg-[var(--surface-2)] data-[state=on]:text-[var(--text)] data-[state=off]:bg-transparent data-[state=off]:text-muted hover:text-[var(--text)]"
+            className={cn(
+              "px-3 py-1 text-xs font-semibold tracking-wider transition-all duration-150",
+              "data-[state=on]:bg-card data-[state=on]:text-foreground",
+              "data-[state=off]:bg-transparent data-[state=off]:text-muted",
+              "hover:text-foreground",
+            )}
           >
             編集
           </Toolbar.ToggleItem>
@@ -78,14 +92,14 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
 
       {/* Performance bar */}
       {pb.isPlaying && (
-        <div className="flex items-baseline gap-3 px-4 py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-2)]">
-          <span className="text-[20px] font-bold font-mono text-[var(--accent)]">
+        <div className="flex items-baseline gap-3 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
+          <span className="text-xl font-bold font-mono text-accent">
             M{pb.currentMeasure + 1}
           </span>
-          <span className="text-[13px] font-mono text-muted">
+          <span className="text-sm font-mono text-muted">
             Beat {pb.currentBeat + 1}
           </span>
-          <span className="text-[11px] ml-auto text-muted">
+          <span className="text-xs ml-auto text-muted">
             {score.measures.length}小節
           </span>
         </div>

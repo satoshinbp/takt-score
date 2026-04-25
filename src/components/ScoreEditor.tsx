@@ -5,6 +5,7 @@ import EditorToolbar from "@/components/EditorToolbar";
 import { Transport } from "@/components/Transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { PARTS, cloneMeasure, emptyMeasure, type Score } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -119,15 +120,19 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
   const handleSave = () => onSave({ ...draft, updatedAt: Date.now() });
 
   return (
-    <div className="page-fade flex flex-col h-full overflow-hidden bg-[var(--background)]">
+    <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
       {/* Top bar */}
-      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-[var(--border)] bg-[var(--surface-1)]">
+      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
         <button
           onClick={() => {
             pb.stop();
             onBack();
           }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-transparent border border-[var(--border)] text-muted hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+          className={cn(
+            "inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium",
+            "transition-all duration-150 bg-transparent border border-border",
+            "text-muted hover:bg-card hover:text-foreground",
+          )}
         >
           ← 戻る
         </button>
@@ -135,11 +140,19 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
           value={draft.title}
           onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
           placeholder="タイトル..."
-          className="text-[17px] font-semibold flex-1 min-w-0 px-1.5 py-0.5 rounded bg-transparent border border-transparent text-[var(--text)] outline-none transition-[border-color,background] duration-150 focus:border-[var(--border)] focus:bg-[var(--surface-2)]"
+          className={cn(
+            "text-lg font-semibold flex-1 min-w-0 px-1.5 py-0.5 rounded",
+            "bg-transparent border border-transparent text-foreground outline-none",
+            "transition-colors duration-150",
+            "focus:border-border focus:bg-card",
+          )}
         />
         <button
           onClick={handleSave}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-all duration-[120ms] bg-[var(--accent)] text-[#09090c]"
+          className={cn(
+            "inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium",
+            "transition-all duration-150 bg-accent text-accent-foreground",
+          )}
         >
           {isNew ? "作成" : "保存"}
         </button>

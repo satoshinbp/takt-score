@@ -8,7 +8,7 @@ export function ScorePreview({ measures }: Props) {
   const m = measures[0];
   if (!m) return null;
   return (
-    <div className="flex items-end gap-0.5 h-[52px] mb-3 overflow-hidden">
+    <div className="flex items-end gap-0.5 h-13 mb-3 overflow-hidden">
       {Array.from({ length: SUBDIVISIONS }, (_, s) => {
         const bd = m.BD[s];
         const sn = m.SNARE[s];
@@ -18,7 +18,7 @@ export function ScorePreview({ measures }: Props) {
         return (
           <div
             key={s}
-            className="flex-1 rounded-[2px] opacity-75"
+            className="flex-1 rounded-sm opacity-75"
             style={{ height: h, background: col }}
           />
         );

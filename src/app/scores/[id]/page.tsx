@@ -6,6 +6,7 @@ import { type Score } from "@/lib/constants";
 import { loadScores, saveScores } from "@/lib/storage";
 import { Header } from "@/components/Header";
 import { DetailPage } from "@/components/DetailPage";
+import { cn } from "@/lib/utils";
 
 export default function ScoreDetailPage() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function ScoreDetailPage() {
 
   if (!score) {
     return (
-      <div className="flex flex-col overflow-hidden h-screen bg-[var(--background)] text-[var(--text)]">
+      <div className="flex flex-col overflow-hidden h-screen bg-background text-foreground">
         <Header />
         <div className="flex-1 flex items-center justify-center text-sm text-muted">
           スコアが見つかりません
@@ -44,13 +45,16 @@ export default function ScoreDetailPage() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden h-screen bg-[var(--background)] text-[var(--text)]">
+    <div className="flex flex-col overflow-hidden h-screen bg-background text-foreground">
       <Header
         breadcrumb={score.title}
         actions={
           <button
             onClick={handleDelete}
-            className="text-[11px] px-2.5 py-1 rounded transition-all duration-[120ms] border border-transparent text-destructive hover:bg-[rgba(255,68,102,.1)]"
+            className={cn(
+              "text-xs px-2.5 py-1 rounded transition-all duration-150",
+              "border border-transparent text-destructive hover:bg-destructive/10",
+            )}
           >
             削除
           </button>

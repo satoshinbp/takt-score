@@ -14,8 +14,8 @@ export function Header({ breadcrumb, actions }: Props) {
     <Toolbar.Root asChild>
       <header
         className={cn(
-          "flex items-center gap-4 px-4 h-[50px] flex-shrink-0",
-          "border-b bg-accent-foreground z-[100]",
+          "flex items-center gap-4 px-4 h-12 flex-shrink-0",
+          "border-b bg-accent-foreground z-50",
         )}
       >
         <Toolbar.Button asChild>

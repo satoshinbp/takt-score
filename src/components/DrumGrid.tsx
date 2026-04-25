@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { DrumIcon } from "@/components/DrumIcon";
 import { PARTS, SUBDIVISIONS, type Measure } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type Props = {
   measures: Measure[];
@@ -58,13 +59,18 @@ export function DrumGrid({
             <div className="flex items-center mb-1.5">
               <div
                 onClick={() => onSelMeasure?.(mi)}
-                className={`w-[62px] min-w-[62px] shrink-0 cursor-pointer font-mono font-bold text-[10px] pr-2.5 text-right border-b-2 transition-all duration-[120ms] ${isSel || isCur ? "text-[var(--accent)]" : "text-muted"} ${isSel ? "border-[var(--accent)]" : "border-transparent"}`}
+                className={cn(
+                  "w-16 min-w-16 shrink-0 cursor-pointer font-mono font-bold text-xs",
+                  "pr-2.5 text-right border-b-2 transition-all duration-150",
+                  isSel || isCur ? "text-accent" : "text-muted",
+                  isSel ? "border-accent" : "border-transparent",
+                )}
               >
                 M{mi + 1}
               </div>
               {[1, 2, 3, 4].map((b) => (
                 <span key={b} className="flex">
-                  <span className="w-6 mx-px flex items-center justify-center font-mono text-[9px] text-muted shrink-0">
+                  <span className="w-6 mx-px flex items-center justify-center font-mono text-xs text-muted shrink-0">
                     {b}
                   </span>
                   {[0, 1, 2].map((sub) => (
@@ -80,7 +86,7 @@ export function DrumGrid({
             {PARTS.map((part, vi) => (
               <div key={part.id} className="flex items-center mb-0.5">
                 <div
-                  className="w-[62px] min-w-[62px] shrink-0 flex items-center gap-1.5 pr-2.5 font-mono font-semibold text-[9px] tracking-[0.04em]"
+                  className="w-16 min-w-16 shrink-0 flex items-center gap-1.5 pr-2.5 font-mono font-semibold text-xs tracking-wider"
                   style={{ color: part.color }}
                 >
                   {isRowStart && (
