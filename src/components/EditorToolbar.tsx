@@ -1,8 +1,43 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import * as Toolbar from "@radix-ui/react-toolbar";
-import { Plus, Trash } from "lucide-react";
+import {
+  ArrowDown,
+  CirclePlus,
+  ClipboardPaste,
+  Copy,
+  Plus,
+  Trash,
+  X,
+} from "lucide-react";
+
+const ToolbarBtn = ({
+  children,
+  onClick,
+  disabled,
+  destructive,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  destructive?: boolean;
+}) => (
+  <Toolbar.Button asChild>
+    <Button
+      variant={destructive ? "destructive" : "outline"}
+      onClick={onClick}
+      disabled={disabled}
+      size="sm"
+    >
+      {children}
+    </Button>
+  </Toolbar.Button>
+);
+
+const ToolbarSeparator = () => (
+  <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-border" />
+);
 
 type Props = {
   sel: number[];
@@ -17,7 +52,7 @@ type Props = {
   onDeselect: () => void;
 };
 
-export function EditorToolbar({
+const EditorToolbar = ({
   sel,
   clipSize,
   canDelete,
@@ -28,7 +63,7 @@ export function EditorToolbar({
   onClear,
   onDelete,
   onDeselect,
-}: Props) {
+}: Props) => {
   const selSorted = [...sel].sort((a, b) => a - b);
 
   return (
@@ -38,31 +73,34 @@ export function EditorToolbar({
         <Plus size={12} /> 空の小節
       </ToolbarBtn>
       <ToolbarBtn onClick={onAddDupe}>
-        {sel.length ? "⊕ 選択を複製" : "⊕ 末尾を複製"}
+        <CirclePlus size={12} /> {sel.length ? "選択を複製" : "末尾を複製"}
       </ToolbarBtn>
 
-      <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-border" />
+      <ToolbarSeparator />
 
       <span className="text-xs uppercase mr-0.5">選択操作</span>
       {sel.length === 0 ? (
         <span className="text-xs flex items-center gap-1 px-1">
-          <span className="opacity-60">↓</span>{" "}
-          下のM番号をクリックして小節を選択
+          <ArrowDown size={12} /> 下のM番号をクリックして小節を選択
         </span>
       ) : (
         <>
           <span className="text-xs font-semibold px-2 py-0.5 text-accent border border-accent">
             M{selSorted.map((i) => i + 1).join(", ")} 選択中
           </span>
-          <ToolbarBtn onClick={onCopy}>📋 コピー</ToolbarBtn>
+          <ToolbarBtn onClick={onCopy}>
+            <Copy size={12} /> コピー
+          </ToolbarBtn>
           {clipSize > 0 && (
-            <ToolbarBtn onClick={onPaste}>📌 貼り付け ({clipSize})</ToolbarBtn>
+            <ToolbarBtn onClick={onPaste}>
+              <ClipboardPaste size={12} /> 貼り付け ({clipSize})
+            </ToolbarBtn>
           )}
           <ToolbarBtn onClick={onClear}>
             <Trash size={12} /> クリア
           </ToolbarBtn>
-          <ToolbarBtn danger onClick={onDelete} disabled={!canDelete}>
-            ✕ 削除
+          <ToolbarBtn destructive onClick={onDelete} disabled={!canDelete}>
+            <X size={12} /> 削除
           </ToolbarBtn>
           <ToolbarBtn onClick={onDeselect}>解除</ToolbarBtn>
         </>
@@ -70,35 +108,14 @@ export function EditorToolbar({
 
       {clipSize > 0 && sel.length === 0 && (
         <>
-          <Toolbar.Separator className="w-px h-[18px] flex-shrink-0 bg-[var(--border)]" />
-          <ToolbarBtn onClick={onPaste}>📌 貼り付け ({clipSize})</ToolbarBtn>
+          <ToolbarSeparator />
+          <ToolbarBtn onClick={onPaste}>
+            <ClipboardPaste size={12} /> 貼り付け ({clipSize})
+          </ToolbarBtn>
         </>
       )}
     </Toolbar.Root>
   );
-}
+};
 
-const ToolbarBtn = ({
-  children,
-  onClick,
-  disabled,
-  danger,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  danger?: boolean;
-}) => (
-  <Toolbar.Button
-    onClick={onClick}
-    disabled={disabled}
-    className={cn(
-      "inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium whitespace-nowrap transition-all duration-[120ms] bg-transparent disabled:pointer-events-none",
-      danger
-        ? "border border-transparent text-destructive disabled:opacity-30 hover:bg-[rgba(255,68,102,.1)]"
-        : "border border-[var(--border)] disabled:opacity-35 hover:bg-[var(--surface-2)] hover:text-[var(--text)] hover:border-[var(--border-strong)]",
-    )}
-  >
-    {children}
-  </Toolbar.Button>
-);
+export default EditorToolbar;

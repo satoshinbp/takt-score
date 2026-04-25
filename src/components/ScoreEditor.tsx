@@ -1,11 +1,11 @@
 "use client";
 
+import { DrumGrid } from "@/components/DrumGrid";
+import EditorToolbar from "@/components/EditorToolbar";
+import { Transport } from "@/components/Transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { PARTS, cloneMeasure, emptyMeasure, type Score } from "@/lib/constants";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DrumGrid } from "./DrumGrid";
-import { EditorToolbar } from "./EditorToolbar";
-import { Transport } from "./Transport";
 
 type Props = {
   score: Score;
