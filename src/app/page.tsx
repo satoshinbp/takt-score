@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { cloneMeasure, makeSamples, type Score } from "@/lib/constants";
+import { cloneMeasure, type Score } from "@/lib/constants";
+import { makeSamples } from "@/lib/samples";
 import { loadScores, saveScores } from "@/lib/storage";
 import { Header } from "@/components/Header";
 import { Dashboard } from "@/components/Dashboard";
