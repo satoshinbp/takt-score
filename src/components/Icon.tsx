@@ -125,8 +125,19 @@ export const TaktScoreIcon = ({ size = 24 }: IconProps) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-<line x1="92" y1="18" x2="52" y2="82" stroke="white" strokeWidth="10" strokeLinecap="round" />
-    <circle cx="44" cy="94" r="18" fill="#f97316" />
-    <circle cx="38" cy="87" r="8" fill="white" opacity="0.22" />
+    <rect width="120" height="120" rx="26" fill="#1c1b2e" />
+    <line
+      x1="48"
+      y1="98"
+      x2="69"
+      y2="42"
+      stroke="white"
+      strokeWidth="9"
+      strokeLinecap="round"
+    />
+    <g transform="translate(76, 30) rotate(17)">
+      <rect x="-22" y="-13" width="44" height="26" rx="10" fill="#f97316" />
+      <rect x="-16" y="-9" width="20" height="10" rx="5" fill="white" opacity="0.2" />
+    </g>
   </svg>
 );
