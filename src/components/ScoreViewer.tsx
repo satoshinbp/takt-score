@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Pause, Play, Repeat, Square } from "lucide-react";
 import { ScoreGrid } from "@/components/ScoreGrid";
 import { Button } from "@/components/ui/Button";
@@ -19,23 +19,123 @@ type Props = {
 export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
   const pb = usePlayback(score);
   const areaRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<number | null>(null);
+  const visualStepRef = useRef(0);
   const totalSteps = score.measures.length * SUBDIVISIONS;
   const playheadRatio = 0.35;
+  const [edgePadding, setEdgePadding] = useState({ left: 0, right: 0 });
 
-  useEffect(() => {
-    if (pb.currentStep < 0 || !areaRef.current) return;
+  const scrollToVisualStep = (stepFloat: number) => {
     const container = areaRef.current;
-    const el = container.querySelector(
-      `[data-step-anchor="${pb.currentStep}"]`,
-    ) as HTMLElement;
+    const content = contentRef.current;
 
-    if (!el) return;
-    const cellCenter = el.offsetLeft + el.offsetWidth / 2;
+    if (!container || !content || totalSteps <= 0) return;
+
+    const baseStep = Math.floor(stepFloat);
+    const nextStep = Math.min(baseStep + 1, totalSteps - 1);
+    const currentEl = content.querySelector(
+      `[data-step-anchor="${baseStep}"]`,
+    ) as HTMLElement | null;
+    const nextEl = content.querySelector(
+      `[data-step-anchor="${nextStep}"]`,
+    ) as HTMLElement | null;
+
+    if (!currentEl) return;
+
+    const currentCenter = currentEl.offsetLeft + currentEl.offsetWidth / 2;
+    const nextCenter = nextEl
+      ? nextEl.offsetLeft + nextEl.offsetWidth / 2
+      : currentCenter;
+    const progress = stepFloat - baseStep;
+    const cellCenter =
+      currentCenter + (nextCenter - currentCenter) * Math.max(0, progress);
     const playheadX = container.clientWidth * playheadRatio;
     const nextScrollLeft = Math.max(0, cellCenter - playheadX);
     const maxScrollLeft = container.scrollWidth - container.clientWidth;
     container.scrollLeft = Math.min(nextScrollLeft, maxScrollLeft);
-  }, [pb.currentStep]);
+  };
+
+  useLayoutEffect(() => {
+    const container = areaRef.current;
+    const content = contentRef.current;
+
+    if (!container || !content) return;
+
+    const computePadding = () => {
+      const anchors = content.querySelectorAll("[data-step-anchor]");
+      const firstAnchor = anchors[0] as HTMLElement | undefined;
+      const lastAnchor = anchors[anchors.length - 1] as HTMLElement | undefined;
+
+      if (!firstAnchor || !lastAnchor) return;
+
+      const playheadX = container.clientWidth * playheadRatio;
+      const left = Math.max(0, playheadX - firstAnchor.offsetWidth / 2);
+      const right = Math.max(
+        0,
+        container.clientWidth - playheadX - lastAnchor.offsetWidth / 2,
+      );
+
+      setEdgePadding({ left, right });
+    };
+
+    const observer = new ResizeObserver(computePadding);
+    observer.observe(container);
+    observer.observe(content);
+    computePadding();
+
+    return () => observer.disconnect();
+  }, [playheadRatio, score.measures.length]);
+
+  useEffect(() => {
+    if (frameRef.current !== null) {
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+    }
+
+    if (pb.currentStep < 0) {
+      visualStepRef.current = 0;
+      scrollToVisualStep(0);
+      return;
+    }
+
+    const stepDurationMs = 60000 / pb.bpm / 4;
+    const previousStep = visualStepRef.current;
+    const wrapped =
+      pb.currentStep === 0 && previousStep > Math.max(0, totalSteps - 2);
+    const fromStep = wrapped ? 0 : previousStep;
+    const toStep = pb.currentStep;
+
+    if (!pb.isPlaying || fromStep === toStep) {
+      visualStepRef.current = toStep;
+      scrollToVisualStep(toStep);
+      return;
+    }
+
+    const startedAt = performance.now();
+
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / stepDurationMs);
+      const visualStep = fromStep + (toStep - fromStep) * progress;
+      visualStepRef.current = visualStep;
+      scrollToVisualStep(visualStep);
+
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(tick);
+      } else {
+        frameRef.current = null;
+      }
+    };
+
+    frameRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (frameRef.current !== null) {
+        cancelAnimationFrame(frameRef.current);
+        frameRef.current = null;
+      }
+    };
+  }, [pb.bpm, pb.currentStep, pb.isPlaying, totalSteps]);
 
   return (
     <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
@@ -131,11 +231,23 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
           ref={areaRef}
           className="h-full overflow-x-auto overflow-y-hidden p-4"
         >
-          <ScoreGrid
-            measures={score.measures}
-            currentStep={pb.currentStep}
-            horizontal
-          />
+          <div ref={contentRef} className="flex">
+            <div
+              aria-hidden="true"
+              className="shrink-0"
+              style={{ width: edgePadding.left }}
+            />
+            <ScoreGrid
+              measures={score.measures}
+              currentStep={pb.currentStep}
+              horizontal
+            />
+            <div
+              aria-hidden="true"
+              className="shrink-0"
+              style={{ width: edgePadding.right }}
+            />
+          </div>
         </div>
       </div>
     </div>
