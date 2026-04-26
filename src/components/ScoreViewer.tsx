@@ -138,7 +138,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
   }, [pb.bpm, pb.currentStep, pb.isPlaying, totalSteps]);
 
   return (
-    <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
       <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
         <Button
           variant="outline"

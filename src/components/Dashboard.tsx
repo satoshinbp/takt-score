@@ -16,7 +16,7 @@ type Props = {
 
 export const Dashboard = ({ scores, onCreate, onCopy }: Props) => {
   return (
-    <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-background">
+    <div className="flex flex-col flex-1 p-4 overflow-hidden bg-background">
       <div className="flex-1 overflow-y-auto space-y-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
         <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">

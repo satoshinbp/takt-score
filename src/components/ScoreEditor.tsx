@@ -128,7 +128,7 @@ export const ScoreEditor = ({
   const handleSave = () => onSave({ ...draft, updatedAt: Date.now() });
 
   return (
-    <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
       {/* Top bar */}
       <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
         <button
