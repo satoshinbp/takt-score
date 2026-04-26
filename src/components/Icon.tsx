@@ -1,12 +1,10 @@
 import type { PartId } from "@/lib/constants";
 
-type Props = {
-  id: PartId;
-  color: string;
-  size?: number;
-}
+type IconProps = { size?: number };
 
-export const DrumIcon = ({ id, color, size = 20 }: Props) => {
+type DrumIconProps = { id: PartId; color: string; size?: number };
+
+export const DrumIcon = ({ id, color, size = 20 }: DrumIconProps) => {
   const w = size;
   const h = Math.round((size * 22) / 28);
   const vb = "0 0 28 22";
@@ -35,7 +33,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         </g>
       </svg>
     ),
-
     RIDE: (
       <svg width={w} height={h} viewBox={vb}>
         <line x1="14" y1="11" x2="15.5" y2="20" {...so} strokeWidth={1} />
@@ -44,7 +41,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         <circle cx="14" cy="10" r="0.9" fill={color} stroke="none" opacity={0.9} />
       </svg>
     ),
-
     HH_OPEN: (
       <svg width={w} height={h} viewBox={vb}>
         <line x1="14" y1="1" x2="14" y2="21" {...so} strokeWidth={1} />
@@ -54,7 +50,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         <polyline points="12,12 14,14 16,12" {...so} strokeWidth={0.9} />
       </svg>
     ),
-
     HH: (
       <svg width={w} height={h} viewBox={vb}>
         <line x1="14" y1="1" x2="14" y2="21" {...so} strokeWidth={1} />
@@ -62,7 +57,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         <ellipse cx="14" cy="13" rx="8.5" ry="2" {...sf} />
       </svg>
     ),
-
     HI_TOM: (
       <svg width={w} height={h} viewBox={vb}>
         <path d="M7,9 L21,9 L20,19 L8,19 Z" {...sf} />
@@ -72,7 +66,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         <line x1="20" y1="11" x2="19.6" y2="15" stroke={color} strokeWidth={1} opacity={0.5} />
       </svg>
     ),
-
     MID_TOM: (
       <svg width={w} height={h} viewBox={vb}>
         <path d="M4,8 L24,8 L22.5,19 L5.5,19 Z" {...sf} />
@@ -82,7 +75,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         <line x1="22.5" y1="10" x2="22" y2="15" stroke={color} strokeWidth={1} opacity={0.5} />
       </svg>
     ),
-
     SNARE: (
       <svg width={w} height={h} viewBox={vb}>
         <path d="M4,7 L24,7 L24,16 L4,16 Z" {...sf} />
@@ -95,7 +87,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         <line x1="24" y1="9" x2="24" y2="14" stroke={color} strokeWidth={1.5} opacity={0.5} />
       </svg>
     ),
-
     LO_TOM: (
       <svg width={w} height={h} viewBox={vb}>
         <path d="M2,6 L26,6 L26,17 L2,17 Z" {...sf} />
@@ -106,7 +97,6 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
         <line x1="24" y1="17" x2="25" y2="21.5" {...so} strokeWidth={1.2} />
       </svg>
     ),
-
     BD: (
       <svg width={w} height={h} viewBox={vb}>
         <circle cx="14" cy="11" r="9.5" {...sf} />
@@ -125,4 +115,19 @@ export const DrumIcon = ({ id, color, size = 20 }: Props) => {
       </svg>
     )
   );
-}
+};
+
+export const TaktScoreIcon = ({ size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 120 120"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="120" height="120" rx="26" fill="#1c1b2e" />
+    <line x1="92" y1="18" x2="52" y2="82" stroke="white" strokeWidth="10" strokeLinecap="round" />
+    <circle cx="44" cy="94" r="18" fill="#f97316" />
+    <circle cx="38" cy="87" r="8" fill="white" opacity="0.22" />
+  </svg>
+);
