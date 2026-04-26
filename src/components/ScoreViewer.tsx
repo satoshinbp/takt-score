@@ -9,7 +9,6 @@ import { Toggle } from "@/components/ui/Toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 
 type Props = {
   score: Score;
@@ -64,29 +63,9 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
               onEdit();
             }
           }}
-          className="flex overflow-hidden rounded border border-border"
         >
-          <ToggleGroupItem
-            value="play"
-            className={cn(
-              "px-3 py-1 text-xs font-semibold tracking-wider transition-all duration-150",
-              "data-[state=on]:bg-card data-[state=on]:text-foreground",
-              "data-[state=off]:bg-transparent data-[state=off]:text-muted",
-            )}
-          >
-            演奏
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            value="edit"
-            className={cn(
-              "px-3 py-1 text-xs font-semibold tracking-wider transition-all duration-150",
-              "data-[state=on]:bg-card data-[state=on]:text-foreground",
-              "data-[state=off]:bg-transparent data-[state=off]:text-muted",
-              "hover:text-foreground",
-            )}
-          >
-            編集
-          </ToggleGroupItem>
+          <ToggleGroupItem value="play">演奏</ToggleGroupItem>
+          <ToggleGroupItem value="edit">編集</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
