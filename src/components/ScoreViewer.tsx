@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import * as Toggle from "@radix-ui/react-toggle";
 import * as Toolbar from "@radix-ui/react-toolbar";
 import { usePlayback } from "@/hooks/usePlayback";
-import { type Score } from "@/lib/constants";
+import { type Score, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ScoreGrid } from "@/components/ScoreGrid";
-import { Transport } from "@/components/Transport";
 
 type Props = {
   score: Score;
@@ -17,6 +17,7 @@ type Props = {
 export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
   const pb = usePlayback(score);
   const areaRef = useRef<HTMLDivElement>(null);
+  const totalSteps = score.measures.length * SUBDIVISIONS;
 
   useEffect(() => {
     if (pb.currentMeasure < 0 || !areaRef.current) return;
@@ -28,12 +29,12 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
     if (!el) return;
     const containerRect = container.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
-    const scrollTop =
-      container.scrollTop +
-      elRect.top -
-      containerRect.top -
-      (container.clientHeight - el.clientHeight) / 2;
-    container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
+    const scrollLeft =
+      container.scrollLeft +
+      elRect.left -
+      containerRect.left -
+      (container.clientWidth - el.clientWidth) / 2;
+    container.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
   }, [pb.currentMeasure]);
 
   return (
@@ -58,7 +59,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         </div>
         <Toolbar.ToggleGroup
           type="single"
-          value="view"
+          value="play"
           onValueChange={(v) => {
             if (v === "edit") {
               pb.stop();
@@ -68,14 +69,14 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
           className="flex overflow-hidden rounded border border-border"
         >
           <Toolbar.ToggleItem
-            value="view"
+            value="play"
             className={cn(
               "px-3 py-1 text-xs font-semibold tracking-wider transition-all duration-150",
               "data-[state=on]:bg-card data-[state=on]:text-foreground",
               "data-[state=off]:bg-transparent data-[state=off]:text-muted",
             )}
           >
-            ビュー
+            演奏
           </Toolbar.ToggleItem>
           <Toolbar.ToggleItem
             value="edit"
@@ -91,35 +92,94 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         </Toolbar.ToggleGroup>
       </Toolbar.Root>
 
-      {/* Performance bar */}
-      {pb.isPlaying && (
-        <div className="flex items-baseline gap-3 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
-          <span className="text-xl font-bold font-mono text-accent">
-            M{pb.currentMeasure + 1}
-          </span>
-          <span className="text-sm font-mono text-muted">
-            Beat {pb.currentBeat + 1}
-          </span>
-          <span className="text-xs ml-auto text-muted">
-            {score.measures.length}小節
-          </span>
-        </div>
-      )}
+      {/* Controls: play/pause, stop, seek bar, BPM, loop — all in one row */}
+      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
+        {/* Play / Pause */}
+        <Toggle.Root
+          pressed={pb.isPlaying}
+          onPressedChange={pb.toggle}
+          className={cn(
+            "w-9 h-9 rounded-full flex items-center justify-center text-sm flex-shrink-0",
+            "transition-all duration-150 hover:scale-105 text-accent-foreground",
+            pb.isPlaying ? "bg-destructive" : "bg-accent",
+          )}
+        >
+          {pb.isPlaying ? "⏸" : "▶"}
+        </Toggle.Root>
 
-      <div ref={areaRef} className="flex-1 overflow-auto px-4 py-3.5 pb-2.5">
-        <ScoreGrid measures={score.measures} currentStep={pb.currentStep} />
+        {/* Stop */}
+        <button
+          type="button"
+          onClick={pb.stop}
+          className={cn(
+            "w-7 h-7 rounded flex items-center justify-center text-sm flex-shrink-0",
+            "transition-all duration-150 border border-border text-muted hover:bg-background hover:text-foreground",
+          )}
+          title="停止（先頭へ）"
+        >
+          ⏹
+        </button>
+
+        {/* Position */}
+        <span className="w-20 flex-shrink-0 font-mono text-xs text-muted">
+          {pb.currentStep >= 0
+            ? `M${String(pb.currentMeasure + 1).padStart(2, "0")} / B${pb.currentBeat + 1}`
+            : "M-- / B--"}
+        </span>
+
+        {/* Seek bar */}
+        <input
+          type="range"
+          min={0}
+          max={totalSteps - 1}
+          value={Math.max(0, pb.currentStep)}
+          onChange={(e) => pb.seekTo(+e.target.value)}
+          className="flex-1 accent-accent"
+        />
+
+        {/* BPM */}
+        <div className="flex items-center gap-1.5 text-xs text-muted flex-shrink-0">
+          <span>BPM</span>
+          <input
+            type="number"
+            value={pb.bpm}
+            min={30}
+            max={300}
+            onChange={(e) => pb.setBpm(+e.target.value)}
+            onBlur={(e) =>
+              pb.setBpm(Math.max(30, Math.min(300, +e.target.value)))
+            }
+            className={cn(
+              "w-14 text-center text-sm font-semibold px-1.5 py-0.5 rounded font-mono",
+              "bg-background border border-border text-foreground",
+            )}
+          />
+        </div>
+
+        {/* Loop */}
+        <Toggle.Root
+          pressed={pb.loop}
+          onPressedChange={() => pb.setLoop((l) => !l)}
+          className={cn(
+            "w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-150 flex-shrink-0",
+            pb.loop
+              ? "border border-accent/30 text-accent"
+              : "border border-border bg-transparent text-muted",
+          )}
+          title="ループ"
+        >
+          ⟳
+        </Toggle.Root>
       </div>
 
-      <Transport
-        isPlaying={pb.isPlaying}
-        onToggle={pb.toggle}
-        bpm={pb.bpm}
-        onBpmChange={pb.setBpm}
-        loop={pb.loop}
-        onLoopToggle={() => pb.setLoop((l) => !l)}
-        currentMeasure={pb.currentMeasure}
-        currentBeat={pb.currentBeat}
-      />
+      {/* Score — horizontal scroll */}
+      <div ref={areaRef} className="flex-1 overflow-x-auto overflow-y-hidden px-4 py-3.5">
+        <ScoreGrid
+          measures={score.measures}
+          currentStep={pb.currentStep}
+          horizontal
+        />
+      </div>
     </div>
   );
 };

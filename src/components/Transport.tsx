@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   isPlaying: boolean;
   onToggle: () => void;
+  onStop?: () => void;
   bpm: number;
   onBpmChange: (v: number) => void;
   loop: boolean;
@@ -17,6 +18,7 @@ type Props = {
 export const Transport = ({
   isPlaying,
   onToggle,
+  onStop,
   bpm,
   onBpmChange,
   loop,
@@ -39,6 +41,21 @@ export const Transport = ({
         {isPlaying ? "⏸" : "▶"}
       </Toggle.Root>
 
+      {/* Stop */}
+      {onStop && (
+        <button
+          type="button"
+          onClick={onStop}
+          className={cn(
+            "w-8 h-8 rounded flex items-center justify-center text-sm flex-shrink-0",
+            "transition-all duration-150 hover:bg-card border border-border text-muted hover:text-foreground",
+          )}
+          title="停止"
+        >
+          ⏹
+        </button>
+      )}
+
       {/* BPM */}
       <div className="flex items-center gap-1.5 text-xs text-muted">
         <span>BPM</span>
@@ -60,7 +77,7 @@ export const Transport = ({
 
       {/* Position */}
       <div className="text-xs font-mono text-muted">
-        {isPlaying ? (
+        {currentMeasure >= 0 ? (
           <>
             <strong className="text-foreground">
               {String(currentMeasure + 1).padStart(2, "0")}

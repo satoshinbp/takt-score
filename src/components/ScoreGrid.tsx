@@ -11,6 +11,7 @@ type Props = {
   onToggle?: (mi: number, partIdx: number, si: number) => void;
   selMeasures?: number[];
   onSelMeasure?: (mi: number) => void;
+  horizontal?: boolean;
 };
 
 export const ScoreGrid = ({
@@ -19,6 +20,7 @@ export const ScoreGrid = ({
   onToggle,
   selMeasures = [],
   onSelMeasure,
+  horizontal = false,
 }: Props) => {
   const curMeasure =
     currentStep >= 0 ? Math.floor(currentStep / SUBDIVISIONS) : -1;
@@ -50,7 +52,7 @@ export const ScoreGrid = ({
   }, [measures.length]);
 
   return (
-    <div ref={wrapRef} className="select-none flex flex-wrap gap-y-2">
+    <div ref={wrapRef} className={cn("select-none flex", horizontal ? "flex-nowrap" : "flex-wrap gap-y-2")}>
       {measures.map((measure, mi) => {
         const isCur = curMeasure === mi;
         const isSel = selMeasures.includes(mi);
