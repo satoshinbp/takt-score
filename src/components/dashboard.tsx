@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { Copy, Plus } from "lucide-react";
-import ScorePreview from "@/components/ScorePreview";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import ScorePreview from "@/components/score-preview";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 

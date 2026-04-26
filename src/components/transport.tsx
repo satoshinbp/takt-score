@@ -1,7 +1,7 @@
 "use client";
 
 import { Repeat } from "lucide-react";
-import { Toggle } from "@/components/ui/Toggle";
+import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 
 type Props = {

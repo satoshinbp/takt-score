@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import EditorToolbar from "@/components/EditorToolbar";
-import { ScoreGrid } from "@/components/ScoreGrid";
-import { Transport } from "@/components/Transport";
+import EditorToolbar from "@/components/editor-toolbar";
+import { ScoreGrid } from "@/components/score-grid";
+import { Transport } from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { cloneMeasure, emptyMeasure, PARTS, type Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";

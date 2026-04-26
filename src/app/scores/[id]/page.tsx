@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { DetailPage } from "@/components/DetailPage";
-import { Header } from "@/components/Header";
+import { DetailPage } from "@/components/detail-page";
+import { Header } from "@/components/header";
 import { type Score } from "@/lib/constants";
 import { loadScores, saveScores } from "@/lib/storage";
 

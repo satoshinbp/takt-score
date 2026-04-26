@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ScoreEditor } from "@/components/ScoreEditor";
-import { ScoreViewer } from "@/components/ScoreViewer";
+import { ScoreEditor } from "@/components/score-editor";
+import { ScoreViewer } from "@/components/score-viewer";
 import type { Score } from "@/lib/constants";
 
 type Props = {

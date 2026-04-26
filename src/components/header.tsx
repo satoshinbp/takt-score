@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
-import { TaktScoreIcon } from "@/components/Icon";
+import { TaktScoreIcon } from "@/components/icon";
 import { cn } from "@/lib/utils";
 
 export const Header = () => {

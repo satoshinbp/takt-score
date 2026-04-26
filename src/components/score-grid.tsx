@@ -1,7 +1,8 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
-import { DrumIcon } from "@/components/Icon";
+import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { DrumIcon } from "@/components/icon";
+import { Separator } from "@/components/ui/separator";
 import { type Measure, PARTS, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -65,7 +66,11 @@ export const ScoreGrid = ({
         const isRowStart = rowStarts.has(mi);
 
         return (
-          <div key={mi} data-measure={mi} className="shrink-0">
+          <Fragment key={mi}>
+            {horizontal && mi > 0 && (
+              <Separator orientation="vertical" className="mx-1 bg-border/50" />
+            )}
+          <div data-measure={mi} className="shrink-0">
             {/* Beat ruler row */}
             <div className="flex items-center mb-1.5">
               <button
@@ -134,8 +139,6 @@ export const ScoreGrid = ({
                   const global = mi * SUBDIVISIONS + si;
                   const isActive = measure[part.id][si] === 1;
                   const isCurrent = global === currentStep;
-                  const isBeat = si % 4 === 0;
-                  const isMeasureStart = horizontal && si === 0 && mi > 0;
 
                   const shadows: string[] = [];
 
@@ -146,29 +149,19 @@ export const ScoreGrid = ({
                       shadows.push(`inset 0 0 0 2px rgba(245,200,66,0.75)`);
                   }
 
-                  if (isMeasureStart)
-                    shadows.push("-3px 0 0 0 rgba(140,160,220,0.45)");
-
                   const cls = cn(
                     "w-6 h-6 mx-px rounded-sm border shrink-0 cursor-pointer transition duration-75",
                     isCurrent
                       ? "bg-[rgba(245,200,66,0.12)]"
-                      : isBeat
-                        ? "bg-[var(--surface-3)]"
-                        : "bg-[var(--surface-2)]",
+                      : "bg-[var(--surface-2)]",
                     isCurrent && isActive
                       ? "border-transparent"
                       : isCurrent
                         ? "border-[rgba(245,200,66,0.3)]"
                         : isActive
                           ? "border-transparent"
-                          : isBeat
-                            ? "border-[var(--border-strong)]"
-                            : "border-border",
-                    !isCurrent &&
-                      !isActive &&
-                      !isBeat &&
-                      "hover:bg-[var(--surface-3)] hover:border-[var(--border-strong)]",
+                          : "border-border",
+                    !isCurrent && !isActive && "hover:bg-[var(--surface-3)]",
                   );
 
                   return (
@@ -190,6 +183,7 @@ export const ScoreGrid = ({
               </div>
             ))}
           </div>
+          </Fragment>
         );
       })}
     </div>

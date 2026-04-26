@@ -2,11 +2,11 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Pause, Play, Repeat, Square } from "lucide-react";
-import { ScoreGrid } from "@/components/ScoreGrid";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Toggle } from "@/components/ui/Toggle";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
+import { ScoreGrid } from "@/components/score-grid";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -113,9 +113,10 @@ export const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
     }
 
     const startedAt = performance.now();
+    const animDurationMs = (toStep - fromStep) * stepDurationMs;
 
     const tick = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / stepDurationMs);
+      const progress = Math.min(1, (now - startedAt) / animDurationMs);
       const visualStep = fromStep + (toStep - fromStep) * progress;
       visualStepRef.current = visualStep;
       scrollToVisualStep(visualStep);
