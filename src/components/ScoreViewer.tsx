@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as Toolbar from "@radix-ui/react-toolbar";
 import { Pause, Play, Repeat, Square } from "lucide-react";
 import { ScoreGrid } from "@/components/ScoreGrid";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -42,24 +42,20 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
 
   return (
     <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
-      <Toolbar.Root className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
-        <Toolbar.Button
+      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
+        <Button
+          variant="outline"
           onClick={() => {
             pb.stop();
             onBack();
           }}
-          className={cn(
-            "inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium",
-            "transition-all duration-150 bg-transparent border border-border",
-            "text-muted hover:bg-card hover:text-foreground",
-          )}
         >
           ← 戻る
-        </Toolbar.Button>
-        <div className="text-lg font-semibold flex-1 min-w-0 truncate px-1.5">
+        </Button>
+        <div className="text-lg font-semibold flex-1 min-w-0 truncate px-2">
           {score.title}
         </div>
-        <Toolbar.ToggleGroup
+        <ToggleGroup
           type="single"
           value="play"
           onValueChange={(v) => {
@@ -70,7 +66,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
           }}
           className="flex overflow-hidden rounded border border-border"
         >
-          <Toolbar.ToggleItem
+          <ToggleGroupItem
             value="play"
             className={cn(
               "px-3 py-1 text-xs font-semibold tracking-wider transition-all duration-150",
@@ -79,8 +75,8 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
             )}
           >
             演奏
-          </Toolbar.ToggleItem>
-          <Toolbar.ToggleItem
+          </ToggleGroupItem>
+          <ToggleGroupItem
             value="edit"
             className={cn(
               "px-3 py-1 text-xs font-semibold tracking-wider transition-all duration-150",
@@ -90,9 +86,9 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
             )}
           >
             編集
-          </Toolbar.ToggleItem>
-        </Toolbar.ToggleGroup>
-      </Toolbar.Root>
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
 
       <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
         <Toggle
