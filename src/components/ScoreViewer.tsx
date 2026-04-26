@@ -183,7 +183,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         >
           <Square size={12} />
         </Button>
-        <span className="w-20 flex-shrink-0 font-mono text-xs text-muted">
+        <span className="w-20 flex-shrink-0 font-mono text-xs text-muted-foreground">
           {pb.currentStep >= 0
             ? `M${String(pb.currentMeasure + 1).padStart(2, "0")} / B${pb.currentBeat + 1}`
             : "M-- / B--"}
@@ -195,7 +195,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
           value={Math.max(0, pb.currentStep)}
           onChange={(e) => pb.seekTo(+e.target.value)}
         />
-        <div className="flex items-center gap-1.5 text-xs text-muted flex-shrink-0">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
           <span>BPM</span>
           <Input
             type="number"

@@ -139,7 +139,7 @@ export const ScoreEditor = ({
           className={cn(
             "inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium",
             "transition-all duration-150 bg-transparent border border-border",
-            "text-muted hover:bg-card hover:text-foreground",
+            "text-muted-foreground hover:bg-card hover:text-foreground",
           )}
         >
           ← 戻る

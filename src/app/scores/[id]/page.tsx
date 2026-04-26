@@ -39,7 +39,7 @@ const ScoreDetailPage = () => {
     return (
       <div className="flex flex-col overflow-hidden h-screen bg-background text-foreground">
         <Header />
-        <div className="flex-1 flex items-center justify-center text-sm text-muted">
+        <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
           スコアが見つかりません
         </div>
       </div>

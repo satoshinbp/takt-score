@@ -79,7 +79,7 @@ export const ScoreGrid = ({
                     : isRowStart
                       ? "w-16 min-w-16"
                       : "w-12 min-w-12",
-                  isSel || isCur ? "text-accent" : "text-muted",
+                  isSel || isCur ? "text-accent" : "text-muted-foreground",
                   isSel ? "border-accent" : "border-transparent",
                 )}
               >
@@ -93,8 +93,8 @@ export const ScoreGrid = ({
                       horizontal && b === 1
                         ? isCur
                           ? "text-accent font-bold"
-                          : "text-muted"
-                        : "text-muted",
+                          : "text-muted-foreground"
+                        : "text-muted-foreground",
                     )}
                   >
                     {horizontal && b === 1 ? `M${mi + 1}` : b}

@@ -49,7 +49,7 @@ export const Transport = ({
           onClick={onStop}
           className={cn(
             "w-8 h-8 rounded flex items-center justify-center text-sm flex-shrink-0",
-            "transition-all duration-150 hover:bg-card border border-border text-muted hover:text-foreground",
+            "transition-all duration-150 hover:bg-card border border-border text-muted-foreground hover:text-foreground",
           )}
           title="停止"
         >
@@ -58,7 +58,7 @@ export const Transport = ({
       )}
 
       {/* BPM */}
-      <div className="flex items-center gap-1.5 text-xs text-muted">
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <span>BPM</span>
         <input
           type="number"
@@ -77,7 +77,7 @@ export const Transport = ({
       </div>
 
       {/* Position */}
-      <div className="text-xs font-mono text-muted">
+      <div className="text-xs font-mono text-muted-foreground">
         {currentMeasure >= 0 ? (
           <>
             <strong className="text-foreground">
@@ -99,7 +99,7 @@ export const Transport = ({
             "w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-150",
             loop
               ? "border border-accent/30 text-accent"
-              : "border border-border bg-transparent text-muted",
+              : "border border-border bg-transparent text-muted-foreground",
           )}
           title="Loop"
         >
