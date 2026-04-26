@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { Copy, Plus } from "lucide-react";
+import { ScorePreview } from "@/components/ScorePreview";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import type { Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ScorePreview } from "./ScorePreview";
 
 type Props = {
   scores: Score[];
   onCreate: () => void;
   onCopy: (s: Score) => void;
-}
+};
 
 export const Dashboard = ({ scores, onCreate, onCopy }: Props) => {
   return (
@@ -28,7 +28,7 @@ export const Dashboard = ({ scores, onCreate, onCopy }: Props) => {
       </div>
     </div>
   );
-}
+};
 
 const DashboardHeader = ({
   count,
@@ -49,7 +49,7 @@ const DashboardHeader = ({
       </Button>
     </div>
   );
-}
+};
 
 const ScoreCard = ({
   score,
@@ -88,7 +88,7 @@ const ScoreCard = ({
       />
     </div>
   );
-}
+};
 
 const NewScoreCard = () => {
   return (
@@ -104,4 +104,4 @@ const NewScoreCard = () => {
       <div className="text-xs font-medium">新規ドラム譜</div>
     </Link>
   );
-}
+};

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DrumGrid } from "@/components/DrumGrid";
 import EditorToolbar from "@/components/EditorToolbar";
+import { ScoreGrid } from "@/components/ScoreGrid";
 import { Transport } from "@/components/Transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { cloneMeasure, emptyMeasure, PARTS, type Score } from "@/lib/constants";
@@ -13,9 +13,14 @@ type Props = {
   isNew?: boolean;
   onSave: (s: Score) => void;
   onBack: () => void;
-}
+};
 
-export const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
+export const ScoreEditor = ({
+  score,
+  isNew = false,
+  onSave,
+  onBack,
+}: Props) => {
   const [draft, setDraft] = useState<Score>(() => ({
     ...score,
     measures: score.measures.map(cloneMeasure),
@@ -174,13 +179,11 @@ export const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => 
         onDeselect={() => setSel([])}
       />
 
-      {/* Grid */}
       <div ref={areaRef} className="flex-1 overflow-auto px-4 py-3.5 pb-2.5">
-        <DrumGrid
+        <ScoreGrid
           measures={draft.measures}
           currentStep={pb.currentStep}
           onToggle={handleToggle}
-          mode="edit"
           selMeasures={sel}
           onSelMeasure={toggleSel}
         />
@@ -198,4 +201,4 @@ export const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => 
       />
     </div>
   );
-}
+};

@@ -1,4 +1,4 @@
-import type { Score } from "./constants";
+import type { Score } from "@/lib/constants";
 
 export const loadScores = async (): Promise<Score[]> => {
   const res = await fetch("/api/scores");

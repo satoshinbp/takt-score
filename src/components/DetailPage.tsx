@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { Score } from "@/lib/constants";
-import { ScoreEditor } from "./ScoreEditor";
-import { ScoreViewer } from "./ScoreViewer";
+import { ScoreEditor } from "@/components/ScoreEditor";
+import { ScoreViewer } from "@/components/ScoreViewer";
 
 type Props = {
   score: Score;

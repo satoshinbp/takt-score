@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect,useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as Toolbar from "@radix-ui/react-toolbar";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { DrumGrid } from "./DrumGrid";
-import { Transport } from "./Transport";
+import { ScoreGrid } from "@/components/ScoreGrid";
+import { Transport } from "@/components/Transport";
 
 type Props = {
   score: Score;
   onEdit: () => void;
   onBack: () => void;
-}
+};
 
 export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
   const pb = usePlayback(score);
@@ -107,7 +107,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
       )}
 
       <div ref={areaRef} className="flex-1 overflow-auto px-4 py-3.5 pb-2.5">
-        <DrumGrid measures={score.measures} currentStep={pb.currentStep} />
+        <ScoreGrid measures={score.measures} currentStep={pb.currentStep} />
       </div>
 
       <Transport
@@ -122,4 +122,4 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
       />
     </div>
   );
-}
+};
