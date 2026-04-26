@@ -135,14 +135,41 @@ export const ScoreGrid = ({
                   const isActive = measure[part.id][si] === 1;
                   const isCurrent = global === currentStep;
                   const isBeat = si % 4 === 0;
-                  let cls = "step-cell w-6 h-6 mx-px";
+                  const isMeasureStart = horizontal && si === 0 && mi > 0;
 
-                  if (horizontal && si === 0 && mi > 0) cls += " measure-start";
+                  const shadows: string[] = [];
 
-                  if (isActive) cls += " active";
+                  if (isActive) {
+                    shadows.push(`0 0 8px ${part.color}55`);
 
-                  if (isCurrent) cls += " cur";
-                  else if (isBeat && !isActive) cls += " beat";
+                    if (isCurrent)
+                      shadows.push(`inset 0 0 0 2px rgba(245,200,66,0.75)`);
+                  }
+
+                  if (isMeasureStart)
+                    shadows.push("-3px 0 0 0 rgba(140,160,220,0.45)");
+
+                  const cls = cn(
+                    "w-6 h-6 mx-px rounded-sm border shrink-0 cursor-pointer transition duration-75",
+                    isCurrent
+                      ? "bg-[rgba(245,200,66,0.12)]"
+                      : isBeat
+                        ? "bg-[var(--surface-3)]"
+                        : "bg-[var(--surface-2)]",
+                    isCurrent && isActive
+                      ? "border-transparent"
+                      : isCurrent
+                        ? "border-[rgba(245,200,66,0.3)]"
+                        : isActive
+                          ? "border-transparent"
+                          : isBeat
+                            ? "border-[var(--border-strong)]"
+                            : "border-border",
+                    !isCurrent &&
+                      !isActive &&
+                      !isBeat &&
+                      "hover:bg-[var(--surface-3)] hover:border-[var(--border-strong)]",
+                  );
 
                   return (
                     <button
@@ -153,11 +180,9 @@ export const ScoreGrid = ({
                       onClick={() => onToggle?.(mi, vi, si)}
                       style={{
                         background: isActive ? part.color : undefined,
-                        boxShadow: isActive
-                          ? isCurrent
-                            ? `0 0 8px ${part.color}55, inset 0 0 0 2px rgba(245,200,66,0.75)`
-                            : `0 0 8px ${part.color}55`
-                          : "none",
+                        boxShadow: shadows.length
+                          ? shadows.join(", ")
+                          : undefined,
                       }}
                     />
                   );
