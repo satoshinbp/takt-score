@@ -1,5 +1,5 @@
 import { Geist_Mono, Noto_Sans, Roboto } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
