@@ -1,42 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import * as Toolbar from "@radix-ui/react-toolbar";
 import { TaktScoreIcon } from "@/components/Icon";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  breadcrumb?: string;
   actions?: React.ReactNode;
 };
 
-export const Header = ({ breadcrumb, actions }: Props) => {
+export const Header = ({ actions }: Props) => {
   return (
-    <Toolbar.Root asChild>
-      <header
-        className={cn(
-          "flex items-center gap-4 px-4 h-12 flex-shrink-0",
-          "border-b bg-accent-foreground z-50",
-        )}
-      >
-        <Toolbar.Button asChild>
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-wider flex-shrink-0 font-sans text-accent"
-          >
-            <TaktScoreIcon size={24} />
-            TaktScore
-          </Link>
-        </Toolbar.Button>
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full bg-background",
+        "flex items-center gap-4 px-6 h-12",
+      )}
+    >
+      <button>
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-bold tracking-wider"
+        >
+          <TaktScoreIcon size={24} />
+          TaktScore
+        </Link>
+      </button>
 
-        {breadcrumb && (
-          <span className="text-xs uppercase tracking-wider text-muted">
-            {breadcrumb}
-          </span>
-        )}
-
-        {actions && <div className="ml-auto flex items-center">{actions}</div>}
-      </header>
-    </Toolbar.Root>
+      {actions && <div className="ml-auto flex items-center">{actions}</div>}
+    </header>
   );
 };

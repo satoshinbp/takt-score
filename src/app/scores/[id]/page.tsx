@@ -49,7 +49,6 @@ const ScoreDetailPage = () => {
   return (
     <div className="flex flex-col overflow-hidden h-screen bg-background text-foreground">
       <Header
-        breadcrumb={score.title}
         actions={
           <button
             onClick={() => void handleDelete()}

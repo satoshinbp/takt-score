@@ -19,7 +19,7 @@ const NewScorePage = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-screen">
-      <Header breadcrumb="新規作成" />
+      <Header />
       <ScoreEditor
         score={score}
         isNew
