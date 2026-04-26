@@ -1,6 +1,7 @@
 "use client";
 
-import * as Toggle from "@radix-ui/react-toggle";
+import { Repeat } from "lucide-react";
+import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -13,7 +14,7 @@ type Props = {
   onLoopToggle: () => void;
   currentMeasure: number;
   currentBeat: number;
-}
+};
 
 export const Transport = ({
   isPlaying,
@@ -29,7 +30,7 @@ export const Transport = ({
   return (
     <div className="flex items-center gap-3.5 px-4 py-2.5 flex-shrink-0 border-t border-border bg-background">
       {/* Play / Pause */}
-      <Toggle.Root
+      <Toggle
         pressed={isPlaying}
         onPressedChange={onToggle}
         className={cn(
@@ -39,7 +40,7 @@ export const Transport = ({
         )}
       >
         {isPlaying ? "⏸" : "▶"}
-      </Toggle.Root>
+      </Toggle>
 
       {/* Stop */}
       {onStop && (
@@ -91,7 +92,7 @@ export const Transport = ({
 
       {/* Loop toggle */}
       <div className="ml-auto">
-        <Toggle.Root
+        <Toggle
           pressed={loop}
           onPressedChange={onLoopToggle}
           className={cn(
@@ -102,9 +103,9 @@ export const Transport = ({
           )}
           title="Loop"
         >
-          ⟳
-        </Toggle.Root>
+          <Repeat size={12} />
+        </Toggle>
       </div>
     </div>
   );
-}
+};

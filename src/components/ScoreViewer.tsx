@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as Toggle from "@radix-ui/react-toggle";
 import * as Toolbar from "@radix-ui/react-toolbar";
+import { Pause, Play, Repeat } from "lucide-react";
+import { ScoreGrid } from "@/components/ScoreGrid";
+import { Toggle } from "@/components/ui/toggle";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ScoreGrid } from "@/components/ScoreGrid";
 
 type Props = {
   score: Score;
@@ -95,7 +96,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
       {/* Controls: play/pause, stop, seek bar, BPM, loop — all in one row */}
       <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
         {/* Play / Pause */}
-        <Toggle.Root
+        <Toggle
           pressed={pb.isPlaying}
           onPressedChange={pb.toggle}
           className={cn(
@@ -104,8 +105,8 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
             pb.isPlaying ? "bg-destructive" : "bg-accent",
           )}
         >
-          {pb.isPlaying ? "⏸" : "▶"}
-        </Toggle.Root>
+          {pb.isPlaying ? <Pause size={12} /> : <Play size={12} />}
+        </Toggle>
 
         {/* Stop */}
         <button
@@ -157,7 +158,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         </div>
 
         {/* Loop */}
-        <Toggle.Root
+        <Toggle
           pressed={pb.loop}
           onPressedChange={() => pb.setLoop((l) => !l)}
           className={cn(
@@ -168,12 +169,15 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
           )}
           title="ループ"
         >
-          ⟳
-        </Toggle.Root>
+          <Repeat size={12} />
+        </Toggle>
       </div>
 
       {/* Score — horizontal scroll */}
-      <div ref={areaRef} className="flex-1 overflow-x-auto overflow-y-hidden px-4 py-3.5">
+      <div
+        ref={areaRef}
+        className="flex-1 overflow-x-auto overflow-y-hidden px-4 py-3.5"
+      >
         <ScoreGrid
           measures={score.measures}
           currentStep={pb.currentStep}
