@@ -29,7 +29,7 @@ const Page = () => {
   if (!scores) return null;
 
   return (
-    <div className="flex flex-col overflow-hidden h-screen">
+    <div className="flex flex-col min-h-screen">
       <Header />
       <Dashboard
         scores={scores}
