@@ -1,36 +1,41 @@
-import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Geist_Mono, Noto_Sans, Roboto } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
-import "./global.css";
+import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const notoSansHeading = Noto_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-space-grotesk",
+  variable: "--font-heading",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  variable: "--font-jetbrains-mono",
-});
+const roboto = Roboto({ subsets: ["latin"], variable: "--font-sans" });
 
-export const metadata: Metadata = {
-  title: "TaktScore",
-  description: "耳コピしたドラムパターンを入力・保存・再生",
-};
+const fontMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html
-      lang="ja"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      lang="en"
+      suppressHydrationWarning
+      className={cn(
+        "antialiased",
+        fontMono.variable,
+        "font-sans",
+        roboto.variable,
+        notoSansHeading.variable,
+      )}
     >
-      <body className="font-sans">{children}</body>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }
