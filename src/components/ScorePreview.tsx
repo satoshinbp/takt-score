@@ -1,22 +1,24 @@
 "use client";
 
-import { type Measure,SUBDIVISIONS } from "@/lib/constants";
+import { type Measure, SUBDIVISIONS } from "@/lib/constants";
 
-type Props = { measures: Measure[] }
+type Props = { measure: Measure };
 
-export const ScorePreview = ({ measures }: Props) => {
-  const m = measures[0];
-
-  if (!m) return null;
-
+const ScorePreview = ({ measure }: Props) => {
   return (
     <div className="flex items-end gap-0.5 h-13 mb-3 overflow-hidden">
       {Array.from({ length: SUBDIVISIONS }, (_, s) => {
-        const bd = m.BD[s];
-        const sn = m.SNARE[s];
-        const hh = m.HH[s] || m.HH_OPEN[s];
+        const bd = measure.BD[s];
+        const sn = measure.SNARE[s];
+        const hh = measure.HH[s] || measure.HH_OPEN[s];
         const h = bd ? 52 : sn ? 36 : hh ? 20 : 6;
-        const col = bd ? "#f87171" : sn ? "#fb923c" : hh ? "#38bdf8" : "#1e1e26";
+        const col = bd
+          ? "#f87171"
+          : sn
+            ? "#fb923c"
+            : hh
+              ? "#38bdf8"
+              : "#1e1e26";
 
         return (
           <div
@@ -28,4 +30,6 @@ export const ScorePreview = ({ measures }: Props) => {
       })}
     </div>
   );
-}
+};
+
+export default ScorePreview;

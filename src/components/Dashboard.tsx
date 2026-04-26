@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Copy, Plus } from "lucide-react";
-import { ScorePreview } from "@/components/ScorePreview";
+import ScorePreview from "@/components/ScorePreview";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import type { Score } from "@/lib/constants";
@@ -66,7 +66,9 @@ const ScoreCard = ({
         "hover:border-border hover:bg-card hover:-translate-y-px hover:shadow-lg",
       )}
     >
-      <ScorePreview measures={score.measures} />
+      {score.measures.length > 0 && (
+        <ScorePreview measure={score.measures[0]} />
+      )}
       <div className="text-base font-semibold truncate">{score.title}</div>
       <div className="flex items-center gap-1 mt-2">
         <Badge variant="outline">{score.bpm} BPM</Badge>
