@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SOUNDS } from "@/lib/audio";
 import { PARTS, type Score, SUBDIVISIONS } from "@/lib/constants";
 
@@ -65,8 +65,8 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     if (r.current.score) r.current.score = { ...r.current.score, bpm: v };
   }, []);
 
-  const rafLoopRef = useRef<() => void>(() => {});
-  const schedulerRef = useRef<() => void>(() => {});
+  const rafLoopRef = useRef<(() => void) | null>(null);
+  const schedulerRef = useRef<(() => void) | null>(null);
 
   const rafLoop = useCallback(() => {
     const ref = r.current;
@@ -78,9 +78,8 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     for (const e of ref.scheduled) if (e.time <= now + 0.01) disp = e.step;
 
     if (disp >= 0) setCurrentStep(disp);
-    ref.raf = requestAnimationFrame(rafLoopRef.current);
+    ref.raf = requestAnimationFrame(rafLoopRef.current!);
   }, []);
-  rafLoopRef.current = rafLoop;
 
   const scheduler = useCallback(() => {
     const ref = r.current;
@@ -120,9 +119,13 @@ export const usePlayback = (score: Score | null): PlaybackState => {
         return;
       }
     }
-    ref.timer = setTimeout(schedulerRef.current, 25);
+    ref.timer = setTimeout(schedulerRef.current!, 25);
   }, []);
-  schedulerRef.current = scheduler;
+
+  useLayoutEffect(() => {
+    rafLoopRef.current = rafLoop;
+    schedulerRef.current = scheduler;
+  });
 
   const stop = useCallback(() => {
     const ref = r.current;
@@ -158,9 +161,9 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   }, [play, stop]);
 
   useEffect(() => {
-    return () => {
-      const ref = r.current;
+    const ref = r.current;
 
+    return () => {
       if (ref.timer) clearTimeout(ref.timer);
 
       if (ref.raf) cancelAnimationFrame(ref.raf);
