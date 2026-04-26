@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import * as Toolbar from "@radix-ui/react-toolbar";
-import { Pause, Play, Repeat } from "lucide-react";
+import { Pause, Play, Repeat, Square } from "lucide-react";
 import { ScoreGrid } from "@/components/ScoreGrid";
-import { Toggle } from "@/components/ui/toggle";
+import { Button } from "@/components/ui/Button";
+import { Toggle } from "@/components/ui/Toggle";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,6 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
 
   return (
     <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
-      {/* Top bar */}
       <Toolbar.Root className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
         <Toolbar.Button
           onClick={() => {
@@ -93,42 +93,26 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         </Toolbar.ToggleGroup>
       </Toolbar.Root>
 
-      {/* Controls: play/pause, stop, seek bar, BPM, loop — all in one row */}
       <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
-        {/* Play / Pause */}
-        <Toggle
-          pressed={pb.isPlaying}
-          onPressedChange={pb.toggle}
-          className={cn(
-            "w-9 h-9 rounded-full flex items-center justify-center text-sm flex-shrink-0",
-            "transition-all duration-150 hover:scale-105 text-accent-foreground",
-            pb.isPlaying ? "bg-destructive" : "bg-accent",
-          )}
-        >
-          {pb.isPlaying ? <Pause size={12} /> : <Play size={12} />}
+        <Toggle asChild pressed={pb.isPlaying} onPressedChange={pb.toggle}>
+          <Button type="button" variant="ghost" size="icon" title="停止">
+            {pb.isPlaying ? <Pause size={12} /> : <Play size={12} />}
+          </Button>
         </Toggle>
-
-        {/* Stop */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={pb.stop}
-          className={cn(
-            "w-7 h-7 rounded flex items-center justify-center text-sm flex-shrink-0",
-            "transition-all duration-150 border border-border text-muted hover:bg-background hover:text-foreground",
-          )}
-          title="停止（先頭へ）"
+          size="icon"
+          title="停止"
         >
-          ⏹
-        </button>
-
-        {/* Position */}
+          <Square size={12} />
+        </Button>
         <span className="w-20 flex-shrink-0 font-mono text-xs text-muted">
           {pb.currentStep >= 0
             ? `M${String(pb.currentMeasure + 1).padStart(2, "0")} / B${pb.currentBeat + 1}`
             : "M-- / B--"}
         </span>
-
-        {/* Seek bar */}
         <input
           type="range"
           min={0}
@@ -137,8 +121,6 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
           onChange={(e) => pb.seekTo(+e.target.value)}
           className="flex-1 accent-accent"
         />
-
-        {/* BPM */}
         <div className="flex items-center gap-1.5 text-xs text-muted flex-shrink-0">
           <span>BPM</span>
           <input
@@ -156,8 +138,6 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
             )}
           />
         </div>
-
-        {/* Loop */}
         <Toggle
           pressed={pb.loop}
           onPressedChange={() => pb.setLoop((l) => !l)}
@@ -173,7 +153,6 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         </Toggle>
       </div>
 
-      {/* Score — horizontal scroll */}
       <div
         ref={areaRef}
         className="flex-1 overflow-x-auto overflow-y-hidden px-4 py-3.5"
