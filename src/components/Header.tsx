@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
 import { TaktScoreIcon } from "@/components/Icon";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  actions?: React.ReactNode;
-};
+export const Header = () => {
+  const { resolvedTheme, setTheme } = useTheme();
 
-export const Header = ({ actions }: Props) => {
   return (
     <header
       className={cn(
@@ -23,7 +23,15 @@ export const Header = ({ actions }: Props) => {
         </Link>
       </button>
 
-      {actions && <div className="ml-auto flex items-center">{actions}</div>}
+      <div className="ml-auto flex items-center">
+        <button
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          className="p-2 rounded hover:bg-muted transition-colors"
+          title={resolvedTheme === "dark" ? "ライトモードに切り替え" : "ダークモードに切り替え"}
+        >
+          {resolvedTheme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+      </div>
     </header>
   );
 };
