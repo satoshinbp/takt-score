@@ -94,10 +94,12 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
       </Toolbar.Root>
 
       <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
-        <Toggle asChild pressed={pb.isPlaying} onPressedChange={pb.toggle}>
-          <Button type="button" variant="ghost" size="icon" title="停止">
-            {pb.isPlaying ? <Pause size={12} /> : <Play size={12} />}
-          </Button>
+        <Toggle
+          pressed={pb.isPlaying}
+          onPressedChange={pb.toggle}
+          title={pb.isPlaying ? "一時停止" : "再生"}
+        >
+          {pb.isPlaying ? <Pause size={12} /> : <Play size={12} />}
         </Toggle>
         <Button
           type="button"
@@ -141,12 +143,6 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         <Toggle
           pressed={pb.loop}
           onPressedChange={() => pb.setLoop((l) => !l)}
-          className={cn(
-            "w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-150 flex-shrink-0",
-            pb.loop
-              ? "border border-accent/30 text-accent"
-              : "border border-border bg-transparent text-muted",
-          )}
           title="ループ"
         >
           <Repeat size={12} />
@@ -155,7 +151,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
 
       <div
         ref={areaRef}
-        className="flex-1 overflow-x-auto overflow-y-hidden px-4 py-3.5"
+        className="flex-1 overflow-x-auto overflow-y-hidden p-4"
       >
         <ScoreGrid
           measures={score.measures}
