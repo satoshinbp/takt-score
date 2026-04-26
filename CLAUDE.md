@@ -40,7 +40,6 @@
 - **単位を名前に含める** — 単位を持つ値は変数名に単位を付ける（例: `startMs`, `sizeMb`, `delaySec`）。
 - **限界値は `max` / `min`** — `limit` は使わず `maxItemsInCart` / `minAge` のように上限・下限を明示する。
 - **範囲指定は `first` / `last`** — `start` / `stop` ではなく、両端を含む包括的範囲を示す `first` / `last` を使う。
-- **真偽値は `is` / `has`** — `isVisible`, `hasPermission` のように接頭辞を付け、否定形ではなく肯定形で定義する。
 
 ### コメント
 
@@ -54,6 +53,4 @@
 
 ### その他
 
-- **関数定義** — アロー関数で書く。
-- **非同期処理** — Promise の `.then()` / `.catch()` ではなく `async`/`await` と `try {} catch {}` を使う。
 - **アイコン** — 一般的なアイコンは `lucide-react` を使用し、アプリ固有のアイコンは `@/components/Icon.tsx` に SVG で定義する。
