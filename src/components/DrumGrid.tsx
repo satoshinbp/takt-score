@@ -66,7 +66,7 @@ export const DrumGrid = ({
                 className={cn(
                   "shrink-0 cursor-pointer font-mono font-bold text-xs",
                   "pr-2.5 text-right border-b-2 transition-all duration-150",
-                  isRowStart ? "w-16 min-w-16" : "w-8 min-w-8",
+                  isRowStart ? "w-16 min-w-16" : "w-12 min-w-12",
                   isSel || isCur ? "text-accent" : "text-muted",
                   isSel ? "border-accent" : "border-transparent",
                 )}
@@ -93,7 +93,7 @@ export const DrumGrid = ({
                 <div
                   className={cn(
                     "shrink-0 flex items-center gap-1.5 pr-2.5 font-mono font-semibold text-xs tracking-wider",
-                    isRowStart ? "w-16 min-w-16" : "w-8 min-w-8",
+                    isRowStart ? "w-16 min-w-16" : "w-12 min-w-12",
                   )}
                   style={{ color: part.color }}
                 >
