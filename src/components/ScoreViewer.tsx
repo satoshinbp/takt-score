@@ -5,6 +5,7 @@ import * as Toolbar from "@radix-ui/react-toolbar";
 import { Pause, Play, Repeat, Square } from "lucide-react";
 import { ScoreGrid } from "@/components/ScoreGrid";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { Toggle } from "@/components/ui/Toggle";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
@@ -115,17 +116,16 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
             ? `M${String(pb.currentMeasure + 1).padStart(2, "0")} / B${pb.currentBeat + 1}`
             : "M-- / B--"}
         </span>
-        <input
+        <Input
           type="range"
           min={0}
           max={totalSteps - 1}
           value={Math.max(0, pb.currentStep)}
           onChange={(e) => pb.seekTo(+e.target.value)}
-          className="flex-1 accent-accent"
         />
         <div className="flex items-center gap-1.5 text-xs text-muted flex-shrink-0">
           <span>BPM</span>
-          <input
+          <Input
             type="number"
             value={pb.bpm}
             min={30}
@@ -134,10 +134,6 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
             onBlur={(e) =>
               pb.setBpm(Math.max(30, Math.min(300, +e.target.value)))
             }
-            className={cn(
-              "w-14 text-center text-sm font-semibold px-1.5 py-0.5 rounded font-mono",
-              "bg-background border border-border text-foreground",
-            )}
           />
         </div>
         <Toggle
