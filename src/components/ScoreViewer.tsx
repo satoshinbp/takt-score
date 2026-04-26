@@ -56,6 +56,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         </div>
         <ToggleGroup
           type="single"
+          variant="outline"
           value="play"
           onValueChange={(v) => {
             if (v === "edit") {
