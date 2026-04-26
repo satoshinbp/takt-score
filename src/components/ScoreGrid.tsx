@@ -74,7 +74,11 @@ export const ScoreGrid = ({
                 className={cn(
                   "shrink-0 cursor-pointer font-mono font-bold text-xs",
                   "pr-2.5 text-right border-b-2 transition-all duration-150",
-                  isRowStart ? "w-16 min-w-16" : "w-12 min-w-12",
+                  horizontal
+                    ? "hidden"
+                    : isRowStart
+                      ? "w-16 min-w-16"
+                      : "w-12 min-w-12",
                   isSel || isCur ? "text-accent" : "text-muted",
                   isSel ? "border-accent" : "border-transparent",
                 )}
@@ -83,8 +87,17 @@ export const ScoreGrid = ({
               </button>
               {[1, 2, 3, 4].map((b) => (
                 <span key={b} className="flex">
-                  <span className="w-6 mx-px flex items-center justify-center font-mono text-xs text-muted shrink-0">
-                    {b}
+                  <span
+                    className={cn(
+                      "w-6 mx-px flex items-center justify-center font-mono text-xs shrink-0",
+                      horizontal && b === 1
+                        ? isCur
+                          ? "text-accent font-bold"
+                          : "text-muted"
+                        : "text-muted",
+                    )}
+                  >
+                    {horizontal && b === 1 ? `M${mi + 1}` : b}
                   </span>
                   {[0, 1, 2].map((sub) => (
                     <span
@@ -101,7 +114,11 @@ export const ScoreGrid = ({
                 <div
                   className={cn(
                     "shrink-0 flex items-center gap-1.5 pr-2.5 font-mono font-semibold text-xs tracking-wider",
-                    isRowStart ? "w-16 min-w-16" : "w-12 min-w-12",
+                    horizontal
+                      ? "hidden"
+                      : isRowStart
+                        ? "w-16 min-w-16"
+                        : "w-12 min-w-12",
                   )}
                   style={{ color: part.color }}
                 >
@@ -119,6 +136,8 @@ export const ScoreGrid = ({
                   const isCurrent = global === currentStep;
                   const isBeat = si % 4 === 0;
                   let cls = "step-cell w-6 h-6 mx-px";
+
+                  if (horizontal && si === 0 && mi > 0) cls += " measure-start";
 
                   if (isActive) cls += " active";
 
