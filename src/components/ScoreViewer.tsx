@@ -34,12 +34,8 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
 
     const baseStep = Math.floor(stepFloat);
     const nextStep = Math.min(baseStep + 1, totalSteps - 1);
-    const currentEl = content.querySelector(
-      `[data-step-anchor="${baseStep}"]`,
-    ) as HTMLElement | null;
-    const nextEl = content.querySelector(
-      `[data-step-anchor="${nextStep}"]`,
-    ) as HTMLElement | null;
+    const currentEl = content.querySelector(`[data-step-anchor="${baseStep}"]`);
+    const nextEl = content.querySelector(`[data-step-anchor="${nextStep}"]`);
 
     if (!currentEl) return;
 
@@ -96,6 +92,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
     if (pb.currentStep < 0) {
       visualStepRef.current = 0;
       scrollToVisualStep(0);
+
       return;
     }
 
@@ -109,6 +106,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
     if (!pb.isPlaying || fromStep === toStep) {
       visualStepRef.current = toStep;
       scrollToVisualStep(toStep);
+
       return;
     }
 
@@ -229,7 +227,7 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         )}
         <div
           ref={areaRef}
-          className="h-full overflow-x-auto overflow-y-hidden p-4"
+          className="h-full overflow-x-auto overflow-y-hidden px-6 py-4"
         >
           <div ref={contentRef} className="flex">
             <div
