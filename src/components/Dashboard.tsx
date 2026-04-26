@@ -16,8 +16,8 @@ type Props = {
 
 export const Dashboard = ({ scores, onCreate, onCopy }: Props) => {
   return (
-    <div className="flex flex-col flex-1 p-4 overflow-hidden bg-background">
-      <div className="flex-1 overflow-y-auto space-y-4">
+    <div className="flex flex-col flex-1 px-6 py-4 overflow-hidden">
+      <div className="flex flex-col flex-1 gap-4">
         <DashboardHeader count={scores.length} onCreate={onCreate} />
         <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
           {scores.map((s) => (
@@ -40,8 +40,8 @@ const DashboardHeader = ({
   return (
     <div className="flex justify-between items-end">
       <div>
-        <div className="text-2xl font-bold tracking-tight">My Scores</div>
-        <div className="text-sm text-muted">{count}件</div>
+        <div className="text-2xl font-bold">My Scores</div>
+        <div className="text-sm">{count}件</div>
       </div>
       <Button onClick={onCreate}>
         <Plus size={16} />

@@ -113,7 +113,7 @@ export const ScoreGrid = ({
               <div key={part.id} className="flex items-center mb-0.5">
                 <div
                   className={cn(
-                    "shrink-0 flex items-center gap-1.5 pr-2.5 font-mono font-semibold text-xs tracking-wider",
+                    "shrink-0 flex items-center gap-1.5 pr-2.5 font-mono font-semibold text-xs",
                     horizontal
                       ? "hidden"
                       : isRowStart

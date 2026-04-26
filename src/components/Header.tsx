@@ -13,14 +13,11 @@ export const Header = ({ actions }: Props) => {
     <header
       className={cn(
         "sticky top-0 z-50 w-full bg-background",
-        "flex items-center gap-4 px-6 h-12",
+        "flex items-center gap-4 px-6 min-h-12 border-b",
       )}
     >
       <button>
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-lg font-bold tracking-wider"
-        >
+        <Link href="/" className="flex items-center gap-2 text-lg font-bold">
           <TaktScoreIcon size={24} />
           TaktScore
         </Link>
