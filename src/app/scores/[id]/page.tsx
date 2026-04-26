@@ -6,7 +6,6 @@ import { DetailPage } from "@/components/DetailPage";
 import { Header } from "@/components/Header";
 import { type Score } from "@/lib/constants";
 import { loadScores, saveScores } from "@/lib/storage";
-import { cn } from "@/lib/utils";
 
 const ScoreDetailPage = () => {
   const router = useRouter();
@@ -48,24 +47,13 @@ const ScoreDetailPage = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-screen bg-background text-foreground">
-      <Header
-        actions={
-          <button
-            onClick={() => void handleDelete()}
-            className={cn(
-              "text-xs px-2.5 py-1 rounded transition-all duration-150",
-              "border border-transparent text-destructive hover:bg-destructive/10",
-            )}
-          >
-            削除
-          </button>
-        }
-      />
+      <Header />
       <DetailPage
         key={id}
         score={score}
         onSave={(s) => void handleSave(s)}
         onBack={() => router.push("/")}
+        onDelete={() => void handleDelete()}
       />
     </div>
   );

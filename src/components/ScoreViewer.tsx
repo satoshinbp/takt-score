@@ -9,14 +9,16 @@ import { Toggle } from "@/components/ui/Toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/ToggleGroup";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type Props = {
   score: Score;
   onEdit: () => void;
   onBack: () => void;
+  onDelete?: () => void;
 };
 
-export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
+export const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
   const pb = usePlayback(score);
   const areaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -164,6 +166,17 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
           <ToggleGroupItem value="play">演奏</ToggleGroupItem>
           <ToggleGroupItem value="edit">編集</ToggleGroupItem>
         </ToggleGroup>
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className={cn(
+              "text-xs px-2.5 py-1 rounded transition-all duration-150",
+              "border border-transparent text-destructive hover:bg-destructive/10",
+            )}
+          >
+            削除
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
