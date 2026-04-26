@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import * as Toolbar from "@radix-ui/react-toolbar";
+import { TaktScoreIcon } from "@/components/Icon";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -21,9 +22,10 @@ export const Header = ({ breadcrumb, actions }: Props) => {
         <Toolbar.Button asChild>
           <Link
             href="/"
-            className="text-lg font-bold tracking-wider flex-shrink-0 font-sans text-accent"
+            className="flex items-center gap-2 text-lg font-bold tracking-wider flex-shrink-0 font-sans text-accent"
           >
-            🥁 TaktScore
+            <TaktScoreIcon size={24} />
+            TaktScore
           </Link>
         </Toolbar.Button>
 
