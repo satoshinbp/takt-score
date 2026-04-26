@@ -12,9 +12,9 @@ type Props = {
   onLoopToggle: () => void;
   currentMeasure: number;
   currentBeat: number;
-};
+}
 
-export function Transport({
+export const Transport = ({
   isPlaying,
   onToggle,
   bpm,
@@ -23,7 +23,7 @@ export function Transport({
   onLoopToggle,
   currentMeasure,
   currentBeat,
-}: Props) {
+}: Props) => {
   return (
     <div className="flex items-center gap-3.5 px-4 py-2.5 flex-shrink-0 border-t border-border bg-background">
       {/* Play / Pause */}

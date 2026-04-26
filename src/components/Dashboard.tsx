@@ -1,20 +1,20 @@
 "use client";
 
-import type { Score } from "@/lib/constants";
+import Link from "next/link";
+import { Copy, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Copy, Plus } from "lucide-react";
+import type { Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ScorePreview } from "./ScorePreview";
-import Link from "next/link";
 
 type Props = {
   scores: Score[];
   onCreate: () => void;
   onCopy: (s: Score) => void;
-};
+}
 
-export function Dashboard({ scores, onCreate, onCopy }: Props) {
+export const Dashboard = ({ scores, onCreate, onCopy }: Props) => {
   return (
     <div className="page-fade flex flex-col flex-1 p-4 overflow-hidden bg-background">
       <div className="flex-1 overflow-y-auto space-y-4">
@@ -30,13 +30,13 @@ export function Dashboard({ scores, onCreate, onCopy }: Props) {
   );
 }
 
-function DashboardHeader({
+const DashboardHeader = ({
   count,
   onCreate,
 }: {
   count: number;
   onCreate: () => void;
-}) {
+}) => {
   return (
     <div className="flex justify-between items-end">
       <div>
@@ -51,13 +51,13 @@ function DashboardHeader({
   );
 }
 
-function ScoreCard({
+const ScoreCard = ({
   score,
   onCopy,
 }: {
   score: Score;
   onCopy: (s: Score) => void;
-}) {
+}) => {
   return (
     <div
       className={cn(
@@ -90,7 +90,7 @@ function ScoreCard({
   );
 }
 
-function NewScoreCard() {
+const NewScoreCard = () => {
   return (
     <Link
       href="/scores/new"

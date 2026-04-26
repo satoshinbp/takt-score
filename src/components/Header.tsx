@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 type Props = {
   breadcrumb?: string;
   actions?: React.ReactNode;
-};
+}
 
-export function Header({ breadcrumb, actions }: Props) {
+export const Header = ({ breadcrumb, actions }: Props) => {
   return (
     <Toolbar.Root asChild>
       <header

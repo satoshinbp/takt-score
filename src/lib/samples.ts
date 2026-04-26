@@ -1,7 +1,7 @@
 import {
   cloneMeasure,
-  newScore,
   type Measure,
+  newScore,
   type PartId,
   type Score,
 } from "@/lib/constants";

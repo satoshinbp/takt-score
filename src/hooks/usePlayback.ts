@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { PARTS, SUBDIVISIONS, type Score } from "@/lib/constants";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SOUNDS } from "@/lib/audio";
+import { PARTS, type Score, SUBDIVISIONS } from "@/lib/constants";
 
 export type PlaybackState = {
   isPlaying: boolean;
@@ -34,7 +34,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpmState] = useState(score?.bpm ?? 120);
-  const [loop, setLoop] = useState(true);
+  const [shouldLoop, setShouldLoop] = useState(true);
 
   const r = useRef<Refs>({
     ctx: null,
@@ -49,28 +49,42 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     score: null,
   });
 
-  useEffect(() => { r.current.score = score; }, [score]);
-  useEffect(() => { r.current.bpm = bpm; }, [bpm]);
-  useEffect(() => { r.current.loop = loop; }, [loop]);
+  useEffect(() => {
+    r.current.score = score;
+  }, [score]);
+  useEffect(() => {
+    r.current.bpm = bpm;
+  }, [bpm]);
+  useEffect(() => {
+    r.current.loop = shouldLoop;
+  }, [shouldLoop]);
 
   const setBpm = useCallback((v: number) => {
     setBpmState(v);
+
     if (r.current.score) r.current.score = { ...r.current.score, bpm: v };
   }, []);
 
+  const rafLoopRef = useRef<() => void>(() => {});
+  const schedulerRef = useRef<() => void>(() => {});
+
   const rafLoop = useCallback(() => {
     const ref = r.current;
+
     if (!ref.isPlaying || !ref.ctx) return;
     const now = ref.ctx.currentTime;
     ref.scheduled = ref.scheduled.filter((e) => e.time > now - 0.05);
     let disp = -1;
     for (const e of ref.scheduled) if (e.time <= now + 0.01) disp = e.step;
+
     if (disp >= 0) setCurrentStep(disp);
-    ref.raf = requestAnimationFrame(rafLoop);
+    ref.raf = requestAnimationFrame(rafLoopRef.current);
   }, []);
+  rafLoopRef.current = rafLoop;
 
   const scheduler = useCallback(() => {
     const ref = r.current;
+
     if (!ref.isPlaying || !ref.ctx) return;
     const look = 0.12;
     const dur = 60 / ref.bpm / 4;
@@ -83,6 +97,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
       const mIdx = Math.floor(step / SUBDIVISIONS);
       const sIdx = step % SUBDIVISIONS;
       const measure = ref.score?.measures?.[mIdx];
+
       if (measure) {
         PARTS.forEach((part) => {
           if (measure[part.id][sIdx]) {
@@ -92,22 +107,29 @@ export const usePlayback = (score: Score | null): PlaybackState => {
       }
       ref.step = (ref.step + 1) % total;
       ref.nextT += dur;
+
       if (!ref.loop && ref.step === 0) {
         ref.isPlaying = false;
         setIsPlaying(false);
         setCurrentStep(-1);
+
         if (ref.timer) clearTimeout(ref.timer);
+
         if (ref.raf) cancelAnimationFrame(ref.raf);
+
         return;
       }
     }
-    ref.timer = setTimeout(scheduler, 25);
+    ref.timer = setTimeout(schedulerRef.current, 25);
   }, []);
+  schedulerRef.current = scheduler;
 
   const stop = useCallback(() => {
     const ref = r.current;
     ref.isPlaying = false;
+
     if (ref.timer) clearTimeout(ref.timer);
+
     if (ref.raf) cancelAnimationFrame(ref.raf);
     ref.step = 0;
     ref.scheduled = [];
@@ -117,10 +139,12 @@ export const usePlayback = (score: Score | null): PlaybackState => {
 
   const play = useCallback(() => {
     const ref = r.current;
+
     if (!ref.ctx) {
       ref.ctx = new AudioContext();
     }
-    if (ref.ctx.state === "suspended") ref.ctx.resume();
+
+    if (ref.ctx.state === "suspended") void ref.ctx.resume();
     ref.isPlaying = true;
     ref.nextT = ref.ctx.currentTime + 0.05;
     setIsPlaying(true);
@@ -129,19 +153,24 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   }, [scheduler, rafLoop]);
 
   const toggle = useCallback(() => {
-    r.current.isPlaying ? stop() : play();
+    if (r.current.isPlaying) stop();
+    else play();
   }, [play, stop]);
 
   useEffect(() => {
     return () => {
       const ref = r.current;
+
       if (ref.timer) clearTimeout(ref.timer);
+
       if (ref.raf) cancelAnimationFrame(ref.raf);
     };
   }, []);
 
-  const currentMeasure = currentStep >= 0 ? Math.floor(currentStep / SUBDIVISIONS) : -1;
-  const currentBeat = currentStep >= 0 ? Math.floor((currentStep % SUBDIVISIONS) / 4) : -1;
+  const currentMeasure =
+    currentStep >= 0 ? Math.floor(currentStep / SUBDIVISIONS) : -1;
+  const currentBeat =
+    currentStep >= 0 ? Math.floor((currentStep % SUBDIVISIONS) / 4) : -1;
 
   return {
     isPlaying,
@@ -150,9 +179,9 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     currentBeat,
     bpm,
     setBpm,
-    loop,
-    setLoop,
+    loop: shouldLoop,
+    setLoop: setShouldLoop,
     toggle,
     stop,
   };
-}
+};

@@ -1,20 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { DetailPage } from "@/components/DetailPage";
+import { Header } from "@/components/Header";
 import { type Score } from "@/lib/constants";
 import { loadScores, saveScores } from "@/lib/storage";
-import { Header } from "@/components/Header";
-import { DetailPage } from "@/components/DetailPage";
 import { cn } from "@/lib/utils";
 
-export default function ScoreDetailPage() {
+const ScoreDetailPage = () => {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const [scores, setScores] = useState<Score[] | null>(null);
 
   useEffect(() => {
-    loadScores().then(setScores);
+    void (async () => {
+      setScores(await loadScores());
+    })();
   }, []);
 
   if (!scores) return null;
@@ -50,7 +52,7 @@ export default function ScoreDetailPage() {
         breadcrumb={score.title}
         actions={
           <button
-            onClick={handleDelete}
+            onClick={() => void handleDelete()}
             className={cn(
               "text-xs px-2.5 py-1 rounded transition-all duration-150",
               "border border-transparent text-destructive hover:bg-destructive/10",
@@ -63,9 +65,11 @@ export default function ScoreDetailPage() {
       <DetailPage
         key={id}
         score={score}
-        onSave={handleSave}
+        onSave={(s) => void handleSave(s)}
         onBack={() => router.push("/")}
       />
     </div>
   );
-}
+};
+
+export default ScoreDetailPage;

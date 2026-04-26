@@ -4,9 +4,9 @@ type Props = {
   id: PartId;
   color: string;
   size?: number;
-};
+}
 
-export function DrumIcon({ id, color, size = 20 }: Props) {
+export const DrumIcon = ({ id, color, size = 20 }: Props) => {
   const w = size;
   const h = Math.round((size * 22) / 28);
   const vb = "0 0 28 22";

@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import type { Score } from "@/lib/constants";
-import { ScoreViewer } from "./ScoreViewer";
 import { ScoreEditor } from "./ScoreEditor";
+import { ScoreViewer } from "./ScoreViewer";
 
 type Props = {
   score: Score;
   onSave: (s: Score) => void;
   onBack: () => void;
-};
+}
 
-export function DetailPage({ score, onSave, onBack }: Props) {
+export const DetailPage = ({ score, onSave, onBack }: Props) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [live, setLive] = useState(score);
 

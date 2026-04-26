@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useEffect,useRef } from "react";
 import * as Toolbar from "@radix-ui/react-toolbar";
-import { type Score } from "@/lib/constants";
 import { usePlayback } from "@/hooks/usePlayback";
+import { type Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { DrumGrid } from "./DrumGrid";
 import { Transport } from "./Transport";
@@ -12,9 +12,9 @@ type Props = {
   score: Score;
   onEdit: () => void;
   onBack: () => void;
-};
+}
 
-export function ScoreViewer({ score, onEdit, onBack }: Props) {
+export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
   const pb = usePlayback(score);
   const areaRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +24,7 @@ export function ScoreViewer({ score, onEdit, onBack }: Props) {
     const el = container.querySelector(
       `[data-measure="${pb.currentMeasure}"]`,
     ) as HTMLElement;
+
     if (!el) return;
     const containerRect = container.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();

@@ -28,7 +28,7 @@ export type PartConfig = {
   label: string;
   short: string;
   color: string;
-};
+}
 
 export const PARTS: PartConfig[] = [
   { id: "CRASH",   label: "Crash",   short: "CR", color: "#d946ef" },
@@ -52,7 +52,7 @@ export type Score = {
   measures: Measure[];
   createdAt: number;
   updatedAt: number;
-};
+}
 
 export const emptyMeasure = (): Measure =>
   Object.fromEntries(

@@ -2,8 +2,10 @@ import type { Score } from "./constants";
 
 export const loadScores = async (): Promise<Score[]> => {
   const res = await fetch("/api/scores");
+
   if (!res.ok) return [];
-  return res.json();
+
+  return res.json() as Promise<Score[]>;
 };
 
 export const saveScores = async (scores: Score[]): Promise<void> => {

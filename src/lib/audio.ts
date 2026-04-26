@@ -27,7 +27,9 @@ const tone = (ctx: AC, t: number, dur: number, f0: number, f1: number | null, g:
   osc.connect(gn);
   gn.connect(ctx.destination);
   osc.frequency.setValueAtTime(f0, t);
+
   if (f1) osc.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.6);
+
   if (atk > 0) {
     gn.gain.setValueAtTime(0.0001, t);
     gn.gain.linearRampToValueAtTime(g, t + atk);

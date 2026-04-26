@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { newScore, type Score } from "@/lib/constants";
-import { loadScores, saveScores } from "@/lib/storage";
 import { Header } from "@/components/Header";
 import { ScoreEditor } from "@/components/ScoreEditor";
+import { newScore, type Score } from "@/lib/constants";
+import { loadScores, saveScores } from "@/lib/storage";
 
-export default function NewScorePage() {
+const NewScorePage = () => {
   const router = useRouter();
   const [score] = useState(() => newScore("New Score", 120));
 
@@ -23,9 +23,13 @@ export default function NewScorePage() {
       <ScoreEditor
         score={score}
         isNew
-        onSave={handleSave}
+        onSave={() => {
+          void handleSave;
+        }}
         onBack={() => router.push("/")}
       />
     </div>
   );
-}
+};
+
+export default NewScorePage;

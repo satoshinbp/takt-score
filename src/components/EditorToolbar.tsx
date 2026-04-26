@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
 import * as Toolbar from "@radix-ui/react-toolbar";
 import {
   ArrowDown,
@@ -11,6 +10,7 @@ import {
   Trash,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 const ToolbarBtn = ({
   children,
@@ -50,7 +50,7 @@ type Props = {
   onClear: () => void;
   onDelete: () => void;
   onDeselect: () => void;
-};
+}
 
 const EditorToolbar = ({
   sel,

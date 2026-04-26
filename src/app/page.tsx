@@ -1,26 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect,useState } from "react";
 import { useRouter } from "next/navigation";
+import { Dashboard } from "@/components/Dashboard";
+import { Header } from "@/components/Header";
 import { cloneMeasure, type Score } from "@/lib/constants";
 import { makeSamples } from "@/lib/samples";
 import { loadScores, saveScores } from "@/lib/storage";
-import { Header } from "@/components/Header";
-import { Dashboard } from "@/components/Dashboard";
 
-export default function Page() {
+const Page = () => {
   const [scores, setScores] = useState<Score[] | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    loadScores().then((data) => {
+    void (async () => {
+      const data = await loadScores();
+
       if (data.length === 0) {
         const samples = makeSamples();
-        saveScores(samples).then(() => setScores(samples));
+        await saveScores(samples);
+        setScores(samples);
       } else {
         setScores(data);
       }
-    });
+    })();
   }, []);
 
   if (!scores) return null;
@@ -42,9 +45,11 @@ export default function Page() {
           };
           const next = [...scores, copied];
           setScores(next);
-          saveScores(next);
+          void saveScores(next);
         }}
       />
     </div>
   );
-}
+};
+
+export default Page;

@@ -1,21 +1,21 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DrumGrid } from "@/components/DrumGrid";
 import EditorToolbar from "@/components/EditorToolbar";
 import { Transport } from "@/components/Transport";
 import { usePlayback } from "@/hooks/usePlayback";
-import { PARTS, cloneMeasure, emptyMeasure, type Score } from "@/lib/constants";
+import { cloneMeasure, emptyMeasure, PARTS, type Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
   score: Score;
   isNew?: boolean;
   onSave: (s: Score) => void;
   onBack: () => void;
-};
+}
 
-export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
+export const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   const [draft, setDraft] = useState<Score>(() => ({
     ...score,
     measures: score.measures.map(cloneMeasure),
@@ -42,6 +42,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
     const el = container.querySelector(
       `[data-measure="${pb.currentMeasure}"]`,
     ) as HTMLElement;
+
     if (!el) return;
     const containerRect = container.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
@@ -59,6 +60,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
       setDraft((d) => {
         const ms = d.measures.map(cloneMeasure);
         ms[mi][partId][si] = ms[mi][partId][si] ? 0 : 1;
+
         return { ...d, measures: ms };
       });
     },
@@ -93,6 +95,7 @@ export function ScoreEditor({ score, isNew = false, onSave, onBack }: Props) {
     setDraft((d) => {
       const ms = [...d.measures];
       ms.splice(at, 0, ...clip.map(cloneMeasure));
+
       return { ...d, measures: ms };
     });
   };
