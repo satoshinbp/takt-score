@@ -41,7 +41,7 @@ const DashboardHeader = ({
     <div className="flex justify-between items-end">
       <div>
         <div className="text-2xl font-bold">My Scores</div>
-        <div className="text-sm">{count}件</div>
+        <div className="text-sm text-muted-foreground">{count}件</div>
       </div>
       <Button onClick={onCreate}>
         <Plus size={16} />
@@ -61,9 +61,8 @@ const ScoreCard = ({
   return (
     <div
       className={cn(
-        "relative p-4 transition-all",
-        "overflow-hidden bg-background border border-border",
-        "hover:border-border hover:bg-card hover:-translate-y-px hover:shadow-lg",
+        "relative p-4 transition-all border",
+        "hover:-translate-y-px hover:shadow-lg",
       )}
     >
       {score.measures.length > 0 && (
@@ -78,7 +77,7 @@ const ScoreCard = ({
           size="icon"
           onClick={() => onCopy(score)}
           title="複製"
-          className="relative z-20 ml-auto"
+          className="z-20 ml-auto"
         >
           <Copy size={12} />
         </Button>
@@ -98,8 +97,8 @@ const NewScoreCard = () => {
       href="/scores/new"
       className={cn(
         "p-4 flex flex-col items-center justify-center gap-2 min-h-32 w-full",
-        "transition-all border border-border border-dashed text-muted",
-        "hover:text-primary hover:border-accent hover:-translate-y-px",
+        "transition-all border border-dashed bg-muted text-muted-foreground",
+        "hover:text-primary hover:border-primary hover:-translate-y-px",
       )}
     >
       <Plus />
