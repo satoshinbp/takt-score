@@ -15,6 +15,8 @@ export type PlaybackState = {
   setLoop: (v: boolean | ((prev: boolean) => boolean)) => void;
   toggle: () => void;
   stop: () => void;
+  pause: () => void;
+  seekTo: (step: number) => void;
 };
 
 type Refs = {
@@ -155,10 +157,35 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     ref.raf = requestAnimationFrame(rafLoop);
   }, [scheduler, rafLoop]);
 
+  const pause = useCallback(() => {
+    const ref = r.current;
+    ref.isPlaying = false;
+    if (ref.timer) clearTimeout(ref.timer);
+    if (ref.raf) cancelAnimationFrame(ref.raf);
+    setIsPlaying(false);
+  }, []);
+
+  const seekTo = useCallback(
+    (step: number) => {
+      const ref = r.current;
+      ref.step = step;
+      ref.scheduled = [];
+      setCurrentStep(step);
+      if (ref.isPlaying && ref.ctx) {
+        if (ref.timer) clearTimeout(ref.timer);
+        if (ref.raf) cancelAnimationFrame(ref.raf);
+        ref.nextT = ref.ctx.currentTime + 0.05;
+        scheduler();
+        ref.raf = requestAnimationFrame(rafLoop);
+      }
+    },
+    [scheduler, rafLoop],
+  );
+
   const toggle = useCallback(() => {
-    if (r.current.isPlaying) stop();
+    if (r.current.isPlaying) pause();
     else play();
-  }, [play, stop]);
+  }, [play, pause]);
 
   useEffect(() => {
     const ref = r.current;
@@ -186,5 +213,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     setLoop: setShouldLoop,
     toggle,
     stop,
+    pause,
+    seekTo,
   };
 };
