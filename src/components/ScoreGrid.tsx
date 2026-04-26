@@ -52,7 +52,13 @@ export const ScoreGrid = ({
   }, [measures.length]);
 
   return (
-    <div ref={wrapRef} className={cn("select-none flex", horizontal ? "flex-nowrap" : "flex-wrap gap-y-2")}>
+    <div
+      ref={wrapRef}
+      className={cn(
+        "select-none flex",
+        horizontal ? "flex-nowrap" : "flex-wrap gap-y-2",
+      )}
+    >
       {measures.map((measure, mi) => {
         const isCur = curMeasure === mi;
         const isSel = selMeasures.includes(mi);
@@ -124,6 +130,7 @@ export const ScoreGrid = ({
                       type="button"
                       key={si}
                       className={cls}
+                      data-step-anchor={vi === 0 ? global : undefined}
                       onClick={() => onToggle?.(mi, vi, si)}
                       style={{
                         background: isActive ? part.color : undefined,

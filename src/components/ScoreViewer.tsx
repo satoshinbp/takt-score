@@ -20,24 +20,22 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
   const pb = usePlayback(score);
   const areaRef = useRef<HTMLDivElement>(null);
   const totalSteps = score.measures.length * SUBDIVISIONS;
+  const playheadRatio = 0.35;
 
   useEffect(() => {
-    if (pb.currentMeasure < 0 || !areaRef.current) return;
+    if (pb.currentStep < 0 || !areaRef.current) return;
     const container = areaRef.current;
     const el = container.querySelector(
-      `[data-measure="${pb.currentMeasure}"]`,
+      `[data-step-anchor="${pb.currentStep}"]`,
     ) as HTMLElement;
 
     if (!el) return;
-    const containerRect = container.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const scrollLeft =
-      container.scrollLeft +
-      elRect.left -
-      containerRect.left -
-      (container.clientWidth - el.clientWidth) / 2;
-    container.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
-  }, [pb.currentMeasure]);
+    const cellCenter = el.offsetLeft + el.offsetWidth / 2;
+    const playheadX = container.clientWidth * playheadRatio;
+    const nextScrollLeft = Math.max(0, cellCenter - playheadX);
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    container.scrollLeft = Math.min(nextScrollLeft, maxScrollLeft);
+  }, [pb.currentStep]);
 
   return (
     <div className="page-fade flex flex-col h-full overflow-hidden bg-background">
@@ -121,15 +119,24 @@ export const ScoreViewer = ({ score, onEdit, onBack }: Props) => {
         </Toggle>
       </div>
 
-      <div
-        ref={areaRef}
-        className="flex-1 overflow-x-auto overflow-y-hidden p-4"
-      >
-        <ScoreGrid
-          measures={score.measures}
-          currentStep={pb.currentStep}
-          horizontal
-        />
+      <div className="relative flex-1 overflow-hidden">
+        {pb.currentStep >= 0 && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-4 z-10 w-px bg-accent/70"
+            style={{ left: `${playheadRatio * 100}%` }}
+          />
+        )}
+        <div
+          ref={areaRef}
+          className="h-full overflow-x-auto overflow-y-hidden p-4"
+        >
+          <ScoreGrid
+            measures={score.measures}
+            currentStep={pb.currentStep}
+            horizontal
+          />
+        </div>
       </div>
     </div>
   );
