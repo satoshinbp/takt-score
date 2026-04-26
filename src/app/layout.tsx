@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono,Space_Grotesk } from "next/font/google";
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 
-import "./globals.css";
+import "./global.css";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -30,9 +30,7 @@ export default function RootLayout({
       lang="ja"
       className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="font-sans">
-        {children}
-      </body>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }
