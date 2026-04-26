@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Drum Master",
+  title: "TaktScore",
   description: "耳コピしたドラムパターンを入力・保存・再生",
 };
 

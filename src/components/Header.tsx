@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   breadcrumb?: string;
   actions?: React.ReactNode;
-}
+};
 
 export const Header = ({ breadcrumb, actions }: Props) => {
   return (
@@ -23,7 +23,7 @@ export const Header = ({ breadcrumb, actions }: Props) => {
             href="/"
             className="text-lg font-bold tracking-wider flex-shrink-0 font-sans text-accent"
           >
-            🥁 DRUM MASTER
+            🥁 TaktScore
           </Link>
         </Toolbar.Button>
 
@@ -37,4 +37,4 @@ export const Header = ({ breadcrumb, actions }: Props) => {
       </header>
     </Toolbar.Root>
   );
-}
+};
