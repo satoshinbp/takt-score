@@ -1,6 +1,5 @@
 "use client";
 
-import * as Toolbar from "@radix-ui/react-toolbar";
 import {
   ArrowDown,
   CirclePlus,
@@ -10,34 +9,9 @@ import {
   Trash,
   X,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const ToolbarBtn = ({
-  children,
-  onClick,
-  disabled,
-  destructive,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  destructive?: boolean;
-}) => (
-  <Toolbar.Button asChild>
-    <Button
-      variant={destructive ? "destructive" : "outline"}
-      onClick={onClick}
-      disabled={disabled}
-      size="sm"
-    >
-      {children}
-    </Button>
-  </Toolbar.Button>
-);
-
-const ToolbarSeparator = () => (
-  <Toolbar.Separator className="w-px h-5 flex-shrink-0 bg-border" />
-);
+import { Separator } from "@/components/ui/separator";
 
 type Props = {
   sel: number[];
@@ -50,7 +24,7 @@ type Props = {
   onClear: () => void;
   onDelete: () => void;
   onDeselect: () => void;
-}
+};
 
 const EditorToolbar = ({
   sel,
@@ -67,16 +41,17 @@ const EditorToolbar = ({
   const selSorted = [...sel].sort((a, b) => a - b);
 
   return (
-    <Toolbar.Root className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b flex-wrap">
+    <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b flex-wrap">
       <span className="text-xs uppercase mr-0.5">追加</span>
-      <ToolbarBtn onClick={onAddBlank}>
-        <Plus size={12} /> 空の小節
-      </ToolbarBtn>
-      <ToolbarBtn onClick={onAddDupe}>
-        <CirclePlus size={12} /> {sel.length ? "選択を複製" : "末尾を複製"}
-      </ToolbarBtn>
 
-      <ToolbarSeparator />
+      <Button variant="outline" onClick={onAddBlank} size="sm">
+        <Plus size={12} /> 空の小節
+      </Button>
+      <Button variant="outline" onClick={onAddDupe} size="sm">
+        <CirclePlus size={12} /> {sel.length ? "選択を複製" : "末尾を複製"}
+      </Button>
+
+      <Separator orientation="vertical" />
 
       <span className="text-xs uppercase mr-0.5">選択操作</span>
       {sel.length === 0 ? (
@@ -85,36 +60,41 @@ const EditorToolbar = ({
         </span>
       ) : (
         <>
-          <span className="text-xs font-semibold px-2 py-0.5 text-accent border border-accent">
-            M{selSorted.map((i) => i + 1).join(", ")} 選択中
-          </span>
-          <ToolbarBtn onClick={onCopy}>
+          <Badge>M{selSorted.map((i) => i + 1).join(", ")} 選択中</Badge>
+          <Button variant="outline" onClick={onCopy} size="sm">
             <Copy size={12} /> コピー
-          </ToolbarBtn>
+          </Button>
           {clipSize > 0 && (
-            <ToolbarBtn onClick={onPaste}>
+            <Button variant="outline" onClick={onPaste} size="sm">
               <ClipboardPaste size={12} /> 貼り付け ({clipSize})
-            </ToolbarBtn>
+            </Button>
           )}
-          <ToolbarBtn onClick={onClear}>
+          <Button variant="outline" onClick={onClear} size="sm">
             <Trash size={12} /> クリア
-          </ToolbarBtn>
-          <ToolbarBtn destructive onClick={onDelete} disabled={!canDelete}>
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={onDelete}
+            disabled={!canDelete}
+            size="sm"
+          >
             <X size={12} /> 削除
-          </ToolbarBtn>
-          <ToolbarBtn onClick={onDeselect}>解除</ToolbarBtn>
+          </Button>
+          <Button variant="outline" onClick={onDeselect} size="sm">
+            解除
+          </Button>
         </>
       )}
 
       {clipSize > 0 && sel.length === 0 && (
         <>
-          <ToolbarSeparator />
-          <ToolbarBtn onClick={onPaste}>
+          <Separator orientation="vertical" />
+          <Button variant="outline" onClick={onPaste} size="sm">
             <ClipboardPaste size={12} /> 貼り付け ({clipSize})
-          </ToolbarBtn>
+          </Button>
         </>
       )}
-    </Toolbar.Root>
+    </div>
   );
 };
 

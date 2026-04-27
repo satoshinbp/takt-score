@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import EditorToolbar from "@/components/editor-toolbar";
 import ScoreGrid from "@/components/score-grid";
 import Transport from "@/components/transport";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { usePlayback } from "@/hooks/usePlayback";
 import { cloneMeasure, emptyMeasure, PARTS, type Score } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 
 type Props = {
   score: Score;
@@ -124,41 +126,23 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
-      {/* Top bar */}
-      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
-        <button
+      <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
+        <Button
+          variant="outline"
           onClick={() => {
             pb.stop();
             onBack();
           }}
-          className={cn(
-            "inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium",
-            "transition-all duration-150 bg-transparent border border-border",
-            "text-muted-foreground hover:bg-card hover:text-foreground",
-          )}
         >
-          ← 戻る
-        </button>
-        <input
+          <ArrowLeft size={12} />
+          戻る
+        </Button>
+        <Input
           value={draft.title}
           onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
           placeholder="タイトル..."
-          className={cn(
-            "text-lg font-semibold flex-1 min-w-0 px-1.5 py-0.5 rounded",
-            "bg-transparent border border-transparent text-foreground outline-none",
-            "transition-colors duration-150",
-            "focus:border-border focus:bg-card",
-          )}
         />
-        <button
-          onClick={handleSave}
-          className={cn(
-            "inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium",
-            "transition-all duration-150 bg-accent text-accent-foreground",
-          )}
-        >
-          {isNew ? "作成" : "保存"}
-        </button>
+        <Button onClick={handleSave}>{isNew ? "作成" : "保存"}</Button>
       </div>
 
       <EditorToolbar
