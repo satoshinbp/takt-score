@@ -9,29 +9,110 @@ import {
 } from "react";
 import { Pause, Play, Repeat, Square } from "lucide-react";
 import ScoreGrid from "@/components/score-grid";
+import ViewerHeader from "@/components/score-viewer-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 
-type Props = {
-  score: Score;
-  onEdit: () => void;
-  onBack: () => void;
-  onDelete?: () => void;
+type TransportProps = {
+  isPlaying: boolean;
+  currentStep: number;
+  currentMeasure: number;
+  currentBeat: number;
+  bpm: number;
+  loop: boolean;
+  totalSteps: number;
+  onToggle: () => void;
+  onStop: () => void;
+  onBpmChange: (v: number) => void;
+  onSeek: (step: number) => void;
+  onLoopToggle: () => void;
 };
 
-const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
-  const pb = usePlayback(score);
+const Transport = ({
+  isPlaying,
+  currentStep,
+  currentMeasure,
+  currentBeat,
+  bpm,
+  loop,
+  totalSteps,
+  onToggle,
+  onStop,
+  onBpmChange,
+  onSeek,
+  onLoopToggle,
+}: TransportProps) => (
+  <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
+    <Toggle
+      pressed={isPlaying}
+      onPressedChange={onToggle}
+      title={isPlaying ? "一時停止" : "再生"}
+    >
+      {isPlaying ? <Pause size={12} /> : <Play size={12} />}
+    </Toggle>
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={onStop}
+      size="icon"
+      title="停止"
+    >
+      <Square size={12} />
+    </Button>
+    <span className="w-20 flex-shrink-0 font-mono text-xs text-muted-foreground">
+      {currentStep >= 0
+        ? `M${String(currentMeasure + 1).padStart(2, "0")} / B${currentBeat + 1}`
+        : "M-- / B--"}
+    </span>
+    <Input
+      type="range"
+      min={0}
+      max={totalSteps - 1}
+      value={Math.max(0, currentStep)}
+      onChange={(e) => onSeek(+e.target.value)}
+    />
+    <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
+      <span>BPM</span>
+      <Input
+        type="number"
+        value={bpm}
+        min={30}
+        max={300}
+        onChange={(e) => onBpmChange(+e.target.value)}
+        onBlur={(e) =>
+          onBpmChange(Math.max(30, Math.min(300, +e.target.value)))
+        }
+      />
+    </div>
+    <Toggle pressed={loop} onPressedChange={onLoopToggle} title="ループ">
+      <Repeat size={12} />
+    </Toggle>
+  </div>
+);
+
+type ScoreAreaProps = {
+  measures: Score["measures"];
+  currentStep: number;
+  isPlaying: boolean;
+  bpm: number;
+};
+
+const PLAYHEAD_RATIO = 0.35;
+
+const ScoreArea = ({
+  measures,
+  currentStep,
+  isPlaying,
+  bpm,
+}: ScoreAreaProps) => {
   const areaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | null>(null);
   const visualStepRef = useRef(0);
-  const totalSteps = score.measures.length * SUBDIVISIONS;
-  const playheadRatio = 0.35;
+  const totalSteps = measures.length * SUBDIVISIONS;
   const [edgePadding, setEdgePadding] = useState({ left: 0, right: 0 });
 
   const scrollToVisualStep = useCallback(
@@ -57,15 +138,19 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
       const nextCenter = nextAnchor
         ? nextAnchor.offsetLeft + nextAnchor.offsetWidth / 2
         : currentCenter;
-      const progress = stepFloat - baseStep;
       const cellCenter =
-        currentCenter + (nextCenter - currentCenter) * Math.max(0, progress);
-      const playheadX = container.clientWidth * playheadRatio;
-      const nextScrollLeft = Math.max(0, cellCenter - playheadX);
-      const maxScrollLeft = container.scrollWidth - container.clientWidth;
-      container.scrollLeft = Math.min(nextScrollLeft, maxScrollLeft);
+        currentCenter +
+        (nextCenter - currentCenter) * Math.max(0, stepFloat - baseStep);
+      const nextScrollLeft = Math.max(
+        0,
+        cellCenter - container.clientWidth * PLAYHEAD_RATIO,
+      );
+      container.scrollLeft = Math.min(
+        nextScrollLeft,
+        container.scrollWidth - container.clientWidth,
+      );
     },
-    [playheadRatio, totalSteps],
+    [totalSteps],
   );
 
   useLayoutEffect(() => {
@@ -81,14 +166,14 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
 
       if (!firstAnchor || !lastAnchor) return;
 
-      const playheadX = container.clientWidth * playheadRatio;
-      const left = Math.max(0, playheadX - firstAnchor.offsetWidth / 2);
-      const right = Math.max(
-        0,
-        container.clientWidth - playheadX - lastAnchor.offsetWidth / 2,
-      );
-
-      setEdgePadding({ left, right });
+      const playheadX = container.clientWidth * PLAYHEAD_RATIO;
+      setEdgePadding({
+        left: Math.max(0, playheadX - firstAnchor.offsetWidth / 2),
+        right: Math.max(
+          0,
+          container.clientWidth - playheadX - lastAnchor.offsetWidth / 2,
+        ),
+      });
     };
 
     const observer = new ResizeObserver(computePadding);
@@ -97,7 +182,7 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
     computePadding();
 
     return () => observer.disconnect();
-  }, [playheadRatio, score.measures.length]);
+  }, [measures.length]);
 
   useEffect(() => {
     if (frameRef.current !== null) {
@@ -105,21 +190,20 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
       frameRef.current = null;
     }
 
-    if (pb.currentStep < 0) {
+    if (currentStep < 0) {
       visualStepRef.current = 0;
       scrollToVisualStep(0);
 
       return;
     }
 
-    const stepDurationMs = 60000 / pb.bpm / 4;
     const previousStep = visualStepRef.current;
     const isWrappedLoop =
-      pb.currentStep === 0 && previousStep > Math.max(0, totalSteps - 2);
+      currentStep === 0 && previousStep > Math.max(0, totalSteps - 2);
     const fromStep = isWrappedLoop ? 0 : previousStep;
-    const toStep = pb.currentStep;
+    const toStep = currentStep;
 
-    if (!pb.isPlaying || fromStep === toStep) {
+    if (!isPlaying || fromStep === toStep) {
       visualStepRef.current = toStep;
       scrollToVisualStep(toStep);
 
@@ -127,7 +211,7 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
     }
 
     const startedAt = performance.now();
-    const animDurationMs = (toStep - fromStep) * stepDurationMs;
+    const animDurationMs = (toStep - fromStep) * (60000 / bpm / 4);
 
     const tick = (now: number) => {
       const progress = Math.min(1, (now - startedAt) / animDurationMs);
@@ -150,134 +234,86 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
         frameRef.current = null;
       }
     };
-  }, [pb.bpm, pb.currentStep, pb.isPlaying, scrollToVisualStep, totalSteps]);
+  }, [bpm, currentStep, isPlaying, scrollToVisualStep, totalSteps]);
+
+  return (
+    <div className="relative flex-1 overflow-hidden">
+      {currentStep >= 0 && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-4 z-10 flex w-1 -translate-x-1/2 justify-center bg-primary/20"
+          style={{ left: `${PLAYHEAD_RATIO * 100}%` }}
+        >
+          <div className="h-full w-px bg-primary shadow-sm" />
+        </div>
+      )}
+      <div
+        ref={areaRef}
+        className="h-full overflow-x-auto overflow-y-hidden px-6 py-4"
+      >
+        <div ref={contentRef} className="flex">
+          <div
+            aria-hidden="true"
+            className="shrink-0"
+            style={{ width: edgePadding.left }}
+          />
+          <ScoreGrid measures={measures} currentStep={currentStep} horizontal />
+          <div
+            aria-hidden="true"
+            className="shrink-0"
+            style={{ width: edgePadding.right }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+type Props = {
+  score: Score;
+  onEdit: () => void;
+  onBack: () => void;
+  onDelete?: () => void;
+};
+
+const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
+  const pb = usePlayback(score);
+  const totalSteps = score.measures.length * SUBDIVISIONS;
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
-      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
-        <Button
-          variant="outline"
-          onClick={() => {
-            pb.stop();
-            onBack();
-          }}
-        >
-          ← 戻る
-        </Button>
-        <div className="text-lg font-semibold flex-1 min-w-0 truncate px-2">
-          {score.title}
-        </div>
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          value="play"
-          onValueChange={(v) => {
-            if (v === "edit") {
-              pb.stop();
-              onEdit();
-            }
-          }}
-        >
-          <ToggleGroupItem value="play">演奏</ToggleGroupItem>
-          <ToggleGroupItem value="edit">編集</ToggleGroupItem>
-        </ToggleGroup>
-        {onDelete && (
-          <button
-            onClick={onDelete}
-            className={cn(
-              "text-xs px-2.5 py-1 rounded transition-all duration-150",
-              "border border-transparent text-destructive hover:bg-destructive/10",
-            )}
-          >
-            削除
-          </button>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
-        <Toggle
-          pressed={pb.isPlaying}
-          onPressedChange={pb.toggle}
-          title={pb.isPlaying ? "一時停止" : "再生"}
-        >
-          {pb.isPlaying ? <Pause size={12} /> : <Play size={12} />}
-        </Toggle>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={pb.stop}
-          size="icon"
-          title="停止"
-        >
-          <Square size={12} />
-        </Button>
-        <span className="w-20 flex-shrink-0 font-mono text-xs text-muted-foreground">
-          {pb.currentStep >= 0
-            ? `M${String(pb.currentMeasure + 1).padStart(2, "0")} / B${pb.currentBeat + 1}`
-            : "M-- / B--"}
-        </span>
-        <Input
-          type="range"
-          min={0}
-          max={totalSteps - 1}
-          value={Math.max(0, pb.currentStep)}
-          onChange={(e) => pb.seekTo(+e.target.value)}
-        />
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
-          <span>BPM</span>
-          <Input
-            type="number"
-            value={pb.bpm}
-            min={30}
-            max={300}
-            onChange={(e) => pb.setBpm(+e.target.value)}
-            onBlur={(e) =>
-              pb.setBpm(Math.max(30, Math.min(300, +e.target.value)))
-            }
-          />
-        </div>
-        <Toggle
-          pressed={pb.loop}
-          onPressedChange={() => pb.setLoop((l) => !l)}
-          title="ループ"
-        >
-          <Repeat size={12} />
-        </Toggle>
-      </div>
-
-      <div className="relative flex-1 overflow-hidden">
-        {pb.currentStep >= 0 && (
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-4 z-10 flex w-1 -translate-x-1/2 justify-center bg-primary/20"
-            style={{ left: `${playheadRatio * 100}%` }}
-          >
-            <div className="h-full w-px bg-primary shadow-sm" />
-          </div>
-        )}
-        <div
-          ref={areaRef}
-          className="h-full overflow-x-auto overflow-y-hidden px-6 py-4"
-        >
-          <div ref={contentRef} className="flex">
-            <div
-              aria-hidden="true"
-              className="shrink-0"
-              style={{ width: edgePadding.left }}
-            />
-            <ScoreGrid
-              measures={score.measures}
-              currentStep={pb.currentStep}
-              horizontal
-            />
-            <div
-              aria-hidden="true"
-              className="shrink-0"
-              style={{ width: edgePadding.right }}
-            />
-          </div>
-        </div>
-      </div>
+      <ViewerHeader
+        title={score.title}
+        onBack={() => {
+          pb.stop();
+          onBack();
+        }}
+        onEdit={() => {
+          pb.stop();
+          onEdit();
+        }}
+        onDelete={onDelete}
+      />
+      <Transport
+        isPlaying={pb.isPlaying}
+        currentStep={pb.currentStep}
+        currentMeasure={pb.currentMeasure}
+        currentBeat={pb.currentBeat}
+        bpm={pb.bpm}
+        loop={pb.loop}
+        totalSteps={totalSteps}
+        onToggle={pb.toggle}
+        onStop={pb.stop}
+        onBpmChange={pb.setBpm}
+        onSeek={pb.seekTo}
+        onLoopToggle={() => pb.setLoop((l) => !l)}
+      />
+      <ScoreArea
+        measures={score.measures}
+        currentStep={pb.currentStep}
+        isPlaying={pb.isPlaying}
+        bpm={pb.bpm}
+      />
     </div>
   );
 };
