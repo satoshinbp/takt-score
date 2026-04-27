@@ -30,6 +30,7 @@ type Refs = {
   bpm: number;
   loop: boolean;
   score: Score | null;
+  lastPlayingStep: number;
 };
 
 export const usePlayback = (score: Score | null): PlaybackState => {
@@ -49,6 +50,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     bpm: 120,
     loop: true,
     score: null,
+    lastPlayingStep: -1,
   });
 
   useEffect(() => {
@@ -82,7 +84,10 @@ export const usePlayback = (score: Score | null): PlaybackState => {
 
     for (const e of ref.scheduled) if (e.time <= now + 0.01) disp = e.step;
 
-    if (disp >= 0) setCurrentStep(disp);
+    if (disp >= 0) {
+      ref.lastPlayingStep = disp;
+      setCurrentStep(disp);
+    }
 
     ref.raf = requestAnimationFrame(rafLoopRef.current!);
   }, []);
@@ -142,6 +147,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     if (ref.raf) cancelAnimationFrame(ref.raf);
     ref.step = 0;
     ref.scheduled = [];
+    ref.lastPlayingStep = -1;
     setIsPlaying(false);
     setCurrentStep(-1);
   }, []);
@@ -163,12 +169,35 @@ export const usePlayback = (score: Score | null): PlaybackState => {
 
   const pause = useCallback(() => {
     const ref = r.current;
+
+    // タイマー・rAF を先に止めてから位置を確定する。後続のコールバックが
+    // ref.step / currentStep を上書きして再開位置がずれるのを防ぐため。
     ref.isPlaying = false;
 
-    if (ref.timer) clearTimeout(ref.timer);
+    if (ref.timer) {
+      clearTimeout(ref.timer);
+      ref.timer = null;
+    }
 
-    if (ref.raf) cancelAnimationFrame(ref.raf);
+    if (ref.raf) {
+      cancelAnimationFrame(ref.raf);
+      ref.raf = null;
+    }
 
+    // scheduler は look-ahead 分だけ ref.step を先送りするため、
+    // そのまま再開すると表示・音が先のステップへ飛んでしまう。
+    // rafLoop が毎フレーム確定した lastPlayingStep を使って巻き戻す。
+    // scheduled への依存を避けることで、タブ非アクティブ時に rAF が
+    // 止まって scheduled が蓄積・フィルタされない状況でも正しく動く。
+    const playingStep = ref.lastPlayingStep;
+    if (playingStep >= 0) {
+      const total = (ref.score?.measures?.length ?? 1) * SUBDIVISIONS;
+      ref.step = (playingStep + 1) % total;
+      setCurrentStep(playingStep);
+    }
+
+    ref.scheduled = [];
+    ref.lastPlayingStep = -1;
     setIsPlaying(false);
   }, []);
 
