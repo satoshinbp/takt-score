@@ -74,12 +74,16 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     const ref = r.current;
 
     if (!ref.isPlaying || !ref.ctx) return;
+
     const now = ref.ctx.currentTime;
     ref.scheduled = ref.scheduled.filter((e) => e.time > now - 0.05);
+
     let disp = -1;
+
     for (const e of ref.scheduled) if (e.time <= now + 0.01) disp = e.step;
 
     if (disp >= 0) setCurrentStep(disp);
+
     ref.raf = requestAnimationFrame(rafLoopRef.current!);
   }, []);
 
@@ -160,8 +164,11 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   const pause = useCallback(() => {
     const ref = r.current;
     ref.isPlaying = false;
+
     if (ref.timer) clearTimeout(ref.timer);
+
     if (ref.raf) cancelAnimationFrame(ref.raf);
+
     setIsPlaying(false);
   }, []);
 
@@ -171,9 +178,12 @@ export const usePlayback = (score: Score | null): PlaybackState => {
       ref.step = step;
       ref.scheduled = [];
       setCurrentStep(step);
+
       if (ref.isPlaying && ref.ctx) {
         if (ref.timer) clearTimeout(ref.timer);
+
         if (ref.raf) cancelAnimationFrame(ref.raf);
+
         ref.nextT = ref.ctx.currentTime + 0.05;
         scheduler();
         ref.raf = requestAnimationFrame(rafLoop);

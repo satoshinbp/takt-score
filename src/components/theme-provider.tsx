@@ -3,10 +3,10 @@
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 
-function ThemeProvider({
+const ThemeProvider = ({
   children,
   ...props
-}: React.ComponentProps<typeof NextThemesProvider>) {
+}: React.ComponentProps<typeof NextThemesProvider>) => {
   return (
     <NextThemesProvider
       attribute="class"
@@ -18,9 +18,9 @@ function ThemeProvider({
       {children}
     </NextThemesProvider>
   );
-}
+};
 
-function isTypingTarget(target: EventTarget | null) {
+const isTypingTarget = (target: EventTarget | null) => {
   if (!(target instanceof HTMLElement)) {
     return false;
   }
@@ -31,13 +31,13 @@ function isTypingTarget(target: EventTarget | null) {
     target.tagName === "TEXTAREA" ||
     target.tagName === "SELECT"
   );
-}
+};
 
-function ThemeHotkey() {
+const ThemeHotkey = () => {
   const { resolvedTheme, setTheme } = useTheme();
 
   React.useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.repeat) {
         return;
       }
@@ -55,7 +55,7 @@ function ThemeHotkey() {
       }
 
       setTheme(resolvedTheme === "dark" ? "light" : "dark");
-    }
+    };
 
     window.addEventListener("keydown", onKeyDown);
 
@@ -65,6 +65,6 @@ function ThemeHotkey() {
   }, [resolvedTheme, setTheme]);
 
   return null;
-}
+};
 
 export { ThemeProvider };
