@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dashboard } from "@/components/dashboard";
-import { Header } from "@/components/header";
+import Header from "@/components/header";
 import { cloneMeasure, type Score } from "@/lib/constants";
 import { makeSamples } from "@/lib/samples";
 import { loadScores, saveScores } from "@/lib/storage";

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ScoreEditor } from "@/components/score-editor";
-import { ScoreViewer } from "@/components/score-viewer";
+import ScoreEditor from "@/components/score-editor";
+import ScoreViewer from "@/components/score-viewer";
 import type { Score } from "@/lib/constants";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
   onDelete?: () => void;
 };
 
-export const DetailPage = ({ score, onSave, onBack, onDelete }: Props) => {
+const DetailPage = ({ score, onSave, onBack, onDelete }: Props) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [live, setLive] = useState(score);
 
@@ -39,4 +39,6 @@ export const DetailPage = ({ score, onSave, onBack, onDelete }: Props) => {
       onDelete={onDelete}
     />
   );
-}
+};
+
+export default DetailPage;

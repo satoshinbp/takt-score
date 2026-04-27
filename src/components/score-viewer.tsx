@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Pause, Play, Repeat, Square } from "lucide-react";
-import { ScoreGrid } from "@/components/score-grid";
+import ScoreGrid from "@/components/score-grid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
@@ -18,7 +24,7 @@ type Props = {
   onDelete?: () => void;
 };
 
-export const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
+const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
   const pb = usePlayback(score);
   const areaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -243,9 +249,11 @@ export const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
         {pb.currentStep >= 0 && (
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-4 z-10 w-px bg-accent/70"
+            className="pointer-events-none absolute inset-y-4 z-10 flex w-1 -translate-x-1/2 justify-center bg-primary/20"
             style={{ left: `${playheadRatio * 100}%` }}
-          />
+          >
+            <div className="h-full w-px bg-primary shadow-sm" />
+          </div>
         )}
         <div
           ref={areaRef}
@@ -273,3 +281,5 @@ export const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
     </div>
   );
 };
+
+export default ScoreViewer;

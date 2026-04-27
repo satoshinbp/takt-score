@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import EditorToolbar from "@/components/editor-toolbar";
-import { ScoreGrid } from "@/components/score-grid";
-import { Transport } from "@/components/transport";
+import ScoreGrid from "@/components/score-grid";
+import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { cloneMeasure, emptyMeasure, PARTS, type Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -15,12 +15,7 @@ type Props = {
   onBack: () => void;
 };
 
-export const ScoreEditor = ({
-  score,
-  isNew = false,
-  onSave,
-  onBack,
-}: Props) => {
+const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   const [draft, setDraft] = useState<Score>(() => ({
     ...score,
     measures: score.measures.map(cloneMeasure),
@@ -202,3 +197,5 @@ export const ScoreEditor = ({
     </div>
   );
 };
+
+export default ScoreEditor;

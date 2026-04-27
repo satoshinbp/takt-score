@@ -16,7 +16,7 @@ type Props = {
   currentBeat: number;
 };
 
-export const Transport = ({
+const Transport = ({
   isPlaying,
   onToggle,
   onStop,
@@ -109,3 +109,5 @@ export const Transport = ({
     </div>
   );
 };
+
+export default Transport;

@@ -6,7 +6,7 @@ import { Moon, Sun } from "lucide-react";
 import { TaktScoreIcon } from "@/components/icon";
 import { cn } from "@/lib/utils";
 
-export const Header = () => {
+const Header = () => {
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
@@ -27,7 +27,11 @@ export const Header = () => {
         <button
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
           className="p-2 rounded hover:bg-muted transition-colors"
-          title={resolvedTheme === "dark" ? "ライトモードに切り替え" : "ダークモードに切り替え"}
+          title={
+            resolvedTheme === "dark"
+              ? "ライトモードに切り替え"
+              : "ダークモードに切り替え"
+          }
         >
           {resolvedTheme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
@@ -35,3 +39,5 @@ export const Header = () => {
     </header>
   );
 };
+
+export default Header;
