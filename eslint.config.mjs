@@ -49,6 +49,14 @@ const reactConfig = {
         allowExportNames: ["metadata", "generateMetadata"],
       },
     ],
+    "react/button-has-type": [
+      "error",
+      {
+        button: true,
+        submit: true,
+        reset: false,
+      },
+    ],
   },
 };
 
