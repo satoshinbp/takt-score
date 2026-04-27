@@ -7,91 +7,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { Pause, Play, Repeat, Square } from "lucide-react";
 import ScoreGrid from "@/components/score-grid";
 import ViewerHeader from "@/components/score-viewer-header";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Toggle } from "@/components/ui/toggle";
+import Transport from "@/components/score-viewer-transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
-
-type TransportProps = {
-  isPlaying: boolean;
-  currentStep: number;
-  currentMeasure: number;
-  currentBeat: number;
-  bpm: number;
-  loop: boolean;
-  totalSteps: number;
-  onToggle: () => void;
-  onStop: () => void;
-  onBpmChange: (v: number) => void;
-  onSeek: (step: number) => void;
-  onLoopToggle: () => void;
-};
-
-const Transport = ({
-  isPlaying,
-  currentStep,
-  currentMeasure,
-  currentBeat,
-  bpm,
-  loop,
-  totalSteps,
-  onToggle,
-  onStop,
-  onBpmChange,
-  onSeek,
-  onLoopToggle,
-}: TransportProps) => (
-  <div className="flex items-center gap-2.5 px-4 py-2 flex-shrink-0 border-b border-border bg-card">
-    <Toggle
-      pressed={isPlaying}
-      onPressedChange={onToggle}
-      title={isPlaying ? "一時停止" : "再生"}
-    >
-      {isPlaying ? <Pause size={12} /> : <Play size={12} />}
-    </Toggle>
-    <Button
-      type="button"
-      variant="ghost"
-      onClick={onStop}
-      size="icon"
-      title="停止"
-    >
-      <Square size={12} />
-    </Button>
-    <span className="w-20 flex-shrink-0 font-mono text-xs text-muted-foreground">
-      {currentStep >= 0
-        ? `M${String(currentMeasure + 1).padStart(2, "0")} / B${currentBeat + 1}`
-        : "M-- / B--"}
-    </span>
-    <Input
-      type="range"
-      min={0}
-      max={totalSteps - 1}
-      value={Math.max(0, currentStep)}
-      onChange={(e) => onSeek(+e.target.value)}
-    />
-    <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
-      <span>BPM</span>
-      <Input
-        type="number"
-        value={bpm}
-        min={30}
-        max={300}
-        onChange={(e) => onBpmChange(+e.target.value)}
-        onBlur={(e) =>
-          onBpmChange(Math.max(30, Math.min(300, +e.target.value)))
-        }
-      />
-    </div>
-    <Toggle pressed={loop} onPressedChange={onLoopToggle} title="ループ">
-      <Repeat size={12} />
-    </Toggle>
-  </div>
-);
 
 type ScoreAreaProps = {
   measures: Score["measures"];
