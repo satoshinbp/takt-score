@@ -1,14 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { SOUNDS } from "@/lib/audio";
 import { PARTS, type Score, SUBDIVISIONS } from "@/lib/constants";
 
+/**
+ * UIに公開する再生状態
+ */
 export type PlaybackState = {
   isPlaying: boolean;
-  currentStep: number;
-  currentMeasure: number;
-  currentBeat: number;
+  currentStep: number; // 現在再生中のステップ（16分音符単位）
   bpm: number;
   setBpm: (v: number) => void;
   loop: boolean;
@@ -19,18 +26,29 @@ export type PlaybackState = {
   seekTo: (step: number) => void;
 };
 
-type Refs = {
+/**
+ * React外で管理する「リアルタイム再生エンジンの状態」
+ * ※ React stateは遅いので全部ここに入れる
+ */
+type EngineRefs = {
   ctx: AudioContext | null;
-  timer: ReturnType<typeof setTimeout> | null;
-  raf: number | null;
-  step: number;
-  nextT: number;
-  scheduled: { step: number; time: number }[];
+
+  timer: ReturnType<typeof setTimeout> | null; // scheduler用
+  raf: number | null; // UI更新用
+
+  step: number; // 次に再生するステップ
+  nextTime: number; // 次の音を鳴らすAudioContext時間
+
+  scheduledEvents: { step: number; time: number }[];
+  // ↑ 「このstepはこのtimeで鳴る予定」という予約リスト
+
   isPlaying: boolean;
+
   bpm: number;
   loop: boolean;
   score: Score | null;
-  lastPlayingStep: number;
+
+  lastPlayedStep: number; // rafLoopで確定した「実際に鳴ったstep」
 };
 
 export const usePlayback = (score: Score | null): PlaybackState => {
@@ -39,85 +57,131 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   const [bpm, setBpmState] = useState(score?.bpm ?? 120);
   const [shouldLoop, setShouldLoop] = useState(true);
 
-  const r = useRef<Refs>({
+  /**
+   * メインの状態（React外）
+   */
+  const engine = useRef<EngineRefs>({
     ctx: null,
     timer: null,
     raf: null,
+
     step: 0,
-    nextT: 0,
-    scheduled: [],
+    nextTime: 0,
+    scheduledEvents: [],
+
     isPlaying: false,
     bpm: 120,
     loop: true,
     score: null,
-    lastPlayingStep: -1,
+
+    lastPlayedStep: -1,
   });
 
+  /**
+   * React state → engine同期
+   */
   useEffect(() => {
-    r.current.score = score;
+    engine.current.score = score;
   }, [score]);
+
   useEffect(() => {
-    r.current.bpm = bpm;
+    engine.current.bpm = bpm;
   }, [bpm]);
+
   useEffect(() => {
-    r.current.loop = shouldLoop;
+    engine.current.loop = shouldLoop;
   }, [shouldLoop]);
 
   const setBpm = useCallback((v: number) => {
     setBpmState(v);
 
-    if (r.current.score) r.current.score = { ...r.current.score, bpm: v };
+    // scoreにも反映（外部と整合性を取るため）
+    if (engine.current.score) {
+      engine.current.score = { ...engine.current.score, bpm: v };
+    }
   }, []);
 
+  /**
+   * ===== UI更新ループ（requestAnimationFrame）=====
+   * 「今どのstepが鳴っているか」を計算してReactに反映する
+   */
   const rafLoopRef = useRef<(() => void) | null>(null);
-  const schedulerRef = useRef<(() => void) | null>(null);
 
   const rafLoop = useCallback(() => {
-    const ref = r.current;
+    const ref = engine.current;
 
     if (!ref.isPlaying || !ref.ctx) return;
 
     const now = ref.ctx.currentTime;
-    ref.scheduled = ref.scheduled.filter((e) => e.time > now - 0.05);
 
-    let disp = -1;
+    // 古い予約イベントを削除（メモリ＆精度対策）
+    ref.scheduledEvents = ref.scheduledEvents.filter(
+      (e) => e.time > now - 0.05,
+    );
 
-    for (const e of ref.scheduled) if (e.time <= now + 0.01) disp = e.step;
+    // 「今鳴っているはずのstep」を探す
+    let currentDisplayStep = -1;
 
-    if (disp >= 0) {
-      ref.lastPlayingStep = disp;
-      setCurrentStep(disp);
+    for (const e of ref.scheduledEvents) {
+      if (e.time <= now + 0.01) {
+        currentDisplayStep = e.step;
+      }
     }
 
+    // UI更新
+    if (currentDisplayStep >= 0) {
+      ref.lastPlayedStep = currentDisplayStep;
+      setCurrentStep(currentDisplayStep);
+    }
+
+    // 次フレームへ
     ref.raf = requestAnimationFrame(rafLoopRef.current!);
   }, []);
 
+  /**
+   * ===== スケジューラ =====
+   * 未来の音をまとめて予約する（これが音ズレ防止の核心）
+   */
+  const schedulerRef = useRef<(() => void) | null>(null);
+
   const scheduler = useCallback(() => {
-    const ref = r.current;
+    const ref = engine.current;
 
     if (!ref.isPlaying || !ref.ctx) return;
-    const look = 0.12;
-    const dur = 60 / ref.bpm / 4;
-    const totalMeasures = ref.score?.measures?.length ?? 1;
-    const total = totalMeasures * SUBDIVISIONS;
-    while (ref.nextT < ref.ctx.currentTime + look) {
-      const step = ref.step;
-      const time = ref.nextT;
-      ref.scheduled.push({ step, time });
-      const mIdx = Math.floor(step / SUBDIVISIONS);
-      const sIdx = step % SUBDIVISIONS;
-      const measure = ref.score?.measures?.[mIdx];
 
+    const lookAhead = 0.12; // どれくらい未来まで予約するか
+    const stepDuration = 60 / ref.bpm / 4; // 16分音符の長さ
+
+    const totalMeasures = ref.score?.measures?.length ?? 1;
+    const totalSteps = totalMeasures * SUBDIVISIONS;
+
+    // 未来分をまとめて予約
+    while (ref.nextTime < ref.ctx.currentTime + lookAhead) {
+      const step = ref.step;
+      const time = ref.nextTime;
+
+      // UI用に記録
+      ref.scheduledEvents.push({ step, time });
+
+      // 対応する小節・位置を取得
+      const measureIndex = Math.floor(step / SUBDIVISIONS);
+      const stepIndex = step % SUBDIVISIONS;
+      const measure = ref.score?.measures?.[measureIndex];
+
+      // 音を予約
       if (measure) {
         PARTS.forEach((part) => {
-          if (measure[part.id][sIdx]) {
+          if (measure[part.id][stepIndex]) {
             SOUNDS[part.id]?.(ref.ctx!, time);
           }
         });
       }
-      ref.step = (ref.step + 1) % total;
-      ref.nextT += dur;
 
+      // 次のstepへ
+      ref.step = (ref.step + 1) % totalSteps;
+      ref.nextTime += stepDuration;
+
+      // loopしない場合、1周で停止
       if (!ref.loop && ref.step === 0) {
         ref.isPlaying = false;
         setIsPlaying(false);
@@ -130,6 +194,8 @@ export const usePlayback = (score: Score | null): PlaybackState => {
         return;
       }
     }
+
+    // 次のスケジューリング
     ref.timer = setTimeout(schedulerRef.current!, 25);
   }, []);
 
@@ -138,40 +204,53 @@ export const usePlayback = (score: Score | null): PlaybackState => {
     schedulerRef.current = scheduler;
   });
 
+  /**
+   * ===== controls =====
+   */
+
   const stop = useCallback(() => {
-    const ref = r.current;
+    const ref = engine.current;
+
     ref.isPlaying = false;
 
     if (ref.timer) clearTimeout(ref.timer);
 
     if (ref.raf) cancelAnimationFrame(ref.raf);
+
     ref.step = 0;
-    ref.scheduled = [];
-    ref.lastPlayingStep = -1;
+    ref.scheduledEvents = [];
+    ref.lastPlayedStep = -1;
+
     setIsPlaying(false);
     setCurrentStep(-1);
   }, []);
 
   const play = useCallback(() => {
-    const ref = r.current;
+    const ref = engine.current;
 
     if (!ref.ctx) {
       ref.ctx = new AudioContext();
     }
 
-    if (ref.ctx.state === "suspended") void ref.ctx.resume();
+    if (ref.ctx.state === "suspended") {
+      void ref.ctx.resume();
+    }
+
     ref.isPlaying = true;
-    ref.nextT = ref.ctx.currentTime + 0.05;
+
+    // 少し未来から開始（即時再生のズレ防止）
+    ref.nextTime = ref.ctx.currentTime + 0.05;
+
     setIsPlaying(true);
+
     scheduler();
     ref.raf = requestAnimationFrame(rafLoop);
   }, [scheduler, rafLoop]);
 
   const pause = useCallback(() => {
-    const ref = r.current;
+    const ref = engine.current;
 
-    // タイマー・rAF を先に止めてから位置を確定する。後続のコールバックが
-    // ref.step / currentStep を上書きして再開位置がずれるのを防ぐため。
+    // 先に止める（race condition防止）
     ref.isPlaying = false;
 
     if (ref.timer) {
@@ -184,28 +263,29 @@ export const usePlayback = (score: Score | null): PlaybackState => {
       ref.raf = null;
     }
 
-    // scheduler は look-ahead 分だけ ref.step を先送りするため、
-    // そのまま再開すると表示・音が先のステップへ飛んでしまう。
-    // rafLoop が毎フレーム確定した lastPlayingStep を使って巻き戻す。
-    // scheduled への依存を避けることで、タブ非アクティブ時に rAF が
-    // 止まって scheduled が蓄積・フィルタされない状況でも正しく動く。
-    const playingStep = ref.lastPlayingStep;
+    // schedulerは未来まで進んでいるので巻き戻す
+    const playingStep = ref.lastPlayedStep;
+
     if (playingStep >= 0) {
       const total = (ref.score?.measures?.length ?? 1) * SUBDIVISIONS;
+
       ref.step = (playingStep + 1) % total;
       setCurrentStep(playingStep);
     }
 
-    ref.scheduled = [];
-    ref.lastPlayingStep = -1;
+    ref.scheduledEvents = [];
+    ref.lastPlayedStep = -1;
+
     setIsPlaying(false);
   }, []);
 
   const seekTo = useCallback(
     (step: number) => {
-      const ref = r.current;
+      const ref = engine.current;
+
       ref.step = step;
-      ref.scheduled = [];
+      ref.scheduledEvents = [];
+
       setCurrentStep(step);
 
       if (ref.isPlaying && ref.ctx) {
@@ -213,7 +293,8 @@ export const usePlayback = (score: Score | null): PlaybackState => {
 
         if (ref.raf) cancelAnimationFrame(ref.raf);
 
-        ref.nextT = ref.ctx.currentTime + 0.05;
+        ref.nextTime = ref.ctx.currentTime + 0.05;
+
         scheduler();
         ref.raf = requestAnimationFrame(rafLoop);
       }
@@ -222,30 +303,23 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   );
 
   const toggle = useCallback(() => {
-    if (r.current.isPlaying) pause();
+    if (engine.current.isPlaying) pause();
     else play();
   }, [play, pause]);
 
   useEffect(() => {
-    const ref = r.current;
-
     return () => {
+      const ref = engine.current;
+
       if (ref.timer) clearTimeout(ref.timer);
 
       if (ref.raf) cancelAnimationFrame(ref.raf);
     };
   }, []);
 
-  const currentMeasure =
-    currentStep >= 0 ? Math.floor(currentStep / SUBDIVISIONS) : -1;
-  const currentBeat =
-    currentStep >= 0 ? Math.floor((currentStep % SUBDIVISIONS) / 4) : -1;
-
   return {
     isPlaying,
     currentStep,
-    currentMeasure,
-    currentBeat,
     bpm,
     setBpm,
     loop: shouldLoop,

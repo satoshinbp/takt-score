@@ -199,6 +199,10 @@ type Props = {
 const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
   const pb = usePlayback(score);
   const totalSteps = score.measures.length * SUBDIVISIONS;
+  const currentMeasure =
+    pb.currentStep >= 0 ? Math.floor(pb.currentStep / SUBDIVISIONS) : -1;
+  const currentBeat =
+    pb.currentStep >= 0 ? Math.floor((pb.currentStep % SUBDIVISIONS) / 4) : -1;
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
@@ -217,8 +221,8 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
       <Transport
         isPlaying={pb.isPlaying}
         currentStep={pb.currentStep}
-        currentMeasure={pb.currentMeasure}
-        currentBeat={pb.currentBeat}
+        currentMeasure={currentMeasure}
+        currentBeat={currentBeat}
         bpm={pb.bpm}
         loop={pb.loop}
         totalSteps={totalSteps}

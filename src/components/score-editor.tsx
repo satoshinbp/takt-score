@@ -8,7 +8,13 @@ import Transport from "@/components/transport";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePlayback } from "@/hooks/usePlayback";
-import { cloneMeasure, emptyMeasure, PARTS, type Score } from "@/lib/constants";
+import {
+  cloneMeasure,
+  emptyMeasure,
+  PARTS,
+  type Score,
+  SUBDIVISIONS,
+} from "@/lib/constants";
 
 type Props = {
   score: Score;
@@ -27,6 +33,10 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
     null,
   );
   const pb = usePlayback(draft);
+  const currentMeasure =
+    pb.currentStep >= 0 ? Math.floor(pb.currentStep / SUBDIVISIONS) : -1;
+  const currentBeat =
+    pb.currentStep >= 0 ? Math.floor((pb.currentStep % SUBDIVISIONS) / 4) : -1;
 
   const areaRef = useRef<HTMLDivElement>(null);
 
@@ -39,10 +49,10 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   }, [pb.bpm]);
 
   useEffect(() => {
-    if (pb.currentMeasure < 0 || !areaRef.current) return;
+    if (currentMeasure < 0 || !areaRef.current) return;
     const container = areaRef.current;
     const el = container.querySelector(
-      `[data-measure="${pb.currentMeasure}"]`,
+      `[data-measure="${currentMeasure}"]`,
     ) as HTMLElement;
 
     if (!el) return;
@@ -54,7 +64,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
       containerRect.top -
       (container.clientHeight - el.clientHeight) / 2;
     container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
-  }, [pb.currentMeasure]);
+  }, [currentMeasure]);
 
   const handleToggle = useCallback(
     (mi: number, partIdx: number, si: number) => {
@@ -175,8 +185,8 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         onBpmChange={pb.setBpm}
         loop={pb.loop}
         onLoopToggle={() => pb.setLoop((l) => !l)}
-        currentMeasure={pb.currentMeasure}
-        currentBeat={pb.currentBeat}
+        currentMeasure={currentMeasure}
+        currentBeat={currentBeat}
       />
     </div>
   );
