@@ -35,7 +35,7 @@ const Transport = ({
         onPressedChange={onToggle}
         className={cn(
           "w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0",
-          "transition-all duration-150 hover:scale-105 text-accent-foreground",
+          "transition-all duration-150 hover:scale-105 text-primary-foreground",
           isPlaying ? "bg-destructive" : "bg-accent",
         )}
       >
@@ -98,7 +98,7 @@ const Transport = ({
           className={cn(
             "w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-150",
             loop
-              ? "border border-accent/30 text-accent"
+              ? "border border-accent/30 text-primary"
               : "border border-border bg-transparent text-muted-foreground",
           )}
           title="Loop"
