@@ -1,6 +1,6 @@
 "use client";
 
-import { type Measure, SUBDIVISIONS } from "@/lib/constants";
+import { type Measure, PARTS, SUBDIVISIONS } from "@/lib/constants";
 
 type Props = { measure: Measure };
 
@@ -11,20 +11,20 @@ const ScorePreview = ({ measure }: Props) => {
         const bd = measure.BD[s];
         const sn = measure.SNARE[s];
         const hh = measure.HH[s] || measure.HH_OPEN[s];
-        const h = bd ? 52 : sn ? 36 : hh ? 20 : 6;
-        const col = bd
-          ? "#f87171"
+        const height = bd ? 52 : sn ? 36 : hh ? 20 : 6;
+        const background = bd
+          ? PARTS.BD.color
           : sn
-            ? "#fb923c"
+            ? PARTS.SNARE.color
             : hh
-              ? "#38bdf8"
+              ? PARTS.HH.color
               : "#1e1e26";
 
         return (
           <div
             key={s}
             className="flex-1 rounded-sm opacity-75"
-            style={{ height: h, background: col }}
+            style={{ height, background }}
           />
         );
       })}

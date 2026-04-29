@@ -11,7 +11,7 @@ import { usePlayback } from "@/hooks/usePlayback";
 import {
   cloneMeasure,
   emptyMeasure,
-  PARTS,
+  PART_IDS,
   type Score,
   SUBDIVISIONS,
 } from "@/lib/constants";
@@ -68,7 +68,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
 
   const handleToggle = useCallback(
     (mi: number, partIdx: number, si: number) => {
-      const partId = PARTS[partIdx].id;
+      const partId = PART_IDS[partIdx];
       setDraft((d) => {
         const ms = d.measures.map(cloneMeasure);
         ms[mi][partId][si] = ms[mi][partId][si] ? 0 : 1;

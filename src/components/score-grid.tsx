@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { DrumIcon } from "@/components/icon";
-import { type Measure, PARTS, SUBDIVISIONS } from "@/lib/constants";
+import { type Measure, PART_IDS, PARTS, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const BeatRuler = ({
@@ -132,8 +132,8 @@ const ScoreGrid = ({
               measureIndex={mi}
             />
 
-            {PARTS.map((part, vi) => (
-              <div key={part.id} className="flex items-center mb-0.5">
+            {PART_IDS.map((id, vi) => (
+              <div key={id} className="flex items-center mb-0.5">
                 <div
                   className={cn(
                     "shrink-0 flex items-center gap-1 font-mono font-semibold text-xs",
@@ -143,25 +143,25 @@ const ScoreGrid = ({
                         ? "w-16 min-w-16"
                         : "w-12 min-w-12",
                   )}
-                  style={{ color: part.color }}
+                  style={{ color: PARTS[id].color }}
                 >
                   {isRowStart && (
                     <>
-                      <DrumIcon id={part.id} color={part.color} size={18} />
-                      <span>{part.short}</span>
+                      <DrumIcon id={id} color={PARTS[id].color} size={18} />
+                      <span>{PARTS[id].short}</span>
                     </>
                   )}
                 </div>
 
                 {Array.from({ length: SUBDIVISIONS }, (_, si) => {
                   const global = mi * SUBDIVISIONS + si;
-                  const isActive = measure[part.id][si] === 1;
+                  const isActive = measure[id][si] === 1;
                   const isCurrent = global === currentStep;
 
                   const shadows: string[] = [];
 
                   if (isActive) {
-                    shadows.push(`0 0 8px ${part.color}55`);
+                    shadows.push(`0 0 8px ${PARTS[id].color}55`);
 
                     if (isCurrent)
                       shadows.push(`inset 0 0 0 2px rgba(245,200,66,0.75)`);
@@ -188,7 +188,7 @@ const ScoreGrid = ({
                       data-step-anchor={vi === 0 ? global : undefined}
                       onClick={() => onToggle?.(mi, vi, si)}
                       style={{
-                        background: isActive ? part.color : undefined,
+                        background: isActive ? PARTS[id].color : undefined,
                         boxShadow: shadows.length
                           ? shadows.join(", ")
                           : undefined,

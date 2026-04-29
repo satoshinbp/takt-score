@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SOUNDS } from "@/lib/audio";
-import { PARTS, type Score, SUBDIVISIONS } from "@/lib/constants";
+import type { Score } from "@/lib/constants";
+import { PART_IDS, SUBDIVISIONS } from "@/lib/constants";
 
 export type PlaybackState = {
   isPlaying: boolean;
@@ -169,9 +170,9 @@ class PlaybackEngine {
 
       // 音を予約
       if (measure) {
-        PARTS.forEach((part) => {
-          if (measure[part.id][stepIndex]) {
-            SOUNDS[part.id]?.(this.ctx!, time);
+        PART_IDS.forEach((id) => {
+          if (measure[id][stepIndex]) {
+            SOUNDS[id]?.(this.ctx!, time);
           }
         });
       }
