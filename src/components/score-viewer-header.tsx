@@ -16,7 +16,7 @@ const ViewerHeader = ({
   onEdit,
   onDelete,
 }: ViewerHeaderProps) => (
-  <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
+  <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b bg-background">
     <Button variant="outline" onClick={onBack}>
       <ArrowLeft size={12} />
       戻る

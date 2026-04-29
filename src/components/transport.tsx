@@ -1,8 +1,9 @@
 "use client";
 
-import { Repeat } from "lucide-react";
+import { Pause, Play, Repeat, Square } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
-import { cn } from "@/lib/utils";
 
 type Props = {
   isPlaying: boolean;
@@ -28,39 +29,30 @@ const Transport = ({
   currentBeat,
 }: Props) => {
   return (
-    <div className="flex items-center gap-3.5 px-4 py-2.5 flex-shrink-0 border-t border-border bg-background">
-      {/* Play / Pause */}
+    <div className="flex items-center gap-2 px-4 py-3 flex-shrink-0 border-t bg-background">
       <Toggle
         pressed={isPlaying}
         onPressedChange={onToggle}
-        className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0",
-          "transition-all duration-150 hover:scale-105 text-primary-foreground",
-          isPlaying ? "bg-destructive" : "bg-accent",
-        )}
+        title={isPlaying ? "一時停止" : "再生"}
       >
-        {isPlaying ? "⏸" : "▶"}
+        {isPlaying ? <Pause size={12} /> : <Play size={12} />}
       </Toggle>
 
-      {/* Stop */}
       {onStop && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={onStop}
-          className={cn(
-            "w-8 h-8 rounded flex items-center justify-center text-sm flex-shrink-0",
-            "transition-all duration-150 hover:bg-card border border-border text-muted-foreground hover:text-foreground",
-          )}
+          size="icon"
           title="停止"
         >
-          ⏹
-        </button>
+          <Square size={12} />
+        </Button>
       )}
 
-      {/* BPM */}
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
         <span>BPM</span>
-        <input
+        <Input
           type="number"
           value={bpm}
           min={30}
@@ -69,14 +61,9 @@ const Transport = ({
           onBlur={(e) =>
             onBpmChange(Math.max(30, Math.min(300, +e.target.value)))
           }
-          className={cn(
-            "w-14 text-center text-sm font-semibold px-1.5 py-0.5 rounded font-mono",
-            "bg-card border border-border text-foreground",
-          )}
         />
       </div>
 
-      {/* Position */}
       <div className="text-xs font-mono text-muted-foreground">
         {currentMeasure >= 0 ? (
           <>
@@ -90,19 +77,8 @@ const Transport = ({
         )}
       </div>
 
-      {/* Loop toggle */}
       <div className="ml-auto">
-        <Toggle
-          pressed={loop}
-          onPressedChange={onLoopToggle}
-          className={cn(
-            "w-7 h-7 flex items-center justify-center rounded text-sm transition-all duration-150",
-            loop
-              ? "border border-accent/30 text-primary"
-              : "border border-border bg-transparent text-muted-foreground",
-          )}
-          title="Loop"
-        >
+        <Toggle pressed={loop} onPressedChange={onLoopToggle} title="ループ">
           <Repeat size={12} />
         </Toggle>
       </div>

@@ -16,7 +16,7 @@ const Header = () => {
         "flex items-center gap-4 px-6 min-h-12 border-b",
       )}
     >
-      <button>
+      <button type="button">
         <Link href="/" className="flex items-center gap-2 text-lg font-bold">
           <TaktScoreIcon size={24} />
           TaktScore
@@ -25,6 +25,7 @@ const Header = () => {
 
       <div className="ml-auto flex items-center">
         <button
+          type="button"
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
           className="p-2 rounded hover:bg-muted transition-colors"
           title={

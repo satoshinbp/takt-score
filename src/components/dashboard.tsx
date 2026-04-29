@@ -96,7 +96,7 @@ const NewScoreCard = () => {
     <Link
       href="/scores/new"
       className={cn(
-        "p-4 flex flex-col items-center justify-center gap-2 min-h-32 w-full",
+        "p-4 flex flex-col items-center justify-center gap-2 min-h-43 w-full",
         "transition-all border border-dashed bg-muted text-muted-foreground",
         "hover:text-primary hover:border-primary hover:-translate-y-px",
       )}

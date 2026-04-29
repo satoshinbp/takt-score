@@ -161,11 +161,9 @@ const ScoreArea = ({
       {currentStep >= 0 && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-4 z-10 flex w-1 -translate-x-1/2 justify-center bg-primary/20"
+          className="pointer-events-none absolute inset-y-4 z-10 flex w-px -translate-x-1/2 justify-center bg-primary"
           style={{ left: `${PLAYHEAD_RATIO * 100}%` }}
-        >
-          <div className="h-full w-px bg-primary shadow-sm" />
-        </div>
+        />
       )}
       <div
         ref={areaRef}

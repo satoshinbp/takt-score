@@ -6,7 +6,7 @@ type Props = { measure: Measure };
 
 const ScorePreview = ({ measure }: Props) => {
   return (
-    <div className="flex items-end gap-0.5 h-13 mb-3 overflow-hidden">
+    <div className="flex items-end gap-0.5 h-16 mb-3 overflow-hidden">
       {Array.from({ length: SUBDIVISIONS }, (_, s) => {
         const bd = measure.BD[s];
         const sn = measure.SNARE[s];
@@ -23,7 +23,7 @@ const ScorePreview = ({ measure }: Props) => {
         return (
           <div
             key={s}
-            className="flex-1 rounded-sm opacity-75"
+            className="flex-1 opacity-75"
             style={{ height, background }}
           />
         );
