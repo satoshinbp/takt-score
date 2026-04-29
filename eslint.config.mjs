@@ -182,9 +182,7 @@ const stylisticConfig = {
   rules: {
     "@stylistic/padding-line-between-statements": [
       "error",
-      { blankLine: "always", prev: "*", next: "return" },
       { blankLine: "always", prev: "*", next: ["function", `class`] },
-      { blankLine: "always", prev: "*", next: ["if", "switch"] },
       { blankLine: "always", prev: "directive", next: "*" },
       { blankLine: "never", prev: "directive", next: "directive" },
     ],
