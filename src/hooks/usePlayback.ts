@@ -6,7 +6,7 @@ import { PARTS, type Score, SUBDIVISIONS } from "@/lib/constants";
 
 export type PlaybackState = {
   isPlaying: boolean;
-  currentStep: number; // 現在再生中のステップ（16分音符単位）
+  currentStep: number;
   bpm: number;
   setBpm: (v: number) => void;
   loop: boolean;
@@ -26,95 +26,92 @@ class PlaybackEngine {
   private ctx: AudioContext | null = null;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private raf: number | null = null;
-
-  private step = 0;
+  private scheduleStep = 0;
   private nextTime = 0;
   private scheduledEvents: { step: number; time: number }[] = [];
-  private lastPlayedStep = -1;
-
-  isPlaying = false;
+  private playingStep = -1;
+  private readonly cb: EngineCallbacks;
   bpm: number;
   loop = true;
   score: Score | null = null;
 
-  private readonly cb: EngineCallbacks;
-
-  constructor(initialBpm: number, callbacks: EngineCallbacks) {
-    this.bpm = initialBpm;
+  constructor(bpm: number, callbacks: EngineCallbacks) {
+    this.bpm = bpm;
     this.cb = callbacks;
   }
 
   play() {
+    if (this.isPlaying()) return;
     if (!this.ctx) this.ctx = new AudioContext();
-
     if (this.ctx.state === "suspended") void this.ctx.resume();
-
-    this.isPlaying = true;
-    // 少し未来から開始（即時再生のズレ防止）
-    this.nextTime = this.ctx.currentTime + 0.05;
-
+    this.start();
     this.cb.onPlayingChange(true);
-    this.scheduler();
-    this.raf = requestAnimationFrame(() => this.rafLoop());
   }
 
   pause() {
-    // 先に止める（race condition防止）
-    this.isPlaying = false;
-
-    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
-
-    if (this.raf) { cancelAnimationFrame(this.raf); this.raf = null; }
-
-    // schedulerは未来まで進んでいるので巻き戻す
-    const playingStep = this.lastPlayedStep;
-
-    if (playingStep >= 0) {
-      const total = (this.score?.measures?.length ?? 1) * SUBDIVISIONS;
-      this.step = (playingStep + 1) % total;
-      this.cb.onStepChange(playingStep);
-    }
-
-    this.scheduledEvents = [];
-    this.lastPlayedStep = -1;
+    if (!this.isPlaying()) return;
+    this.stopLoops();
+    this.syncStep();
+    this.clearPlaybackState();
     this.cb.onPlayingChange(false);
   }
 
   stop() {
-    this.isPlaying = false;
-
-    if (this.timer) clearTimeout(this.timer);
-
-    if (this.raf) cancelAnimationFrame(this.raf);
-
-    this.step = 0;
-    this.scheduledEvents = [];
-    this.lastPlayedStep = -1;
-
+    this.stopLoops();
+    this.scheduleStep = 0;
+    this.clearPlaybackState();
     this.cb.onPlayingChange(false);
     this.cb.onStepChange(-1);
   }
 
   seekTo(step: number) {
-    this.step = step;
+    this.scheduleStep = step;
     this.scheduledEvents = [];
     this.cb.onStepChange(step);
+    if (!this.isPlaying()) return;
+    this.stopLoops();
+    this.start();
+  }
 
-    if (this.isPlaying && this.ctx) {
-      if (this.timer) clearTimeout(this.timer);
+  stopLoops() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
 
-      if (this.raf) cancelAnimationFrame(this.raf);
-
-      this.nextTime = this.ctx.currentTime + 0.05;
-      this.scheduler();
-      this.raf = requestAnimationFrame(() => this.rafLoop());
+    if (this.raf) {
+      cancelAnimationFrame(this.raf);
+      this.raf = null;
     }
   }
 
-  dispose() {
-    if (this.timer) clearTimeout(this.timer);
+  private start() {
+    if (!this.ctx) return;
+    // 少し未来から開始（即時再生のズレ防止）
+    this.nextTime = this.ctx.currentTime + 0.05;
+    this.timer = setTimeout(() => this.scheduler(), 0);
+    this.raf = requestAnimationFrame(() => this.rafLoop());
+  }
 
-    if (this.raf) cancelAnimationFrame(this.raf);
+  private isPlaying() {
+    return this.timer !== null;
+  }
+
+  private clearPlaybackState() {
+    this.scheduledEvents = [];
+    this.playingStep = -1;
+  }
+
+  private getTotalSteps() {
+    return (this.score?.measures?.length ?? 1) * SUBDIVISIONS;
+  }
+
+  private syncStep() {
+    const playingStep = this.playingStep;
+    if (playingStep < 0) return;
+    const totalSteps = this.getTotalSteps();
+    this.scheduleStep = (playingStep + 1) % totalSteps;
+    this.cb.onStepChange(playingStep);
   }
 
   /**
@@ -122,7 +119,7 @@ class PlaybackEngine {
    * 「今どのstepが鳴っているか」を計算してReactに反映する
    */
   private rafLoop() {
-    if (!this.isPlaying || !this.ctx) return;
+    if (!this.isPlaying() || !this.ctx) return;
 
     const now = this.ctx.currentTime;
 
@@ -132,15 +129,15 @@ class PlaybackEngine {
     );
 
     // 「今鳴っているはずのstep」を探す
-    let currentDisplayStep = -1;
+    let lastPlayedStep = -1;
 
     for (const e of this.scheduledEvents) {
-      if (e.time <= now + 0.01) currentDisplayStep = e.step;
+      if (e.time <= now + 0.01) lastPlayedStep = e.step;
     }
 
-    if (currentDisplayStep >= 0) {
-      this.lastPlayedStep = currentDisplayStep;
-      this.cb.onStepChange(currentDisplayStep);
+    if (lastPlayedStep >= 0) {
+      this.playingStep = lastPlayedStep;
+      this.cb.onStepChange(lastPlayedStep);
     }
 
     this.raf = requestAnimationFrame(() => this.rafLoop());
@@ -151,15 +148,15 @@ class PlaybackEngine {
    * 未来の音をまとめて予約する（これが音ズレ防止の核心）
    */
   private scheduler() {
-    if (!this.isPlaying || !this.ctx) return;
+    if (!this.timer || !this.ctx) return;
 
     const lookAhead = 0.12; // どれくらい未来まで予約するか
     const stepDuration = 60 / this.bpm / 4; // 16分音符の長さ
-    const totalSteps = (this.score?.measures?.length ?? 1) * SUBDIVISIONS;
+    const totalSteps = this.getTotalSteps();
 
     // 未来分をまとめて予約
     while (this.nextTime < this.ctx.currentTime + lookAhead) {
-      const step = this.step;
+      const step = this.scheduleStep;
       const time = this.nextTime;
 
       // UI用に記録
@@ -179,19 +176,10 @@ class PlaybackEngine {
         });
       }
 
-      this.step = (this.step + 1) % totalSteps;
+      this.scheduleStep = (this.scheduleStep + 1) % totalSteps;
       this.nextTime += stepDuration;
-
-      // loopしない場合、1周で停止
-      if (!this.loop && this.step === 0) {
-        this.isPlaying = false;
-        this.cb.onPlayingChange(false);
-        this.cb.onStepChange(-1);
-
-        if (this.timer) clearTimeout(this.timer);
-
-        if (this.raf) cancelAnimationFrame(this.raf);
-
+      if (!this.loop && this.scheduleStep === 0) {
+        this.stop();
         return;
       }
     }
@@ -209,38 +197,43 @@ export const usePlayback = (score: Score | null): PlaybackState => {
 
   const engineRef = useRef<PlaybackEngine | null>(null);
 
-  if (engineRef.current == null) {
+  if (engineRef.current === null) {
     engineRef.current = new PlaybackEngine(score?.bpm ?? 120, {
       onStepChange: setCurrentStep,
       onPlayingChange: setIsPlaying,
     });
   }
 
-  // React state → engine 同期
-  useEffect(() => { engineRef.current!.score = score; }, [score]);
-  useEffect(() => { engineRef.current!.bpm = bpm; }, [bpm]);
-  useEffect(() => { engineRef.current!.loop = shouldLoop; }, [shouldLoop]);
+  useEffect(() => {
+    engineRef.current!.score = score;
+  }, [score]);
+  useEffect(() => {
+    engineRef.current!.bpm = bpm;
+  }, [bpm]);
+  useEffect(() => {
+    engineRef.current!.loop = shouldLoop;
+  }, [shouldLoop]);
 
   const setBpm = useCallback((v: number) => {
     setBpmState(v);
-
-    // scoreにも反映（外部と整合性を取るため）
     const eng = engineRef.current!;
-
     if (eng.score) eng.score = { ...eng.score, bpm: v };
   }, []);
 
   const pause = useCallback(() => engineRef.current!.pause(), []);
   const stop = useCallback(() => engineRef.current!.stop(), []);
-  const seekTo = useCallback((step: number) => engineRef.current!.seekTo(step), []);
+  const seekTo = useCallback(
+    (step: number) => engineRef.current!.seekTo(step),
+    [],
+  );
 
   const toggle = useCallback(() => {
-    if (engineRef.current!.isPlaying) engineRef.current!.pause();
+    if (isPlaying) engineRef.current!.pause();
     else engineRef.current!.play();
-  }, []);
+  }, [isPlaying]);
 
   useEffect(() => {
-    return () => engineRef.current!.dispose();
+    return () => engineRef.current!.stopLoops();
   }, []);
 
   return {
