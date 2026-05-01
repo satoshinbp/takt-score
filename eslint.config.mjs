@@ -91,6 +91,8 @@ const codeStyleConfig = {
   rules: {
     "func-style": ["error", "expression"],
     "prefer-arrow-callback": "error",
+    "object-shorthand": ["error", "always"],
+    "no-useless-rename": "error",
     "promise/prefer-await-to-then": "error",
     "no-warning-comments": [
       "warn",
