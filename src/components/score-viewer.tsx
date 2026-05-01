@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef } from "react";
 import ScoreGrid from "@/components/score-grid";
 import ViewerHeader from "@/components/score-viewer-header";
 import Transport from "@/components/score-viewer-transport";
+import { useScoreAnchorPadding } from "@/components/useScoreAnchorPadding";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
 
@@ -33,7 +28,11 @@ const ScoreArea = ({
   const frameRef = useRef<number | null>(null);
   const visualStepRef = useRef(0);
   const totalSteps = measures.length * SUBDIVISIONS;
-  const [edgePadding, setEdgePadding] = useState({ left: 0, right: 0 });
+  const edgePadding = useScoreAnchorPadding(
+    areaRef,
+    contentRef,
+    PLAYHEAD_RATIO,
+  );
 
   const scrollToVisualStep = useCallback(
     (stepFloat: number) => {
@@ -72,37 +71,6 @@ const ScoreArea = ({
     },
     [totalSteps],
   );
-
-  useLayoutEffect(() => {
-    const container = areaRef.current;
-    const content = contentRef.current;
-
-    if (!container || !content) return;
-
-    const computePadding = () => {
-      const anchors = content.querySelectorAll("[data-step-anchor]");
-      const firstAnchor = anchors[0] as HTMLElement | undefined;
-      const lastAnchor = anchors[anchors.length - 1] as HTMLElement | undefined;
-
-      if (!firstAnchor || !lastAnchor) return;
-
-      const playheadX = container.clientWidth * PLAYHEAD_RATIO;
-      setEdgePadding({
-        left: Math.max(0, playheadX - firstAnchor.offsetWidth / 2),
-        right: Math.max(
-          0,
-          container.clientWidth - playheadX - lastAnchor.offsetWidth / 2,
-        ),
-      });
-    };
-
-    const observer = new ResizeObserver(computePadding);
-    observer.observe(container);
-    observer.observe(content);
-    computePadding();
-
-    return () => observer.disconnect();
-  }, [measures.length]);
 
   useEffect(() => {
     if (frameRef.current !== null) {
