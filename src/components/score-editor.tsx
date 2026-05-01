@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import EditorToolbar from "@/components/editor-toolbar";
 import ScoreGrid from "@/components/score-grid";
-import Transport from "@/components/transport";
+import Transport from "@/components/score-viewer-transport";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePlayback } from "@/hooks/usePlayback";
@@ -35,8 +35,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   const pb = usePlayback(draft);
   const currentMeasure =
     pb.currentStep >= 0 ? Math.floor(pb.currentStep / SUBDIVISIONS) : -1;
-  const currentBeat =
-    pb.currentStep >= 0 ? Math.floor((pb.currentStep % SUBDIVISIONS) / 4) : -1;
+  const totalSteps = score.measures.length * SUBDIVISIONS;
 
   const areaRef = useRef<HTMLDivElement>(null);
 
@@ -154,7 +153,6 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         />
         <Button onClick={handleSave}>{isNew ? "作成" : "保存"}</Button>
       </div>
-
       <EditorToolbar
         sel={sel}
         clipSize={clip?.length ?? 0}
@@ -167,7 +165,18 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         onDelete={delMeas}
         onDeselect={() => setSel([])}
       />
-
+      <Transport
+        isPlaying={pb.isPlaying}
+        currentStep={pb.currentStep}
+        bpm={pb.bpm}
+        loop={pb.loop}
+        totalSteps={totalSteps}
+        onToggle={pb.toggle}
+        onStop={pb.stop}
+        onBpmChange={pb.setBpm}
+        onSeek={pb.seekTo}
+        onLoopToggle={() => pb.setLoop((l) => !l)}
+      />
       <div ref={areaRef} className="flex-1 overflow-auto px-4 py-3.5 pb-2.5">
         <ScoreGrid
           measures={draft.measures}
@@ -177,17 +186,6 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
           onSelMeasure={toggleSel}
         />
       </div>
-
-      <Transport
-        isPlaying={pb.isPlaying}
-        onToggle={pb.toggle}
-        bpm={pb.bpm}
-        onBpmChange={pb.setBpm}
-        loop={pb.loop}
-        onLoopToggle={() => pb.setLoop((l) => !l)}
-        currentMeasure={currentMeasure}
-        currentBeat={currentBeat}
-      />
     </div>
   );
 };
