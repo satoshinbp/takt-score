@@ -151,7 +151,7 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
         setFloatStep(from + (to - from) * progress);
         rafRef.current = progress < 1 ? requestAnimationFrame(tick) : null;
       };
-      rafRef.current = requestAnimationFrame(tick);
+      tick(startedAt);
     },
     [setFloatStep],
   );
@@ -161,9 +161,9 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
   // ステップ間をピクセル単位で補間する別のアニメーションが必要で、それが
   // この effect の役割。音響系と表示系で RAF を分けている。
   //
-  // currentStep を「アンカー」として即スナップし、nextStep へのアニメを開始する。
-  // 旧実装（前回float→currentStep）と異なり、再生位置との誤差が蓄積せず、
-  // 後退シーク時に duration が負になるバグも解消される。
+  // currentStep-1 → currentStep の逆方向アニメを使う。ステップ N が発火した瞬間に
+  // セル N はプレイヘッドより右にあり、次ステップ発火タイミングでプレイヘッドに到達する。
+  // 前進アニメ（N → N+1）にすると発火後にセルが左へ押し出されてずれて見えるため。
   useEffect(() => {
     if (currentStep < 0) {
       setFloatStep(0);
@@ -175,13 +175,9 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
       return;
     }
 
-    setFloatStep(currentStep);
-
-    const nextStep = currentStep + 1;
-    if (nextStep >= totalSteps) return;
-
     const stepDurationMs = 60000 / bpm / 4;
-    startScrollAnimation(currentStep, nextStep, stepDurationMs);
+    const fromStep = Math.max(0, currentStep - 1);
+    startScrollAnimation(fromStep, currentStep, stepDurationMs);
     return cancelScrollAnimation;
   }, [
     bpm,
@@ -190,7 +186,6 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
     isPlaying,
     setFloatStep,
     startScrollAnimation,
-    totalSteps,
   ]);
 
   return (
