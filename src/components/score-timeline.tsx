@@ -100,9 +100,9 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
     );
   }, []);
 
-  // 再生中は一定速度でスクロールし続ける。
-  // セル幅は全ステップ等幅なので、step 0→1 の距離から px/ms を一度だけ計算する。
-  // currentStep に依存しないため React の再レンダリングタイミングに左右されない。
+  // 再生中はステップごとに速度を計算して一定速度でスクロールする。
+  // シーク時も currentStep が変わることで正しい位置に再アンカーされる。
+  // セル幅は全ステップ等幅なので、step 0→1 の距離から px/ms を計算する。
   useEffect(() => {
     const container = viewportRef.current;
     if (!container || !isPlaying) return;
@@ -112,10 +112,11 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
       (scrollLeftForStep(1) - scrollLeftForStep(0)) / stepDurationMs;
 
     const startMs = performance.now();
-    const startScrollLeft = container.scrollLeft;
+    const startScrollLeft = scrollLeftForStep(Math.max(0, currentStep - 1));
 
     const tick = (now: number) => {
-      const newScrollLeft = startScrollLeft + scrollSpeedPxPerMs * (now - startMs);
+      const newScrollLeft =
+        startScrollLeft + scrollSpeedPxPerMs * (now - startMs);
       container.scrollLeft = Math.max(
         0,
         Math.min(newScrollLeft, container.scrollWidth - container.clientWidth),
@@ -130,25 +131,40 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
         rafRef.current = null;
       }
     };
-  }, [isPlaying, bpm, scrollLeftForStep]);
+  }, [isPlaying, bpm, currentStep, scrollLeftForStep]);
 
-  // 停止中はステップ位置にスナップする。
+  // 停止中はステップの左端を playhead に合わせてスナップする。
   useEffect(() => {
     if (isPlaying) return;
     const container = viewportRef.current;
-    if (!container) return;
-    container.scrollLeft = currentStep < 0 ? 0 : scrollLeftForStep(currentStep);
-  }, [currentStep, isPlaying, scrollLeftForStep]);
+    const content = scoreRef.current;
+    if (!container || !content) return;
+    if (currentStep < 0) {
+      container.scrollLeft = 0;
+      return;
+    }
+    const anchor = content.querySelector<HTMLElement>(
+      `[data-step-anchor="${currentStep}"]`,
+    );
+    if (!anchor) return;
+    container.scrollLeft = Math.max(
+      0,
+      Math.min(
+        anchor.offsetLeft - container.clientWidth * PLAYHEAD_RATIO,
+        container.scrollWidth - container.clientWidth,
+      ),
+    );
+  }, [currentStep, isPlaying]);
 
   return (
     <div className="relative flex-1 overflow-hidden">
-      {currentStep >= 0 && (
+      {/* {currentStep >= 0 && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-4 z-10 flex w-px -translate-x-1/2 justify-center bg-primary"
           style={{ left: `${PLAYHEAD_RATIO * 100}%` }}
         />
-      )}
+      )} */}
       <div
         ref={viewportRef}
         className="h-full overflow-x-auto overflow-y-hidden px-6 py-4"
