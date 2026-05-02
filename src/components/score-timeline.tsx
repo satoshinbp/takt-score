@@ -158,13 +158,13 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
 
   return (
     <div className="relative flex-1 overflow-hidden">
-      {/* {currentStep >= 0 && (
+      {currentStep >= 0 && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-4 z-10 flex w-px -translate-x-1/2 justify-center bg-primary"
           style={{ left: `${PLAYHEAD_RATIO * 100}%` }}
         />
-      )} */}
+      )}
       <div
         ref={viewportRef}
         className="h-full overflow-x-auto overflow-y-hidden px-6 py-4"
@@ -175,7 +175,7 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
             className="shrink-0"
             style={{ width: edgePadding.left }}
           />
-          <ScoreGrid measures={measures} currentStep={currentStep} horizontal />
+          <ScoreGrid measures={measures} currentStep={-1} horizontal />
           <div
             aria-hidden="true"
             className="shrink-0"
