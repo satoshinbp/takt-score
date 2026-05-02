@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { type RefObject, useLayoutEffect, useState } from "react";
 import ScoreGrid from "@/components/score-grid";
-import { type Score, SUBDIVISIONS } from "@/lib/constants";
+import { type Score } from "@/lib/constants";
 
 type EdgePadding = { left: number; right: number };
 
@@ -75,118 +75,70 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const scoreRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
-  const stepFloatRef = useRef(0);
-  const totalSteps = measures.length * SUBDIVISIONS;
   const edgePadding = useScoreAnchorPadding(
     viewportRef,
     scoreRef,
     PLAYHEAD_RATIO,
   );
 
-  // 小数値のステップ位置（例: 3.4 = ステップ3とステップ4の間 40% 地点）を
-  // 「見た目上の現在位置」として確定する唯一の入口。
-  // stepFloatRef（次回補間の起点）と scrollLeft（DOM への反映）を同時に更新し、
-  // 両者が常に同じ値を指すようにする。
-  const setFloatStep = useCallback(
-    (stepFloat: number) => {
-      stepFloatRef.current = stepFloat;
-
-      const container = viewportRef.current;
-      const content = scoreRef.current;
-
-      if (!container || !content || totalSteps <= 0) return;
-
-      // 補間元となる前後2つのステップを決める。
-      // baseStep が整数部、nextStep はその次のステップ（末尾では自分自身）。
-      const baseStep = Math.floor(stepFloat);
-      const nextStep = Math.min(baseStep + 1, totalSteps - 1);
-      // 各ステップのセルは DOM 上で data-step-anchor 属性でマークされている。
-      // それを拾って X 座標を取るのが座標計算の起点。
-      const currentAnchor = content.querySelector<HTMLElement>(
-        `[data-step-anchor="${baseStep}"]`,
-      );
-      const nextAnchor = content.querySelector<HTMLElement>(
-        `[data-step-anchor="${nextStep}"]`,
-      );
-
-      if (!currentAnchor) return;
-
-      // 前後アンカーの中心 X を、stepFloat の小数部で線形補間する。
-      // これが「現在の見た目上のステップ」のピクセル X 座標。
-      const currentCenter =
-        currentAnchor.offsetLeft + currentAnchor.offsetWidth / 2;
-      const nextCenter = nextAnchor
-        ? nextAnchor.offsetLeft + nextAnchor.offsetWidth / 2
-        : currentCenter;
-      const cellCenter =
-        currentCenter +
-        (nextCenter - currentCenter) * Math.max(0, stepFloat - baseStep);
-      // セル中心が再生ヘッド位置（コンテナ幅 × PLAYHEAD_RATIO）に
-      // 重なるよう、scrollLeft を逆算する。
-      // 上下限でクランプして、不正なスクロール位置を防ぐ。
-      const nextScrollLeft = Math.max(
-        0,
-        cellCenter - container.clientWidth * PLAYHEAD_RATIO,
-      );
-      container.scrollLeft = Math.min(
-        nextScrollLeft,
+  // ステップ N のセル中心がプレイヘッドに重なる scrollLeft を返す。
+  const scrollLeftForStep = useCallback((step: number): number => {
+    const container = viewportRef.current;
+    const content = scoreRef.current;
+    if (!container || !content) return 0;
+    const anchor = content.querySelector<HTMLElement>(
+      `[data-step-anchor="${step}"]`,
+    );
+    if (!anchor) return 0;
+    const centerX = anchor.offsetLeft + anchor.offsetWidth / 2;
+    return Math.max(
+      0,
+      Math.min(
+        centerX - container.clientWidth * PLAYHEAD_RATIO,
         container.scrollWidth - container.clientWidth,
-      );
-    },
-    [totalSteps],
-  );
-
-  const cancelScrollAnimation = useCallback(() => {
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
+      ),
+    );
   }, []);
 
-  const startScrollAnimation = useCallback(
-    (from: number, to: number, durationMs: number) => {
-      const startedAt = performance.now();
-      const tick = (now: number) => {
-        const progress = Math.min(1, (now - startedAt) / durationMs);
-        setFloatStep(from + (to - from) * progress);
-        rafRef.current = progress < 1 ? requestAnimationFrame(tick) : null;
-      };
-      tick(startedAt);
-    },
-    [setFloatStep],
-  );
-
-  // PlaybackEngine 側の RAF は「音を鳴らすタイミング」を司り、currentStep は
-  // 16 分音符ごとの離散値としてここに届く。スクロールを滑らかに見せるには
-  // ステップ間をピクセル単位で補間する別のアニメーションが必要で、それが
-  // この effect の役割。音響系と表示系で RAF を分けている。
-  //
-  // currentStep-1 → currentStep の逆方向アニメを使う。ステップ N が発火した瞬間に
-  // セル N はプレイヘッドより右にあり、次ステップ発火タイミングでプレイヘッドに到達する。
-  // 前進アニメ（N → N+1）にすると発火後にセルが左へ押し出されてずれて見えるため。
+  // 再生中は一定速度でスクロールし続ける。
+  // セル幅は全ステップ等幅なので、step 0→1 の距離から px/ms を一度だけ計算する。
+  // currentStep に依存しないため React の再レンダリングタイミングに左右されない。
   useEffect(() => {
-    if (currentStep < 0) {
-      setFloatStep(0);
-      return;
-    }
-
-    if (!isPlaying) {
-      setFloatStep(currentStep);
-      return;
-    }
+    const container = viewportRef.current;
+    if (!container || !isPlaying) return;
 
     const stepDurationMs = 60000 / bpm / 4;
-    const fromStep = Math.max(0, currentStep - 1);
-    startScrollAnimation(fromStep, currentStep, stepDurationMs);
-    return cancelScrollAnimation;
-  }, [
-    bpm,
-    cancelScrollAnimation,
-    currentStep,
-    isPlaying,
-    setFloatStep,
-    startScrollAnimation,
-  ]);
+    const scrollSpeedPxPerMs =
+      (scrollLeftForStep(1) - scrollLeftForStep(0)) / stepDurationMs;
+
+    const startMs = performance.now();
+    const startScrollLeft = container.scrollLeft;
+
+    const tick = (now: number) => {
+      const newScrollLeft = startScrollLeft + scrollSpeedPxPerMs * (now - startMs);
+      container.scrollLeft = Math.max(
+        0,
+        Math.min(newScrollLeft, container.scrollWidth - container.clientWidth),
+      );
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, [isPlaying, bpm, scrollLeftForStep]);
+
+  // 停止中はステップ位置にスナップする。
+  useEffect(() => {
+    if (isPlaying) return;
+    const container = viewportRef.current;
+    if (!container) return;
+    container.scrollLeft = currentStep < 0 ? 0 : scrollLeftForStep(currentStep);
+  }, [currentStep, isPlaying, scrollLeftForStep]);
 
   return (
     <div className="relative flex-1 overflow-hidden">
