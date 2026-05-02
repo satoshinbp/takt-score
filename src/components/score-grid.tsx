@@ -1,66 +1,57 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { DrumIcon } from "@/components/icon";
-import { type Measure, PART_IDS, PARTS, SUBDIVISIONS } from "@/lib/constants";
+import BeatRuler from "@/components/beat-ruler";
+import ScoreGridCell from "@/components/score-grid-cell";
+import ScoreGridRowHeader from "@/components/score-grid-row-header";
+import type { Measure, PartConfig, PartId } from "@/lib/constants";
+import { PART_IDS, PARTS, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const BeatRuler = ({
+const ScoreGridRow = ({
+  id,
+  config,
+  partMeasure,
+  stepOffset,
+  currentStep,
+  anchoreEnabled = false,
+  onToggle,
   horizontal,
-  isSelected,
-  isCurrent,
   isRowStart,
-  measureIndex,
-  onSelectMeasure,
 }: {
+  id: PartId;
+  config: PartConfig;
+  partMeasure: Measure[PartId];
+  stepOffset: number;
+  currentStep: number;
+  anchoreEnabled?: boolean;
+  onToggle?: (si: number) => void;
   horizontal: boolean;
-  isSelected: boolean;
-  isCurrent: boolean;
   isRowStart: boolean;
-  measureIndex: number;
-  onSelectMeasure?: () => void;
-}) => {
-  return (
-    <div className="flex items-center mb-1.5">
-      <button
-        type="button"
-        onClick={onSelectMeasure}
-        className={cn(
-          "shrink-0 cursor-pointer font-mono font-bold text-xs",
-          "pr-2 text-right border-b-2 transition-all",
-          horizontal
-            ? "hidden"
-            : isRowStart
-              ? "w-16 min-w-16"
-              : "w-12 min-w-12",
-          isSelected || isCurrent ? "text-primary" : "text-muted-foreground",
-          isSelected ? "border-primary" : "border-transparent",
-        )}
-      >
-        M{measureIndex + 1}
-      </button>
-      {[1, 2, 3, 4].map((b) => (
-        <span key={b} className="flex">
-          <span
-            className={cn(
-              "w-6 mx-px flex items-center justify-center font-mono text-xs shrink-0",
-              horizontal && b === 1
-                ? isCurrent
-                  ? "text-primary font-bold"
-                  : "text-muted-foreground"
-                : "text-muted-foreground",
-            )}
-          >
-            {horizontal && b === 1 ? `M${measureIndex + 1}` : b}
-          </span>
-          {[0, 1, 2].map((sub) => (
-            <span key={sub} className="w-6 mx-px shrink-0 inline-block" />
-          ))}
-        </span>
-      ))}
-    </div>
-  );
-};
+}) => (
+  <div className="flex items-center mb-0.5">
+    <ScoreGridRowHeader
+      id={id}
+      config={config}
+      horizontal={horizontal}
+      isRowStart={isRowStart}
+    />
+    {Array.from({ length: SUBDIVISIONS }, (_, si) => {
+      const global = stepOffset + si;
+
+      return (
+        <ScoreGridCell
+          key={si}
+          isActive={partMeasure[si] === 1}
+          isCurrent={global === currentStep}
+          color={config.color}
+          anchor={anchoreEnabled ? global : undefined}
+          onClick={() => onToggle?.(si)}
+        />
+      );
+    })}
+  </div>
+);
 
 type Props = {
   measures: Measure[];
@@ -133,70 +124,18 @@ const ScoreGrid = ({
             />
 
             {PART_IDS.map((id, vi) => (
-              <div key={id} className="flex items-center mb-0.5">
-                <div
-                  className={cn(
-                    "shrink-0 flex items-center gap-1 font-mono font-semibold text-xs",
-                    horizontal
-                      ? "hidden"
-                      : isRowStart
-                        ? "w-16 min-w-16"
-                        : "w-12 min-w-12",
-                  )}
-                  style={{ color: PARTS[id].color }}
-                >
-                  {isRowStart && (
-                    <>
-                      <DrumIcon id={id} color={PARTS[id].color} size={18} />
-                      <span>{PARTS[id].short}</span>
-                    </>
-                  )}
-                </div>
-
-                {Array.from({ length: SUBDIVISIONS }, (_, si) => {
-                  const global = mi * SUBDIVISIONS + si;
-                  const isActive = measure[id][si] === 1;
-                  const isCurrent = global === currentStep;
-
-                  const shadows: string[] = [];
-
-                  if (isActive) {
-                    shadows.push(`0 0 8px ${PARTS[id].color}55`);
-
-                    if (isCurrent)
-                      shadows.push(`inset 0 0 0 2px rgba(245,200,66,0.75)`);
-                  }
-
-                  const cls = cn(
-                    "size-6 mx-px rounded-sm border shrink-0 cursor-pointer transition duration-75",
-                    isCurrent && "bg-accent",
-                    isCurrent && isActive
-                      ? "border-transparent"
-                      : isCurrent
-                        ? "border-[rgba(245,200,66,0.3)]"
-                        : isActive
-                          ? "border-transparent"
-                          : "border-border",
-                    !isCurrent && !isActive && "hover:bg-[var(--surface-3)]",
-                  );
-
-                  return (
-                    <button
-                      type="button"
-                      key={si}
-                      className={cls}
-                      data-step-anchor={vi === 0 ? global : undefined}
-                      onClick={() => onToggle?.(mi, vi, si)}
-                      style={{
-                        background: isActive ? PARTS[id].color : undefined,
-                        boxShadow: shadows.length
-                          ? shadows.join(", ")
-                          : undefined,
-                      }}
-                    />
-                  );
-                })}
-              </div>
+              <ScoreGridRow
+                key={id}
+                id={id}
+                config={PARTS[id]}
+                partMeasure={measure[id]}
+                stepOffset={mi * SUBDIVISIONS}
+                currentStep={currentStep}
+                anchoreEnabled={vi === 0}
+                onToggle={(si) => onToggle?.(mi, vi, si)}
+                horizontal={horizontal}
+                isRowStart={isRowStart}
+              />
             ))}
           </div>
         );

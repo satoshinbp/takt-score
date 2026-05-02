@@ -1,12 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import EditorToolbar from "@/components/editor-toolbar";
+import ScoreEditorHeader from "@/components/score-editor-header";
 import ScoreGrid from "@/components/score-grid";
-import Transport from "@/components/score-viewer-transport";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import {
   cloneMeasure,
@@ -135,24 +133,16 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
-      <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b border-border bg-background">
-        <Button
-          variant="outline"
-          onClick={() => {
-            pb.stop();
-            onBack();
-          }}
-        >
-          <ArrowLeft size={12} />
-          戻る
-        </Button>
-        <Input
-          value={draft.title}
-          onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-          placeholder="タイトル..."
-        />
-        <Button onClick={handleSave}>{isNew ? "作成" : "保存"}</Button>
-      </div>
+      <ScoreEditorHeader
+        onBack={() => {
+          pb.stop();
+          onBack();
+        }}
+        title={draft.title}
+        onTitleChange={(title) => setDraft((d) => ({ ...d, title }))}
+        onSave={handleSave}
+        isNew={isNew}
+      />
       <EditorToolbar
         sel={sel}
         clipSize={clip?.length ?? 0}

@@ -4,32 +4,40 @@ import { Pause, Play, Repeat, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
+import { SUBDIVISIONS } from "@/lib/constants";
 
-type Props = {
+type TransportProps = {
   isPlaying: boolean;
-  onToggle: () => void;
-  onStop?: () => void;
+  currentStep: number;
   bpm: number;
-  onBpmChange: (v: number) => void;
   loop: boolean;
+  totalSteps: number;
+  onToggle: () => void;
+  onStop: () => void;
+  onBpmChange: (v: number) => void;
+  onSeek: (step: number) => void;
   onLoopToggle: () => void;
-  currentMeasure: number;
-  currentBeat: number;
 };
 
 const Transport = ({
   isPlaying,
+  currentStep,
+  bpm,
+  loop,
+  totalSteps,
   onToggle,
   onStop,
-  bpm,
   onBpmChange,
-  loop,
+  onSeek,
   onLoopToggle,
-  currentMeasure,
-  currentBeat,
-}: Props) => {
+}: TransportProps) => {
+  const currentMeasure =
+    currentStep >= 0 ? Math.floor(currentStep / SUBDIVISIONS) : -1;
+  const currentBeat =
+    currentStep >= 0 ? Math.floor((currentStep % SUBDIVISIONS) / 4) : -1;
+
   return (
-    <div className="flex items-center gap-2 px-4 py-3 flex-shrink-0 border-t bg-background">
+    <div className="flex items-center gap-2 px-4 py-2 border-b bg-card">
       <Toggle
         pressed={isPlaying}
         onPressedChange={onToggle}
@@ -37,19 +45,27 @@ const Transport = ({
       >
         {isPlaying ? <Pause size={12} /> : <Play size={12} />}
       </Toggle>
-
-      {onStop && (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onStop}
-          size="icon"
-          title="停止"
-        >
-          <Square size={12} />
-        </Button>
-      )}
-
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={onStop}
+        size="icon"
+        title="停止"
+      >
+        <Square size={12} />
+      </Button>
+      <span className="w-20 flex-shrink-0 font-mono text-xs text-muted-foreground">
+        {currentStep >= 0
+          ? `M${String(currentMeasure + 1).padStart(2, "0")} / B${currentBeat + 1}`
+          : "M-- / B--"}
+      </span>
+      <Input
+        type="range"
+        min={0}
+        max={totalSteps - 1}
+        value={Math.max(0, currentStep)}
+        onChange={(e) => onSeek(+e.target.value)}
+      />
       <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
         <span>BPM</span>
         <Input
@@ -63,25 +79,9 @@ const Transport = ({
           }
         />
       </div>
-
-      <div className="text-xs font-mono text-muted-foreground">
-        {currentMeasure >= 0 ? (
-          <>
-            <strong className="text-foreground">
-              {String(currentMeasure + 1).padStart(2, "0")}
-            </strong>
-            :{currentBeat + 1}
-          </>
-        ) : (
-          <span>--:--</span>
-        )}
-      </div>
-
-      <div className="ml-auto">
-        <Toggle pressed={loop} onPressedChange={onLoopToggle} title="ループ">
-          <Repeat size={12} />
-        </Toggle>
-      </div>
+      <Toggle pressed={loop} onPressedChange={onLoopToggle} title="ループ">
+        <Repeat size={12} />
+      </Toggle>
     </div>
   );
 };

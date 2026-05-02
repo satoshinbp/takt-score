@@ -2,7 +2,7 @@
 
 import ScoreTimeline from "@/components/score-timeline";
 import ViewerHeader from "@/components/score-viewer-header";
-import Transport from "@/components/score-viewer-transport";
+import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
 

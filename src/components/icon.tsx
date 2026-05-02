@@ -1,10 +1,11 @@
-import type { PartId } from "@/lib/constants";
+import { type PartId, PARTS } from "@/lib/constants";
 
 type IconProps = { size?: number };
 
-type DrumIconProps = { id: PartId; color: string; size?: number };
+type DrumIconProps = { id: PartId; size?: number };
 
-export const DrumIcon = ({ id, color, size = 20 }: DrumIconProps) => {
+export const DrumIcon = ({ id, size = 20 }: DrumIconProps) => {
+  const color = PARTS[id].color;
   const w = size;
   const h = Math.round((size * 22) / 28);
   const vb = "0 0 28 22";
