@@ -43,7 +43,7 @@ const useScoreAnchorPadding = (
 
       const playheadX = container.clientWidth * playheadRatio;
       setPadding({
-        left: Math.max(0, playheadX - firstAnchor.offsetWidth / 2),
+        left: Math.max(0, playheadX - firstAnchor.offsetWidth),
         right: Math.max(
           0,
           container.clientWidth - playheadX - lastAnchor.offsetWidth / 2,
@@ -81,7 +81,7 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
     PLAYHEAD_RATIO,
   );
 
-  // ステップ N のセル中心がプレイヘッドに重なる scrollLeft を返す。
+  // ステップ N の左端がプレイヘッドに重なる scrollLeft を返す。
   const scrollLeftForStep = useCallback((step: number): number => {
     const container = viewportRef.current;
     const content = scoreRef.current;
@@ -90,11 +90,10 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
       `[data-step-anchor="${step}"]`,
     );
     if (!anchor) return 0;
-    const centerX = anchor.offsetLeft + anchor.offsetWidth / 2;
     return Math.max(
       0,
       Math.min(
-        centerX - container.clientWidth * PLAYHEAD_RATIO,
+        anchor.offsetLeft - container.clientWidth * PLAYHEAD_RATIO,
         container.scrollWidth - container.clientWidth,
       ),
     );
@@ -137,34 +136,17 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
   useEffect(() => {
     if (isPlaying) return;
     const container = viewportRef.current;
-    const content = scoreRef.current;
-    if (!container || !content) return;
-    if (currentStep < 0) {
-      container.scrollLeft = 0;
-      return;
-    }
-    const anchor = content.querySelector<HTMLElement>(
-      `[data-step-anchor="${currentStep}"]`,
-    );
-    if (!anchor) return;
-    container.scrollLeft = Math.max(
-      0,
-      Math.min(
-        anchor.offsetLeft - container.clientWidth * PLAYHEAD_RATIO,
-        container.scrollWidth - container.clientWidth,
-      ),
-    );
-  }, [currentStep, isPlaying]);
+    if (!container) return;
+    container.scrollLeft = currentStep < 0 ? 0 : scrollLeftForStep(currentStep);
+  }, [currentStep, isPlaying, scrollLeftForStep]);
 
   return (
     <div className="relative flex-1 overflow-hidden">
-      {currentStep >= 0 && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-4 z-10 flex w-px -translate-x-1/2 justify-center bg-primary"
-          style={{ left: `${PLAYHEAD_RATIO * 100}%` }}
-        />
-      )}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-4 z-10 flex w-px -translate-x-1/2 justify-center bg-primary"
+        style={{ left: `${PLAYHEAD_RATIO * 100}%` }}
+      />
       <div
         ref={viewportRef}
         className="h-full overflow-x-auto overflow-y-hidden px-6 py-4"
