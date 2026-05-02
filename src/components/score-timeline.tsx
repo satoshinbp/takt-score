@@ -111,7 +111,7 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
       (scrollLeftForStep(1) - scrollLeftForStep(0)) / stepDurationMs;
 
     const startMs = performance.now();
-    const startScrollLeft = scrollLeftForStep(Math.max(0, currentStep - 1));
+    const startScrollLeft = scrollLeftForStep(currentStep);
 
     const tick = (now: number) => {
       const newScrollLeft =
