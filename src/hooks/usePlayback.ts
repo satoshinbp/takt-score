@@ -124,16 +124,16 @@ class PlaybackEngine {
 
     const now = this.ctx.currentTime;
 
-    // 古い予約イベントを削除（メモリ＆精度対策）
+    // lookaheadウィンドウ外のイベントを削除（過去stepの再ハイライト防止）
     this.scheduledEvents = this.scheduledEvents.filter(
       (e) => e.time > now - 0.05,
     );
 
-    // 「今鳴っているはずのstep」を探す
     let lastPlayedStep = -1;
 
+    // rAF(~16ms) + React render(~10ms) の遅延を先読みして補正
     for (const e of this.scheduledEvents) {
-      if (e.time <= now + 0.01) lastPlayedStep = e.step;
+      if (e.time <= now + 0.05) lastPlayedStep = e.step;
     }
 
     if (lastPlayedStep >= 0) {
@@ -155,20 +155,16 @@ class PlaybackEngine {
     const stepDuration = 60 / this.bpm / 4; // 16分音符の長さ
     const totalSteps = this.getTotalSteps();
 
-    // 未来分をまとめて予約
     while (this.nextTime < this.ctx.currentTime + lookAhead) {
       const step = this.scheduleStep;
       const time = this.nextTime;
 
-      // UI用に記録
       this.scheduledEvents.push({ step, time });
 
-      // 対応する小節・位置を取得
       const measureIndex = Math.floor(step / SUBDIVISIONS);
       const stepIndex = step % SUBDIVISIONS;
       const measure = this.score?.measures?.[measureIndex];
 
-      // 音を予約
       if (measure) {
         PART_IDS.forEach((id) => {
           if (measure[id][stepIndex]) {
@@ -185,7 +181,6 @@ class PlaybackEngine {
       }
     }
 
-    // 次のスケジューリング
     this.timer = setTimeout(() => this.scheduler(), 25);
   }
 }
