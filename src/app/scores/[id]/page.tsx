@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import DetailPage from "@/components/detail-page";
+import DetailPage from "@/app/scores/[id]/_components/detail-page";
 import { type Score } from "@/lib/constants";
 import { loadScores, saveScores } from "@/lib/storage";
 

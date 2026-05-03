@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dashboard } from "@/components/dashboard";
+import DashboardHeader from "@/app/_components/header";
+import NewScoreCard from "@/app/_components/new-score-card";
+import ScoreCard from "@/app/_components/score-card";
 import { cloneMeasure, type Score } from "@/lib/constants";
 import { makeSamples } from "@/lib/samples";
 import { loadScores, saveScores } from "@/lib/storage";
@@ -28,23 +30,36 @@ const Page = () => {
   if (!scores) return null;
 
   return (
-    <Dashboard
-      scores={scores}
-      onCreate={() => router.push("/scores/new")}
-      onCopy={(s) => {
-        const copied: Score = {
-          ...s,
-          id: `s${Date.now()}`,
-          title: `${s.title} (コピー)`,
-          measures: s.measures.map(cloneMeasure),
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        };
-        const next = [...scores, copied];
-        setScores(next);
-        void saveScores(next);
-      }}
-    />
+    <div className="flex flex-col flex-1 px-6 py-4">
+      <div className="flex flex-col flex-1 gap-4">
+        <DashboardHeader
+          count={scores.length}
+          onCreate={() => router.push("/scores/new")}
+        />
+        <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
+          {scores.map((s) => (
+            <ScoreCard
+              key={s.id}
+              score={s}
+              onCopy={(s) => {
+                const copied: Score = {
+                  ...s,
+                  id: `s${Date.now()}`,
+                  title: `${s.title} (コピー)`,
+                  measures: s.measures.map(cloneMeasure),
+                  createdAt: Date.now(),
+                  updatedAt: Date.now(),
+                };
+                const next = [...scores, copied];
+                setScores(next);
+                void saveScores(next);
+              }}
+            />
+          ))}
+          <NewScoreCard />
+        </div>
+      </div>
+    </div>
   );
 };
 
