@@ -14,55 +14,21 @@
 
 ## ドメイン定義
 
-`src/lib/constants.ts` に型・定数・ファクトリ関数をまとめる。
+型・定数・ファクトリ関数は `src/lib/constants.ts` にまとめる。
 
-### 主要な型
+### コアモデル
 
-```ts
-// 1小節 = SUBDIVISIONS(16) ステップ × 9パート
-type PartId =
-  | "CRASH"
-  | "RIDE"
-  | "HH_OPEN"
-  | "HH"
-  | "HI_TOM"
-  | "MID_TOM"
-  | "SNARE"
-  | "LO_TOM"
-  | "BD";
-type Measure = Record<PartId, number[]>; // number[] length === 16; 0=off, 1=on
-type Score = { id; title; bpm; measures: Measure[]; createdAt; updatedAt };
-```
+- **PartId** — ドラムパーツを表す文字列リテラル型（CRASH / HH / SNARE / BD など9種）
+- **Measure** — 1小節。PartId をキーに、16ステップの on/off 配列を持つ `Record`
+- **Score** — 保存単位。`Measure[]` の配列にメタ情報（title, bpm, id, timestamps）を付加したもの
 
-## ディレクトリ構造
+### アーキテクチャ概要
 
-```
-src/
-  app/
-    page.tsx                      # スコア一覧ページ
-    scores/[id]/page.tsx          # スコア詳細ページ（閲覧）
-    scores/new/page.tsx           # 新規作成ページ
-    api/scores/route.ts           # GET/POST: /data/scores.json の読み書き
-    _components/                  # ページ固有コンポーネント
-  components/
-    score-editor/                 # 編集 UI（ヘッダー・グリッド・ツールバー）
-    score-viewer/                 # 閲覧 UI
-    score-grid/                   # グリッド本体（beat-ruler, row/cell, row/header）
-    transport.tsx                 # 再生コントロール（BPM・再生・停止）
-    header.tsx                    # グローバルヘッダー
-    icon.tsx                      # アプリ固有 SVG アイコン
-    ui/                           # shadcn/ui コンポーネント
-  hooks/
-    usePlayback.ts                # Web Audio API を使った再生ロジック
-  lib/
-    constants.ts                  # 型・定数・ファクトリ関数（ドメイン定義の中心）
-    audio.ts                      # Web Audio API による打音合成
-    samples.ts                    # 音源サンプル定義
-    storage.ts                    # fetch wrapper: /api/scores を経由した JSON 読み書き
-    utils.ts                      # cn() など汎用ユーティリティ
-data/
-  scores.json                     # スコアデータの永続化先
-```
+- `src/app/` — Next.js App Router のページ・API Route（データの読み書きは `/api/scores` 経由）
+- `src/components/` — UI コンポーネント（`score-editor`, `score-viewer`, `score-grid` が中心）
+- `src/hooks/` — Web Audio API を使った再生ロジック
+- `src/lib/` — ドメイン定義・音声合成・ストレージ・ユーティリティ
+- `data/scores.json` — スコアデータの永続化先
 
 ## UI の方針
 
