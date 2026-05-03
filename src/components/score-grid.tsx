@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { memo, useLayoutEffect, useRef, useState } from "react";
 import BeatRuler from "@/components/beat-ruler";
 import ScoreGridCell from "@/components/score-grid-cell";
 import ScoreGridRowHeader from "@/components/score-grid-row-header";
@@ -144,4 +144,4 @@ const ScoreGrid = ({
   );
 };
 
-export default ScoreGrid;
+export default memo(ScoreGrid);

@@ -61,6 +61,18 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const scoreRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const currentStepRef = useRef(currentStep);
+  const scrollAnchorRef = useRef<{
+    startMs: number;
+    startScrollLeft: number;
+  } | null>(null);
+  // isPlaying を ref に同期する。読む effect より前に定義することで
+  // React Compiler の順序制約を満たす。
+  const isPlayingRef = useRef(isPlaying);
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
   const edgePadding = useScoreAnchorPadding(
     viewportRef,
     scoreRef,
@@ -85,8 +97,8 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
     );
   }, []);
 
-  // 再生中はステップごとに速度を計算して一定速度でスクロールする。
-  // シーク時も currentStep が変わることで正しい位置に再アンカーされる。
+  // 再生中は一定速度でスクロールする。rAF ループは isPlaying/bpm 変化時のみ再起動し、
+  // ステップ切り替えではアンカーだけ差し替えることでかくつきを防ぐ。
   // セル幅は全ステップ等幅なので、step 0→1 の距離から px/ms を計算する。
   useEffect(() => {
     const container = viewportRef.current;
@@ -96,12 +108,16 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
     const scrollSpeedPxPerMs =
       (scrollLeftForStep(1) - scrollLeftForStep(0)) / stepDurationMs;
 
-    const startMs = performance.now();
-    const startScrollLeft = scrollLeftForStep(currentStep);
+    scrollAnchorRef.current = {
+      startMs: performance.now(),
+      startScrollLeft: scrollLeftForStep(currentStepRef.current),
+    };
 
     const tick = (now: number) => {
+      const anchor = scrollAnchorRef.current;
+      if (!anchor) return;
       const newScrollLeft =
-        startScrollLeft + scrollSpeedPxPerMs * (now - startMs);
+        anchor.startScrollLeft + scrollSpeedPxPerMs * (now - anchor.startMs);
       container.scrollLeft = Math.max(
         0,
         Math.min(newScrollLeft, container.scrollWidth - container.clientWidth),
@@ -115,17 +131,23 @@ const ScoreTimeline = ({ measures, currentStep, isPlaying, bpm }: Props) => {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
+      scrollAnchorRef.current = null;
     };
-  }, [isPlaying, bpm, currentStep, scrollLeftForStep]);
+  }, [isPlaying, bpm, scrollLeftForStep]);
+
+  // ステップが変わるたびにアンカーを差し替える。rAF ループは止めないので
+  // ステップ切り替えによるスクロール停止が起きない。
+  useEffect(() => {
+    currentStepRef.current = currentStep;
+    if (!isPlayingRef.current) return;
+    scrollAnchorRef.current = {
+      startMs: performance.now(),
+      startScrollLeft: scrollLeftForStep(currentStep),
+    };
+  }, [currentStep, scrollLeftForStep]);
 
   // シーク時（停止中に currentStep が変わった場合）のみスナップする。
-  // isPlaying の変化（一時停止）では発火させないため、isPlaying を依存配列から外し
-  // ref で追跡する。
-  const isPlayingRef = useRef(isPlaying);
-  useEffect(() => {
-    isPlayingRef.current = isPlaying;
-  }, [isPlaying]);
-
+  // isPlaying の変化（一時停止）では発火させないため isPlayingRef で追跡する。
   useEffect(() => {
     if (isPlayingRef.current) return;
     const container = viewportRef.current;
