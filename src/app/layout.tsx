@@ -1,4 +1,5 @@
 import { Geist_Mono, Noto_Sans, Roboto } from "next/font/google";
+import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +35,12 @@ export default function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <div className="flex flex-col h-screen">
+            <Header />
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

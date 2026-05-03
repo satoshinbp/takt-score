@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dashboard } from "@/components/dashboard";
-import Header from "@/components/header";
 import { cloneMeasure, type Score } from "@/lib/constants";
 import { makeSamples } from "@/lib/samples";
 import { loadScores, saveScores } from "@/lib/storage";
@@ -29,26 +28,23 @@ const Page = () => {
   if (!scores) return null;
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <Dashboard
-        scores={scores}
-        onCreate={() => router.push("/scores/new")}
-        onCopy={(s) => {
-          const copied: Score = {
-            ...s,
-            id: `s${Date.now()}`,
-            title: `${s.title} (コピー)`,
-            measures: s.measures.map(cloneMeasure),
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-          };
-          const next = [...scores, copied];
-          setScores(next);
-          void saveScores(next);
-        }}
-      />
-    </div>
+    <Dashboard
+      scores={scores}
+      onCreate={() => router.push("/scores/new")}
+      onCopy={(s) => {
+        const copied: Score = {
+          ...s,
+          id: `s${Date.now()}`,
+          title: `${s.title} (コピー)`,
+          measures: s.measures.map(cloneMeasure),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        const next = [...scores, copied];
+        setScores(next);
+        void saveScores(next);
+      }}
+    />
   );
 };
 

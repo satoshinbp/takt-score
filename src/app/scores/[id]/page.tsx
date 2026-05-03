@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DetailPage from "@/components/detail-page";
-import Header from "@/components/header";
 import { type Score } from "@/lib/constants";
 import { loadScores, saveScores } from "@/lib/storage";
 
@@ -36,26 +35,20 @@ const ScoreDetailPage = () => {
 
   if (!score) {
     return (
-      <div className="flex flex-col overflow-hidden h-screen bg-background text-foreground">
-        <Header />
-        <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-          スコアが見つかりません
-        </div>
+      <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
+        スコアが見つかりません
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col overflow-hidden h-screen bg-background text-foreground">
-      <Header />
-      <DetailPage
-        key={id}
-        score={score}
-        onSave={(s) => void handleSave(s)}
-        onBack={() => router.push("/")}
-        onDelete={() => void handleDelete()}
-      />
-    </div>
+    <DetailPage
+      key={id}
+      score={score}
+      onSave={(s) => void handleSave(s)}
+      onBack={() => router.push("/")}
+      onDelete={() => void handleDelete()}
+    />
   );
 };
 
