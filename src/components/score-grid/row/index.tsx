@@ -13,7 +13,6 @@ type Props = {
   currentStep: number;
   anchoreEnabled?: boolean;
   onToggle?: (si: number) => void;
-  horizontal: boolean;
   isRowStart: boolean;
 };
 
@@ -25,16 +24,10 @@ const ScoreGridRow = ({
   currentStep,
   anchoreEnabled = false,
   onToggle,
-  horizontal,
   isRowStart,
 }: Props) => (
   <div className="flex items-center mb-0.5">
-    <ScoreGridRowHeader
-      id={id}
-      config={config}
-      horizontal={horizontal}
-      isRowStart={isRowStart}
-    />
+    <ScoreGridRowHeader id={id} config={config} isRowStart={isRowStart} />
     {Array.from({ length: SUBDIVISIONS }, (_, si) => {
       const global = stepOffset + si;
 

@@ -5,7 +5,6 @@ import BeatRuler from "@/components/score-grid/beat-ruler";
 import ScoreGridRow from "@/components/score-grid/row";
 import type { Measure } from "@/lib/constants";
 import { PART_IDS, PARTS, SUBDIVISIONS } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 
 type Props = {
   measures: Measure[];
@@ -13,7 +12,6 @@ type Props = {
   onToggle?: (mi: number, partIdx: number, si: number) => void;
   selMeasures?: number[];
   onSelMeasure?: (mi: number) => void;
-  horizontal?: boolean;
 };
 
 const ScoreGrid = ({
@@ -22,7 +20,6 @@ const ScoreGrid = ({
   onToggle,
   selMeasures = [],
   onSelMeasure,
-  horizontal = false,
 }: Props) => {
   const curMeasure =
     currentStep >= 0 ? Math.floor(currentStep / SUBDIVISIONS) : -1;
@@ -54,13 +51,7 @@ const ScoreGrid = ({
   }, [measures.length]);
 
   return (
-    <div
-      ref={wrapRef}
-      className={cn(
-        "select-none flex",
-        horizontal ? "flex-nowrap" : "flex-wrap gap-y-2",
-      )}
-    >
+    <div ref={wrapRef} className="select-none flex flex-wrap gap-y-2">
       {measures.map((measure, mi) => {
         const isCur = curMeasure === mi;
         const isSel = selMeasures.includes(mi);
@@ -69,7 +60,6 @@ const ScoreGrid = ({
         return (
           <div key={mi} data-measure={mi} className="shrink-0">
             <BeatRuler
-              horizontal={horizontal}
               isSelected={isSel}
               isCurrent={isCur}
               isRowStart={isRowStart}
@@ -87,7 +77,6 @@ const ScoreGrid = ({
                 currentStep={currentStep}
                 anchoreEnabled={vi === 0}
                 onToggle={(si) => onToggle?.(mi, vi, si)}
-                horizontal={horizontal}
                 isRowStart={isRowStart}
               />
             ))}

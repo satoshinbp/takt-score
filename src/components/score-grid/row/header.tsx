@@ -7,18 +7,14 @@ import { cn } from "@/lib/utils";
 type Props = {
   id: PartId;
   config: PartConfig;
-  horizontal: boolean;
   isRowStart: boolean;
 };
 
-const ScoreGridRowHeader = ({ id, config, horizontal, isRowStart }: Props) => (
+const ScoreGridRowHeader = ({ id, config, isRowStart }: Props) => (
   <div
     className={cn(
       "shrink-0 flex items-center gap-1 font-mono font-semibold text-xs",
-      horizontal && isRowStart && "w-16 min-w-16 -ml-16",
-      horizontal && !isRowStart && "hidden",
-      !horizontal && isRowStart && "w-16 min-w-16",
-      !horizontal && !isRowStart && "w-12 min-w-12",
+      isRowStart ? "w-16 min-w-16" : "w-12 min-w-12",
     )}
     style={{ color: config.color }}
   >
