@@ -10,7 +10,7 @@ type ViewerHeaderProps = {
   onDelete?: () => void;
 };
 
-const ViewerHeader = ({
+const ScoreViewerHeader = ({
   title,
   onBack,
   onEdit,
@@ -35,4 +35,4 @@ const ViewerHeader = ({
   </div>
 );
 
-export default ViewerHeader;
+export default ScoreViewerHeader;

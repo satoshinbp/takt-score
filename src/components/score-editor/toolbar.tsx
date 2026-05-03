@@ -26,7 +26,7 @@ type Props = {
   onDeselect: () => void;
 };
 
-const EditorToolbar = ({
+const ScoreEditorToolbar = ({
   sel,
   clipSize,
   canDelete,
@@ -98,4 +98,4 @@ const EditorToolbar = ({
   );
 };
 
-export default EditorToolbar;
+export default ScoreEditorToolbar;

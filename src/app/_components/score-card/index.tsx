@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Copy } from "lucide-react";
-import ScorePreview from "@/components/score-preview";
+import ScorePreview from "@/app/_components/score-card/preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Score } from "@/lib/constants";

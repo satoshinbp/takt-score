@@ -1,7 +1,7 @@
 "use client";
 
-import ScoreTimeline from "@/components/score-timeline";
-import ViewerHeader from "@/components/score-viewer-header";
+import ScoreGrid from "@/components/score-grid";
+import ScoreViewerHeader from "@/components/score-viewer/header";
 import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { type Score, SUBDIVISIONS } from "@/lib/constants";
@@ -19,7 +19,7 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
-      <ViewerHeader
+      <ScoreViewerHeader
         title={score.title}
         onBack={() => {
           pb.stop();
@@ -43,12 +43,9 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
         onSeek={pb.seekTo}
         onLoopToggle={() => pb.setLoop((l) => !l)}
       />
-      <ScoreTimeline
-        measures={score.measures}
-        currentStep={pb.currentStep}
-        isPlaying={pb.isPlaying}
-        bpm={pb.bpm}
-      />
+      <div className="flex-1 overflow-auto px-4 py-3.5 pb-2.5">
+        <ScoreGrid measures={score.measures} currentStep={pb.currentStep} />
+      </div>
     </div>
   );
 };

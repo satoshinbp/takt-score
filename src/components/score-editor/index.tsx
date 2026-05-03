@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import EditorToolbar from "@/components/editor-toolbar";
-import ScoreEditorHeader from "@/components/score-editor-header";
+import ScoreEditorHeader from "@/components/score-editor/header";
+import ScoreEditorToolbar from "@/components/score-editor/toolbar";
 import ScoreGrid from "@/components/score-grid";
 import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
@@ -143,7 +143,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         onSave={handleSave}
         isNew={isNew}
       />
-      <EditorToolbar
+      <ScoreEditorToolbar
         sel={sel}
         clipSize={clip?.length ?? 0}
         canDelete={draft.measures.length > 1}

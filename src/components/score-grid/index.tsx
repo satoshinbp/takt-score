@@ -1,57 +1,11 @@
 "use client";
 
 import { memo, useLayoutEffect, useRef, useState } from "react";
-import BeatRuler from "@/components/beat-ruler";
-import ScoreGridCell from "@/components/score-grid-cell";
-import ScoreGridRowHeader from "@/components/score-grid-row-header";
-import type { Measure, PartConfig, PartId } from "@/lib/constants";
+import BeatRuler from "@/components/score-grid/beat-ruler";
+import ScoreGridRow from "@/components/score-grid/row";
+import type { Measure } from "@/lib/constants";
 import { PART_IDS, PARTS, SUBDIVISIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const ScoreGridRow = ({
-  id,
-  config,
-  partMeasure,
-  stepOffset,
-  currentStep,
-  anchoreEnabled = false,
-  onToggle,
-  horizontal,
-  isRowStart,
-}: {
-  id: PartId;
-  config: PartConfig;
-  partMeasure: Measure[PartId];
-  stepOffset: number;
-  currentStep: number;
-  anchoreEnabled?: boolean;
-  onToggle?: (si: number) => void;
-  horizontal: boolean;
-  isRowStart: boolean;
-}) => (
-  <div className="flex items-center mb-0.5">
-    <ScoreGridRowHeader
-      id={id}
-      config={config}
-      horizontal={horizontal}
-      isRowStart={isRowStart}
-    />
-    {Array.from({ length: SUBDIVISIONS }, (_, si) => {
-      const global = stepOffset + si;
-
-      return (
-        <ScoreGridCell
-          key={si}
-          isActive={partMeasure[si] === 1}
-          isCurrent={global === currentStep}
-          color={config.color}
-          anchor={anchoreEnabled ? global : undefined}
-          onClick={() => onToggle?.(si)}
-        />
-      );
-    })}
-  </div>
-);
 
 type Props = {
   measures: Measure[];
