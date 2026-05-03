@@ -12,15 +12,63 @@
 | スタイリング   | Tailwind CSS v4                        |
 | 言語           | TypeScript                             |
 
+## ドメイン定義
+
+`src/lib/constants.ts` に型・定数・ファクトリ関数をまとめる。
+
+### 主要な型
+
+```ts
+// 1小節 = SUBDIVISIONS(16) ステップ × 9パート
+type PartId =
+  | "CRASH"
+  | "RIDE"
+  | "HH_OPEN"
+  | "HH"
+  | "HI_TOM"
+  | "MID_TOM"
+  | "SNARE"
+  | "LO_TOM"
+  | "BD";
+type Measure = Record<PartId, number[]>; // number[] length === 16; 0=off, 1=on
+type Score = { id; title; bpm; measures: Measure[]; createdAt; updatedAt };
+```
+
+## ディレクトリ構造
+
+```
+src/
+  app/
+    page.tsx                      # スコア一覧ページ
+    scores/[id]/page.tsx          # スコア詳細ページ（閲覧）
+    scores/new/page.tsx           # 新規作成ページ
+    api/scores/route.ts           # GET/POST: /data/scores.json の読み書き
+    _components/                  # ページ固有コンポーネント
+  components/
+    score-editor/                 # 編集 UI（ヘッダー・グリッド・ツールバー）
+    score-viewer/                 # 閲覧 UI
+    score-grid/                   # グリッド本体（beat-ruler, row/cell, row/header）
+    transport.tsx                 # 再生コントロール（BPM・再生・停止）
+    header.tsx                    # グローバルヘッダー
+    icon.tsx                      # アプリ固有 SVG アイコン
+    ui/                           # shadcn/ui コンポーネント
+  hooks/
+    usePlayback.ts                # Web Audio API を使った再生ロジック
+  lib/
+    constants.ts                  # 型・定数・ファクトリ関数（ドメイン定義の中心）
+    audio.ts                      # Web Audio API による打音合成
+    samples.ts                    # 音源サンプル定義
+    storage.ts                    # fetch wrapper: /api/scores を経由した JSON 読み書き
+    utils.ts                      # cn() など汎用ユーティリティ
+data/
+  scores.json                     # スコアデータの永続化先
+```
+
 ## UI の方針
 
 - UI コンポーネントが必要になったら、まず `@/components/ui/` から該当するものを探す。
 - なければ [shadcn/ui](https://ui.shadcn.com/docs/components) から該当するものを探し、pnpm 用のインストールコマンドを実行して `@/components/ui/` に追加する。
 - 静的スタイルは Tailwind クラスで書く。
-
-## ドメイン定義
-
-`src/lib/constants.ts` に型・定数・ファクトリ関数をまとめる。
 
 ## データ保存方針
 
