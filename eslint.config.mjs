@@ -194,6 +194,8 @@ const stylisticConfig = {
 const testConfig = {
   name: "Test Config",
   ...pluginJest.configs["flat/recommended"],
+  // eslint-plugin-jest は Vitest でも動作するが Jest バージョン自動検出が失敗するため明示
+  settings: { jest: { version: 27 } },
   files: [
     "{src,app,pages}/**/*.{test,spec}.{js,ts,jsxt,sx}",
     "{src,app,pages}/**/__tests__/**/*.{ts,js,jsx,tsx}",
