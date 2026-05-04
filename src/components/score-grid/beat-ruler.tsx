@@ -1,13 +1,18 @@
 "use client";
 
+import type { Measure, Subdivision } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+
+const NEXT_SUBDIVISION: Record<Subdivision, Subdivision> = { 4: 3, 3: 6, 6: 4 };
 
 type Props = {
   isSelected: boolean;
   isCurrent: boolean;
   isRowStart: boolean;
   measureIndex: number;
+  measure: Measure;
   onSelectMeasure?: () => void;
+  onSubdivisionChange?: (beatIndex: number, subdivision: Subdivision) => void;
 };
 
 const BeatRuler = ({
@@ -15,7 +20,9 @@ const BeatRuler = ({
   isCurrent,
   isRowStart,
   measureIndex,
+  measure,
   onSelectMeasure,
+  onSubdivisionChange,
 }: Props) => {
   return (
     <div className="flex items-center mb-1.5">
@@ -32,13 +39,29 @@ const BeatRuler = ({
       >
         M{measureIndex + 1}
       </button>
-      {[1, 2, 3, 4].map((b) => (
-        <span key={b} className="flex">
-          <span className="w-6 mx-px flex items-center justify-center font-mono text-xs shrink-0 text-muted-foreground">
-            {b}
-          </span>
-          {[0, 1, 2].map((sub) => (
-            <span key={sub} className="w-6 mx-px shrink-0 inline-block" />
+      {measure.map((beat, bi) => (
+        <span key={bi} className="flex">
+          <button
+            type="button"
+            onClick={() =>
+              onSubdivisionChange?.(bi, NEXT_SUBDIVISION[beat.subdivision])
+            }
+            className={cn(
+              "w-6 mx-px flex flex-col items-center justify-center font-mono text-xs shrink-0 text-muted-foreground",
+              onSubdivisionChange
+                ? "cursor-pointer hover:text-primary"
+                : "cursor-default",
+            )}
+          >
+            <span>{bi + 1}</span>
+            {beat.subdivision !== 4 && (
+              <span className="text-[9px] leading-none opacity-70">
+                {beat.subdivision}
+              </span>
+            )}
+          </button>
+          {Array.from({ length: beat.subdivision - 1 }, (_, si) => (
+            <span key={si} className="w-6 mx-px shrink-0 inline-block" />
           ))}
         </span>
       ))}

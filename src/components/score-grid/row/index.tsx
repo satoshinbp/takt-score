@@ -3,46 +3,53 @@
 import ScoreGridCell from "@/components/score-grid/row/cell";
 import ScoreGridRowHeader from "@/components/score-grid/row/header";
 import type { Measure, PartConfig, PartId } from "@/lib/constants";
-import { SUBDIVISIONS } from "@/lib/constants";
 
 type Props = {
   id: PartId;
   config: PartConfig;
-  partMeasure: Measure[PartId];
+  measure: Measure;
   stepOffset: number;
   currentStep: number;
   anchoreEnabled?: boolean;
-  onToggle?: (si: number) => void;
+  onToggle?: (bi: number, si: number) => void;
   isRowStart: boolean;
 };
 
 const ScoreGridRow = ({
   id,
   config,
-  partMeasure,
+  measure,
   stepOffset,
   currentStep,
   anchoreEnabled = false,
   onToggle,
   isRowStart,
-}: Props) => (
-  <div className="flex items-center mb-0.5">
-    <ScoreGridRowHeader id={id} config={config} isRowStart={isRowStart} />
-    {Array.from({ length: SUBDIVISIONS }, (_, si) => {
-      const global = stepOffset + si;
+}: Props) => {
+  const beatOffsets = measure.reduce<number[]>((acc, beat, bi) => {
+    acc.push(bi === 0 ? stepOffset : acc[bi - 1] + measure[bi - 1].subdivision);
+    return acc;
+  }, []);
 
-      return (
-        <ScoreGridCell
-          key={si}
-          isActive={partMeasure[si] === 1}
-          isCurrent={global === currentStep}
-          color={config.color}
-          anchor={anchoreEnabled ? global : undefined}
-          onClick={() => onToggle?.(si)}
-        />
-      );
-    })}
-  </div>
-);
+  return (
+    <div className="flex items-center mb-0.5">
+      <ScoreGridRowHeader id={id} config={config} isRowStart={isRowStart} />
+      {measure.map((beat, bi) =>
+        beat.steps[id].map((val, si) => {
+          const global = (beatOffsets[bi] ?? stepOffset) + si;
+          return (
+            <ScoreGridCell
+              key={`${bi}-${si}`}
+              isActive={val === 1}
+              isCurrent={global === currentStep}
+              color={config.color}
+              anchor={anchoreEnabled ? global : undefined}
+              onClick={() => onToggle?.(bi, si)}
+            />
+          );
+        }),
+      )}
+    </div>
+  );
+};
 
 export default ScoreGridRow;

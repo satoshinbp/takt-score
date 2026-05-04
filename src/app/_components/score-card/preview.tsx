@@ -1,33 +1,35 @@
 "use client";
 
-import { type Measure, PARTS, SUBDIVISIONS } from "@/lib/constants";
+import { type Measure, PARTS } from "@/lib/constants";
 
 type Props = { measure: Measure };
 
 const ScorePreview = ({ measure }: Props) => {
   return (
     <div className="flex items-end gap-0.5 h-16 mb-3 overflow-hidden">
-      {Array.from({ length: SUBDIVISIONS }, (_, s) => {
-        const bd = measure.BD[s];
-        const sn = measure.SNARE[s];
-        const hh = measure.HH[s] || measure.HH_OPEN[s];
-        const height = bd ? 52 : sn ? 36 : hh ? 20 : 6;
-        const background = bd
-          ? PARTS.BD.color
-          : sn
-            ? PARTS.SNARE.color
-            : hh
-              ? PARTS.HH.color
-              : "#1e1e26";
+      {measure.flatMap((beat, bi) =>
+        beat.steps.BD.map((_, si) => {
+          const isBD = beat.steps.BD[si];
+          const isSN = beat.steps.SNARE[si];
+          const isHH = beat.steps.HH[si] || beat.steps.HH_OPEN[si];
+          const height = isBD ? 52 : isSN ? 36 : isHH ? 20 : 6;
+          const background = isBD
+            ? PARTS.BD.color
+            : isSN
+              ? PARTS.SNARE.color
+              : isHH
+                ? PARTS.HH.color
+                : "#1e1e26";
 
-        return (
-          <div
-            key={s}
-            className="flex-1 opacity-75"
-            style={{ height, background }}
-          />
-        );
-      })}
+          return (
+            <div
+              key={`${bi}-${si}`}
+              className="flex-1 opacity-75"
+              style={{ height, background }}
+            />
+          );
+        }),
+      )}
     </div>
   );
 };

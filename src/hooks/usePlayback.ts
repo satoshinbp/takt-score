@@ -2,8 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SOUNDS } from "@/lib/audio";
-import type { Score } from "@/lib/constants";
-import { PART_IDS, SUBDIVISIONS } from "@/lib/constants";
+import type { Beat, Measure, Score, Subdivision } from "@/lib/constants";
+import { PART_IDS } from "@/lib/constants";
+import {
+  decodeStep,
+  getTotalSteps,
+  stepDurationSec,
+} from "@/lib/playback-utils";
 
 export type PlaybackState = {
   isPlaying: boolean;
@@ -104,7 +109,7 @@ class PlaybackEngine {
   }
 
   private getTotalSteps() {
-    return (this.score?.measures?.length ?? 1) * SUBDIVISIONS;
+    return this.score ? getTotalSteps(this.score.measures) : 4;
   }
 
   private syncStep() {
@@ -133,7 +138,7 @@ class PlaybackEngine {
 
     // rAF(~16ms) + React render(~10ms) の遅延を先読みして補正
     for (const e of this.scheduledEvents) {
-      if (e.time <= now + 0.05) lastPlayedStep = e.step;
+      if (e.time <= now + 0.1) lastPlayedStep = e.step;
     }
 
     if (lastPlayedStep >= 0) {
@@ -151,9 +156,9 @@ class PlaybackEngine {
   private scheduler() {
     if (!this.timer || !this.ctx) return;
 
-    const lookAhead = 0.12; // どれくらい未来まで予約するか
-    const stepDuration = 60 / this.bpm / 4; // 16分音符の長さ
+    const lookAhead = 0.12;
     const totalSteps = this.getTotalSteps();
+    const measures: Measure[] = this.score?.measures ?? [];
 
     while (this.nextTime < this.ctx.currentTime + lookAhead) {
       const step = this.scheduleStep;
@@ -161,20 +166,22 @@ class PlaybackEngine {
 
       this.scheduledEvents.push({ step, time });
 
-      const measureIndex = Math.floor(step / SUBDIVISIONS);
-      const stepIndex = step % SUBDIVISIONS;
-      const measure = this.score?.measures?.[measureIndex];
+      const { measureIndex, beatIndex, stepIndex } = decodeStep(step, measures);
+      const beatMeasure: Measure | undefined = measures[measureIndex];
+      const beat: Beat | undefined = beatMeasure?.[beatIndex];
+      const subdivision: Subdivision = beat?.subdivision ?? 4;
 
-      if (measure) {
+      if (beat) {
         PART_IDS.forEach((id) => {
-          if (measure[id][stepIndex]) {
+          if (beat.steps[id]?.[stepIndex]) {
             SOUNDS[id]?.(this.ctx!, time);
           }
         });
       }
 
       this.scheduleStep = (this.scheduleStep + 1) % totalSteps;
-      this.nextTime += stepDuration;
+      this.nextTime += stepDurationSec(this.bpm, subdivision);
+
       if (!this.loop && this.scheduleStep === 0) {
         this.stop();
         return;

@@ -4,14 +4,15 @@ import { Pause, Play, Repeat, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
-import { SUBDIVISIONS } from "@/lib/constants";
+import type { Measure } from "@/lib/constants";
+import { decodeStep, getTotalSteps } from "@/lib/playback-utils";
 
 type TransportProps = {
   isPlaying: boolean;
   currentStep: number;
   bpm: number;
   loop: boolean;
-  totalSteps: number;
+  measures: Measure[];
   onToggle: () => void;
   onStop: () => void;
   onBpmChange: (v: number) => void;
@@ -24,17 +25,18 @@ const Transport = ({
   currentStep,
   bpm,
   loop,
-  totalSteps,
+  measures,
   onToggle,
   onStop,
   onBpmChange,
   onSeek,
   onLoopToggle,
 }: TransportProps) => {
-  const currentMeasure =
-    currentStep >= 0 ? Math.floor(currentStep / SUBDIVISIONS) : -1;
-  const currentBeat =
-    currentStep >= 0 ? Math.floor((currentStep % SUBDIVISIONS) / 4) : -1;
+  const totalSteps = getTotalSteps(measures);
+  const { measureIndex: currentMeasure, beatIndex: currentBeat } =
+    currentStep >= 0
+      ? decodeStep(currentStep, measures)
+      : { measureIndex: -1, beatIndex: -1 };
 
   return (
     <div className="flex items-center gap-2 px-4 py-2 border-b bg-card">

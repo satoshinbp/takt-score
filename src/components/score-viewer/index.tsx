@@ -4,7 +4,7 @@ import ScoreGrid from "@/components/score-grid";
 import ScoreViewerHeader from "@/components/score-viewer/header";
 import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
-import { type Score, SUBDIVISIONS } from "@/lib/constants";
+import type { Score } from "@/lib/constants";
 
 type Props = {
   score: Score;
@@ -15,7 +15,6 @@ type Props = {
 
 const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
   const pb = usePlayback(score);
-  const totalSteps = score.measures.length * SUBDIVISIONS;
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
@@ -36,7 +35,7 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
         currentStep={pb.currentStep}
         bpm={pb.bpm}
         loop={pb.loop}
-        totalSteps={totalSteps}
+        measures={score.measures}
         onToggle={pb.toggle}
         onStop={pb.stop}
         onBpmChange={pb.setBpm}

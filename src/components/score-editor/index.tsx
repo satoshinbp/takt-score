@@ -8,11 +8,13 @@ import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import {
   cloneMeasure,
+  emptyBeat,
   emptyMeasure,
   PART_IDS,
   type Score,
-  SUBDIVISIONS,
+  type Subdivision,
 } from "@/lib/constants";
+import { decodeStep } from "@/lib/playback-utils";
 
 type Props = {
   score: Score;
@@ -32,8 +34,9 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   );
   const pb = usePlayback(draft);
   const currentMeasure =
-    pb.currentStep >= 0 ? Math.floor(pb.currentStep / SUBDIVISIONS) : -1;
-  const totalSteps = score.measures.length * SUBDIVISIONS;
+    pb.currentStep >= 0
+      ? decodeStep(pb.currentStep, draft.measures).measureIndex
+      : -1;
 
   const areaRef = useRef<HTMLDivElement>(null);
 
@@ -64,12 +67,22 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   }, [currentMeasure]);
 
   const handleToggle = useCallback(
-    (mi: number, partIdx: number, si: number) => {
+    (mi: number, partIdx: number, bi: number, si: number) => {
       const partId = PART_IDS[partIdx];
       setDraft((d) => {
         const ms = d.measures.map(cloneMeasure);
-        ms[mi][partId][si] = ms[mi][partId][si] ? 0 : 1;
+        ms[mi][bi].steps[partId][si] ^= 1;
+        return { ...d, measures: ms };
+      });
+    },
+    [],
+  );
 
+  const handleSubdivisionChange = useCallback(
+    (mi: number, bi: number, sub: Subdivision) => {
+      setDraft((d) => {
+        const ms = d.measures.map(cloneMeasure);
+        ms[mi][bi] = emptyBeat(sub);
         return { ...d, measures: ms };
       });
     },
@@ -104,7 +117,6 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
     setDraft((d) => {
       const ms = [...d.measures];
       ms.splice(at, 0, ...clip.map(cloneMeasure));
-
       return { ...d, measures: ms };
     });
   };
@@ -160,7 +172,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         currentStep={pb.currentStep}
         bpm={pb.bpm}
         loop={pb.loop}
-        totalSteps={totalSteps}
+        measures={draft.measures}
         onToggle={pb.toggle}
         onStop={pb.stop}
         onBpmChange={pb.setBpm}
@@ -172,6 +184,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
           measures={draft.measures}
           currentStep={pb.currentStep}
           onToggle={handleToggle}
+          onSubdivisionChange={handleSubdivisionChange}
           selMeasures={sel}
           onSelMeasure={toggleSel}
         />
