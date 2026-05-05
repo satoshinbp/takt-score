@@ -2,6 +2,9 @@
 
 import { cn } from "@/lib/utils";
 
+// size-6 (24px) + mx-px (1px × 2)
+export const CELL_WIDTH_PX = 26;
+
 const getStepCellClass = (isActive: boolean, isCurrent: boolean) =>
   cn(
     "size-6 mx-px rounded-sm border shrink-0 cursor-pointer transition duration-75",

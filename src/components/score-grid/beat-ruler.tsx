@@ -1,9 +1,11 @@
 "use client";
 
+import { CELL_WIDTH_PX } from "@/components/score-grid/row/cell";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Measure, Subdivision } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const NEXT_SUBDIVISION: Record<Subdivision, Subdivision> = { 4: 3, 3: 6, 6: 4 };
+const SUBDIVISIONS: Subdivision[] = [3, 4, 6];
 
 type Props = {
   isSelected: boolean;
@@ -40,30 +42,41 @@ const BeatRuler = ({
         M{measureIndex + 1}
       </button>
       {measure.map((beat, bi) => (
-        <span key={bi} className="flex">
-          <button
-            type="button"
-            onClick={() =>
-              onSubdivisionChange?.(bi, NEXT_SUBDIVISION[beat.subdivision])
-            }
-            className={cn(
-              "w-6 mx-px flex flex-col items-center justify-center font-mono text-xs shrink-0 text-muted-foreground",
-              onSubdivisionChange
-                ? "cursor-pointer hover:text-primary"
-                : "cursor-default",
-            )}
-          >
-            <span>{bi + 1}</span>
-            {beat.subdivision !== 4 && (
-              <span className="text-[9px] leading-none opacity-70">
+        <div
+          key={bi}
+          style={{ width: beat.subdivision * CELL_WIDTH_PX }}
+          className="shrink-0 flex items-center justify-between"
+        >
+          <span className="w-6 text-center font-mono text-xs text-muted-foreground shrink-0">
+            {bi + 1}
+          </span>
+          {onSubdivisionChange ? (
+            <ToggleGroup
+              type="single"
+              value={String(beat.subdivision)}
+              onValueChange={(val) => {
+                if (val) onSubdivisionChange(bi, Number(val) as Subdivision);
+              }}
+              className="gap-0 mr-px"
+            >
+              {SUBDIVISIONS.map((sub) => (
+                <ToggleGroupItem
+                  key={sub}
+                  value={String(sub)}
+                  className="h-4 min-w-0 w-5 px-0 text-xs font-mono rounded-none"
+                >
+                  {sub}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          ) : (
+            beat.subdivision !== 4 && (
+              <span className="text-sm text-muted-foreground opacity-70 mr-px font-mono">
                 {beat.subdivision}
               </span>
-            )}
-          </button>
-          {Array.from({ length: beat.subdivision - 1 }, (_, si) => (
-            <span key={si} className="w-6 mx-px shrink-0 inline-block" />
-          ))}
-        </span>
+            )
+          )}
+        </div>
       ))}
     </div>
   );
