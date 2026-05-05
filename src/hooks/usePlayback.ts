@@ -136,9 +136,10 @@ class PlaybackEngine {
 
     let lastPlayedStep = -1;
 
-    // rAF(~16ms) + React render(~10ms) の遅延を先読みして補正
+    // start() の初期オフセット(0.05s)と合わせた先読みで補正
+    // 100ms では次ステップが window に入り早期ジャンプが起きる
     for (const e of this.scheduledEvents) {
-      if (e.time <= now + 0.1) lastPlayedStep = e.step;
+      if (e.time <= now + 0.05) lastPlayedStep = e.step;
     }
 
     if (lastPlayedStep >= 0) {
