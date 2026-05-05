@@ -20,8 +20,8 @@ const NewScorePage = () => {
     <ScoreEditor
       score={score}
       isNew
-      onSave={() => {
-        void handleSave;
+      onSave={(s) => {
+        void handleSave(s);
       }}
       onBack={() => router.push("/")}
     />
