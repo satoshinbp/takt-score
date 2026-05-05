@@ -51,7 +51,7 @@ const BeatRuler = ({
           <span className="w-6 text-center font-mono text-sm font-bold text-foreground shrink-0">
             {bi + 1}
           </span>
-          {onSubdivisionChange ? (
+          {onSubdivisionChange && (
             <div className="flex items-center gap-0.5 mr-px">
               <PlusIcon size={10} className="text-muted-foreground" />
               <ToggleGroup
@@ -73,12 +73,6 @@ const BeatRuler = ({
                 ))}
               </ToggleGroup>
             </div>
-          ) : (
-            beat.subdivision !== 4 && (
-              <span className="text-sm text-muted-foreground opacity-70 mr-px font-mono">
-                ÷{beat.subdivision}
-              </span>
-            )
           )}
         </div>
       ))}
