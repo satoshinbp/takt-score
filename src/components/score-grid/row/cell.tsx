@@ -2,12 +2,12 @@
 
 import { cn } from "@/lib/utils";
 
-// size-6 (24px) + mx-px (1px × 2)
-export const CELL_WIDTH_PX = 26;
+const CELL_WIDTH_PX = 26; // size-6 (24px) + mx-px (1px × 2)
+export const BEAT_WIDTH_PX = 4 * CELL_WIDTH_PX;
 
 const getStepCellClass = (isActive: boolean, isCurrent: boolean) =>
   cn(
-    "size-6 mx-px rounded-sm border shrink-0 cursor-pointer transition duration-75",
+    "h-6 flex-1 mx-px rounded-sm border cursor-pointer transition duration-75",
     isCurrent && "bg-accent",
     isCurrent && isActive
       ? "border-transparent"

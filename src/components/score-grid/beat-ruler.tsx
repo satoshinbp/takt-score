@@ -1,6 +1,6 @@
 "use client";
 
-import { CELL_WIDTH_PX } from "@/components/score-grid/row/cell";
+import { BEAT_WIDTH_PX } from "@/components/score-grid/row/cell";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Measure, Subdivision } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ const BeatRuler = ({
       {measure.map((beat, bi) => (
         <div
           key={bi}
-          style={{ width: beat.subdivision * CELL_WIDTH_PX }}
+          style={{ width: BEAT_WIDTH_PX }}
           className="shrink-0 flex items-center justify-between"
         >
           <span className="w-6 text-center font-mono text-xs text-muted-foreground shrink-0">
