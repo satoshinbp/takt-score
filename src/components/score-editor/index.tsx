@@ -89,8 +89,11 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
     [],
   );
 
-  const toggleSel = (mi: number) =>
-    setSel((s) => (s.includes(mi) ? s.filter((i) => i !== mi) : [...s, mi]));
+  const toggleSel = useCallback(
+    (mi: number) =>
+      setSel((s) => (s.includes(mi) ? s.filter((i) => i !== mi) : [...s, mi])),
+    [],
+  );
 
   const addBlank = () =>
     setDraft((d) => ({ ...d, measures: [...d.measures, emptyMeasure()] }));
