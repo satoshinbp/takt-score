@@ -1,5 +1,6 @@
 "use client";
 
+import { PlusIcon } from "lucide-react";
 import { BEAT_WIDTH_PX } from "@/components/score-grid/row/cell";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Measure, Subdivision } from "@/lib/constants";
@@ -47,32 +48,35 @@ const BeatRuler = ({
           style={{ width: BEAT_WIDTH_PX }}
           className="shrink-0 flex items-center justify-between"
         >
-          <span className="w-6 text-center font-mono text-xs text-muted-foreground shrink-0">
+          <span className="w-6 text-center font-mono text-sm font-bold text-foreground shrink-0">
             {bi + 1}
           </span>
           {onSubdivisionChange ? (
-            <ToggleGroup
-              type="single"
-              value={String(beat.subdivision)}
-              onValueChange={(val) => {
-                if (val) onSubdivisionChange(bi, Number(val) as Subdivision);
-              }}
-              className="gap-0 mr-px"
-            >
-              {SUBDIVISIONS.map((sub) => (
-                <ToggleGroupItem
-                  key={sub}
-                  value={String(sub)}
-                  className="h-4 min-w-0 w-5 px-0 text-xs font-mono rounded-none"
-                >
-                  {sub}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+            <div className="flex items-center gap-0.5 mr-px">
+              <PlusIcon size={10} className="text-muted-foreground" />
+              <ToggleGroup
+                type="single"
+                value={String(beat.subdivision)}
+                onValueChange={(val) => {
+                  if (val) onSubdivisionChange(bi, Number(val) as Subdivision);
+                }}
+                className="gap-0"
+              >
+                {SUBDIVISIONS.map((sub) => (
+                  <ToggleGroupItem
+                    key={sub}
+                    value={String(sub)}
+                    className="h-4 min-w-0 w-5 px-0 text-xs font-mono rounded-none"
+                  >
+                    {sub}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
           ) : (
             beat.subdivision !== 4 && (
               <span className="text-sm text-muted-foreground opacity-70 mr-px font-mono">
-                {beat.subdivision}
+                ÷{beat.subdivision}
               </span>
             )
           )}
