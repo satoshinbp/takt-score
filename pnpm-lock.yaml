@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     dependencies:
+      "@anthropic-ai/sdk":
+        specifier: ^0.94.0
+        version: 0.94.0(zod@3.25.76)
       "@phosphor-icons/react":
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -40,6 +43,9 @@ importers:
       lucide-react:
         specifier: ^1.9.0
         version: 1.9.0(react@19.2.4)
+      music-tempo:
+        specifier: ^1.0.3
+        version: 1.0.3
       next:
         specifier: 16.2.4
         version: 16.2.4(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -157,6 +163,18 @@ packages:
         integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==,
       }
     engines: { node: ">=10" }
+
+  "@anthropic-ai/sdk@0.94.0":
+    resolution:
+      {
+        integrity: sha512-OVlCttk5MyeTGtrWX5+F3MJOfEMDuEjK8+rm9aQMDfRPWndVMbhk37QG8WLnVbcc7huyUGngVMjT7iMN2llySA==,
+      }
+    hasBin: true
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
 
   "@babel/code-frame@7.29.0":
     resolution:
@@ -349,6 +367,13 @@ packages:
     engines: { node: ">=6.9.0" }
     peerDependencies:
       "@babel/core": ^7.0.0-0
+
+  "@babel/runtime@7.29.2":
+    resolution:
+      {
+        integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==,
+      }
+    engines: { node: ">=6.9.0" }
 
   "@babel/template@7.28.6":
     resolution:
@@ -4819,6 +4844,13 @@ packages:
         integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==,
       }
 
+  json-schema-to-ts@3.1.1:
+    resolution:
+      {
+        integrity: sha512-+DWg8jCJG2TEnpy7kOm/7/AxaYoaRbjVB4LFZLySZlWn8exGs3A4OLJR966cVvU26N7X9TWxl+Jsw7dzAqKT6g==,
+      }
+    engines: { node: ">=16" }
+
   json-schema-traverse@0.4.1:
     resolution:
       {
@@ -5211,6 +5243,12 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  music-tempo@1.0.3:
+    resolution:
+      {
+        integrity: sha512-qAocTKLp3jaSeJLeGs98mkkpLYDFM1VCevA1OPFJvLPkHlzwTLUxChXMgnxZRHKSJQ13DuaT+Fr51BEUb2D4pQ==,
+      }
 
   mute-stream@3.0.0:
     resolution:
@@ -6360,6 +6398,12 @@ packages:
       }
     engines: { node: ">=16" }
 
+  ts-algebra@2.0.0:
+    resolution:
+      {
+        integrity: sha512-FPAhNPFMrkwz76P7cdjdmiShwMynZYN6SgOujD1urY4oNm80Ou9oMdmbR45LotcKOXoy7wSmHkRFE6Mxbrhefw==,
+      }
+
   ts-api-utils@2.5.0:
     resolution:
       {
@@ -6853,6 +6897,12 @@ packages:
 snapshots:
   "@alloc/quick-lru@5.2.0": {}
 
+  "@anthropic-ai/sdk@0.94.0(zod@3.25.76)":
+    dependencies:
+      json-schema-to-ts: 3.1.1
+    optionalDependencies:
+      zod: 3.25.76
+
   "@babel/code-frame@7.29.0":
     dependencies:
       "@babel/helper-validator-identifier": 7.28.5
@@ -7015,6 +7065,8 @@ snapshots:
       "@babel/plugin-transform-typescript": 7.28.6(@babel/core@7.29.0)
     transitivePeerDependencies:
       - supports-color
+
+  "@babel/runtime@7.29.2": {}
 
   "@babel/template@7.28.6":
     dependencies:
@@ -9958,6 +10010,11 @@ snapshots:
 
   json-parse-even-better-errors@2.3.1: {}
 
+  json-schema-to-ts@3.1.1:
+    dependencies:
+      "@babel/runtime": 7.29.2
+      ts-algebra: 2.0.0
+
   json-schema-traverse@0.4.1: {}
 
   json-schema-traverse@1.0.0: {}
@@ -10179,6 +10236,8 @@ snapshots:
       typescript: 5.9.3
     transitivePeerDependencies:
       - "@types/node"
+
+  music-tempo@1.0.3: {}
 
   mute-stream@3.0.0: {}
 
@@ -11012,6 +11071,8 @@ snapshots:
   tough-cookie@6.0.1:
     dependencies:
       tldts: 7.0.28
+
+  ts-algebra@2.0.0: {}
 
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:

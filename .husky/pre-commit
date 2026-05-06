@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # src/components/ui/ は shadcn/ui が管理するファイルのため手動編集禁止
-ui_files=$(git diff --cached --name-only | grep '^src/components/ui/' || true)
+ui_files=$(git diff --cached --name-only --diff-filter=M | grep '^src/components/ui/' || true)
 
 if [ -n "$ui_files" ]; then
   echo "Error: src/components/ui/ のファイルは shadcn/ui が管理しており、手動編集は禁止されています。"

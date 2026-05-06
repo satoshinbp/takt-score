@@ -6,6 +6,7 @@ import {
   ClipboardPaste,
   Copy,
   Plus,
+  Sparkles,
   Trash,
   X,
 } from "lucide-react";
@@ -24,6 +25,7 @@ type Props = {
   onClear: () => void;
   onDelete: () => void;
   onDeselect: () => void;
+  onAiGenerate: () => void;
 };
 
 const ScoreEditorToolbar = ({
@@ -37,11 +39,17 @@ const ScoreEditorToolbar = ({
   onClear,
   onDelete,
   onDeselect,
+  onAiGenerate,
 }: Props) => {
   const selSorted = [...sel].sort((a, b) => a - b);
 
   return (
     <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b flex-wrap">
+      <Button variant="outline" onClick={onAiGenerate} size="sm">
+        <Sparkles size={12} /> AI 生成
+      </Button>
+
+      <Separator orientation="vertical" />
       <span className="text-xs uppercase mr-0.5">追加</span>
 
       <Button variant="outline" onClick={onAddBlank} size="sm">

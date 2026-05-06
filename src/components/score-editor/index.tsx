@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import AiGenerateDialog from "@/components/score-editor/ai-generate-dialog";
 import ScoreEditorHeader from "@/components/score-editor/header";
 import ScoreEditorToolbar from "@/components/score-editor/toolbar";
 import ScoreGrid from "@/components/score-grid";
@@ -10,6 +11,7 @@ import {
   cloneMeasure,
   emptyBeat,
   emptyMeasure,
+  type Measure,
   PART_IDS,
   type Score,
   type Subdivision,
@@ -32,6 +34,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   const [clip, setClip] = useState<ReturnType<typeof cloneMeasure>[] | null>(
     null,
   );
+  const [isAiOpen, setAiOpen] = useState(false);
   const pb = usePlayback(draft);
   const currentMeasure =
     pb.currentStep >= 0
@@ -144,10 +147,20 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
     setSel([]);
   };
 
+  const handleAiGenerate = (measures: Measure[], bpm: number) => {
+    setDraft((d) => ({ ...d, measures, bpm }));
+    pb.stop();
+  };
+
   const handleSave = () => onSave({ ...draft, updatedAt: Date.now() });
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
+      <AiGenerateDialog
+        open={isAiOpen}
+        onOpenChange={setAiOpen}
+        onGenerate={handleAiGenerate}
+      />
       <ScoreEditorHeader
         onBack={() => {
           pb.stop();
@@ -169,6 +182,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         onClear={clearMeas}
         onDelete={delMeas}
         onDeselect={() => setSel([])}
+        onAiGenerate={() => setAiOpen(true)}
       />
       <Transport
         isPlaying={pb.isPlaying}
