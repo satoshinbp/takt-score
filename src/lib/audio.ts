@@ -1,13 +1,11 @@
-type AC = AudioContext;
-
 // 乱数ループはメインスレッドを詰まらせてスケジューラ遅延を招くため、初回生成後はキャッシュを使う
 const noiseBufferCache = new Map<string, AudioBuffer>();
 
-const getNoiseBuffer = (ctx: AC, dur: number): AudioBuffer => {
-  const key = `${ctx.sampleRate}-${dur}`;
+const getNoiseBuffer = (ctx: AudioContext, durSec: number): AudioBuffer => {
+  const key = `${ctx.sampleRate}-${durSec}`;
   let buf = noiseBufferCache.get(key);
   if (!buf) {
-    const len = Math.ceil(ctx.sampleRate * dur);
+    const len = Math.ceil(ctx.sampleRate * durSec);
     buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
@@ -17,92 +15,93 @@ const getNoiseBuffer = (ctx: AC, dur: number): AudioBuffer => {
 };
 
 const noise = (
-  ctx: AC,
-  t: number,
-  dur: number,
+  ctx: AudioContext,
+  startSec: number,
+  durSec: number,
   freq: number,
   q: number,
-  g: number,
+  gain: number,
 ) => {
-  const src = ctx.createBufferSource();
-  src.buffer = getNoiseBuffer(ctx, dur);
-  const flt = ctx.createBiquadFilter();
-  flt.type = "bandpass";
-  flt.frequency.value = freq;
-  flt.Q.value = q;
-  const gn = ctx.createGain();
-  src.connect(flt);
-  flt.connect(gn);
-  gn.connect(ctx.destination);
-  gn.gain.setValueAtTime(g, t);
-  gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  src.start(t);
-  src.stop(t + dur);
+  const source = ctx.createBufferSource();
+  source.buffer = getNoiseBuffer(ctx, durSec);
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.value = freq;
+  filter.Q.value = q;
+  const gainNode = ctx.createGain();
+  source.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  gainNode.gain.setValueAtTime(gain, startSec);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, startSec + durSec);
+  source.start(startSec);
+  source.stop(startSec + durSec);
 };
 
 const tone = (
-  ctx: AC,
-  t: number,
-  dur: number,
+  ctx: AudioContext,
+  startSec: number,
+  durSec: number,
   f0: number,
   f1: number | null,
-  g: number,
+  gain: number,
   atk = 0,
 ) => {
   const osc = ctx.createOscillator();
-  const gn = ctx.createGain();
-  osc.connect(gn);
-  gn.connect(ctx.destination);
-  osc.frequency.setValueAtTime(f0, t);
+  const gainNode = ctx.createGain();
+  osc.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  osc.frequency.setValueAtTime(f0, startSec);
 
-  if (f1) osc.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.6);
+  if (f1)
+    osc.frequency.exponentialRampToValueAtTime(f1, startSec + durSec * 0.6);
 
   if (atk > 0) {
-    gn.gain.setValueAtTime(0.0001, t);
-    gn.gain.linearRampToValueAtTime(g, t + atk);
+    gainNode.gain.setValueAtTime(0.0001, startSec);
+    gainNode.gain.linearRampToValueAtTime(gain, startSec + atk);
   } else {
-    gn.gain.setValueAtTime(g, t);
+    gainNode.gain.setValueAtTime(gain, startSec);
   }
-  gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  osc.start(t);
-  osc.stop(t + dur);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, startSec + durSec);
+  osc.start(startSec);
+  osc.stop(startSec + durSec);
 };
 
-export type SoundFn = (ctx: AC, t: number) => void;
+export type SoundFn = (ctx: AudioContext, startSec: number) => void;
 
 export const SOUNDS: Partial<Record<string, SoundFn>> = {
-  BD: (c, t) => {
-    tone(c, t, 0.35, 160, 42, 1.0);
-    noise(c, t, 0.04, 200, 0.5, 0.3);
+  BD: (ctx, startSec) => {
+    tone(ctx, startSec, 0.35, 160, 42, 1.0);
+    noise(ctx, startSec, 0.04, 200, 0.5, 0.3);
   },
-  SNARE: (c, t) => {
-    noise(c, t, 0.17, 3200, 0.7, 0.9);
-    tone(c, t, 0.1, 210, null, 0.5);
+  SNARE: (ctx, startSec) => {
+    noise(ctx, startSec, 0.17, 3200, 0.7, 0.9);
+    tone(ctx, startSec, 0.1, 210, null, 0.5);
   },
-  HH: (c, t) => {
-    noise(c, t, 0.052, 10000, 1.6, 0.65);
+  HH: (ctx, startSec) => {
+    noise(ctx, startSec, 0.052, 10000, 1.6, 0.65);
   },
-  HH_OPEN: (c, t) => {
-    noise(c, t, 0.32, 8000, 0.8, 0.55);
+  HH_OPEN: (ctx, startSec) => {
+    noise(ctx, startSec, 0.32, 8000, 0.8, 0.55);
   },
-  CRASH: (c, t) => {
-    noise(c, t, 0.65, 5000, 0.4, 0.7);
-    noise(c, t, 0.65, 11000, 0.6, 0.4);
+  CRASH: (ctx, startSec) => {
+    noise(ctx, startSec, 0.65, 5000, 0.4, 0.7);
+    noise(ctx, startSec, 0.65, 11000, 0.6, 0.4);
   },
-  RIDE: (c, t) => {
-    noise(c, t, 0.22, 8000, 1.2, 0.45);
-    tone(c, t, 0.16, 580, null, 0.22);
+  RIDE: (ctx, startSec) => {
+    noise(ctx, startSec, 0.22, 8000, 1.2, 0.45);
+    tone(ctx, startSec, 0.16, 580, null, 0.22);
   },
-  HI_TOM: (c, t) => {
-    tone(c, t, 0.28, 280, 130, 0.85, 0.01);
-    noise(c, t, 0.05, 600, 0.4, 0.12);
+  HI_TOM: (ctx, startSec) => {
+    tone(ctx, startSec, 0.28, 280, 130, 0.85, 0.01);
+    noise(ctx, startSec, 0.05, 600, 0.4, 0.12);
   },
-  MID_TOM: (c, t) => {
-    tone(c, t, 0.33, 210, 100, 0.85, 0.01);
-    noise(c, t, 0.05, 450, 0.4, 0.12);
+  MID_TOM: (ctx, startSec) => {
+    tone(ctx, startSec, 0.33, 210, 100, 0.85, 0.01);
+    noise(ctx, startSec, 0.05, 450, 0.4, 0.12);
   },
-  LO_TOM: (c, t) => {
-    tone(c, t, 0.28, 140, 58, 1.0);
-    noise(c, t, 0.05, 400, 0.5, 0.2);
+  LO_TOM: (ctx, startSec) => {
+    tone(ctx, startSec, 0.28, 140, 58, 1.0);
+    noise(ctx, startSec, 0.05, 400, 0.5, 0.2);
   },
 };
