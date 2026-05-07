@@ -46,8 +46,6 @@ export const PARTS: Record<PartId, PartConfig> = {
   BD: { label: "Bass", short: "BD", color: "#f87171" },
 };
 
-// 各ステップの強弱。0=未打 / 1=通常 / 2=アクセント / 3=ゴーストノート。
-// 既存データは 0/1 のみを持つため OFF/NORMAL と完全互換。
 export const STEP = {
   OFF: 0,
   NORMAL: 1,
@@ -56,7 +54,6 @@ export const STEP = {
 } as const;
 export type StepValue = (typeof STEP)[keyof typeof STEP];
 
-// 装飾音の数。0=なし / 1=フラム / 2=ドラッグ / 3=ラフ。
 export const ORNAMENT = {
   NONE: 0,
   FLAM: 1,
