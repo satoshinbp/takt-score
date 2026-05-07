@@ -46,9 +46,29 @@ export const PARTS: Record<PartId, PartConfig> = {
   BD: { label: "Bass", short: "BD", color: "#f87171" },
 };
 
+// 各ステップの強弱。0=未打 / 1=通常 / 2=アクセント / 3=ゴーストノート。
+// 既存データは 0/1 のみを持つため OFF/NORMAL と完全互換。
+export const STEP = {
+  OFF: 0,
+  NORMAL: 1,
+  ACCENT: 2,
+  GHOST: 3,
+} as const;
+export type StepValue = (typeof STEP)[keyof typeof STEP];
+
+// 装飾音の数。0=なし / 1=フラム / 2=ドラッグ / 3=ラフ。
+export const ORNAMENT = {
+  NONE: 0,
+  FLAM: 1,
+  DRAG: 2,
+  RUFF: 3,
+} as const;
+export type OrnamentValue = (typeof ORNAMENT)[keyof typeof ORNAMENT];
+
 export type Beat = {
   subdivision: Subdivision;
-  steps: Record<PartId, number[]>; // length === subdivision
+  steps: Record<PartId, number[]>; // length === subdivision、値は STEP のいずれか
+  ornaments?: Record<PartId, number[]>; // 未指定は全 NONE 扱い
 };
 
 /** Beat[] length === BEATS_PER_MEASURE */
@@ -74,12 +94,20 @@ export const emptyMeasure = (): Measure =>
   Array.from({ length: BEATS_PER_MEASURE }, () => emptyBeat());
 
 export const cloneMeasure = (m: Measure): Measure =>
-  m.map((beat) => ({
-    subdivision: beat.subdivision,
-    steps: Object.fromEntries(
-      PART_IDS.map((id) => [id, [...beat.steps[id]]]),
-    ) as Record<PartId, number[]>,
-  }));
+  m.map((beat) => {
+    const cloned: Beat = {
+      subdivision: beat.subdivision,
+      steps: Object.fromEntries(
+        PART_IDS.map((id) => [id, [...beat.steps[id]]]),
+      ) as Record<PartId, number[]>,
+    };
+    if (beat.ornaments) {
+      cloned.ornaments = Object.fromEntries(
+        PART_IDS.map((id) => [id, [...(beat.ornaments![id] ?? [])]]),
+      ) as Record<PartId, number[]>;
+    }
+    return cloned;
+  });
 
 let _sid = 0;
 export const newScore = (title = "New Score", bpm = 120): Score => ({
