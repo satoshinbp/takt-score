@@ -1,24 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AiGenerateDialog from "@/components/score-editor/ai-generate-dialog";
 import ScoreEditorHeader from "@/components/score-editor/header";
+import { useDraftScore } from "@/components/score-editor/hooks/useDraftScore";
+import { useFollowPlayback } from "@/components/score-editor/hooks/useFollowPlayback";
+import { useMeasureOps } from "@/components/score-editor/hooks/useMeasureOps";
+import { useMeasureSelection } from "@/components/score-editor/hooks/useMeasureSelection";
 import ScoreEditorToolbar from "@/components/score-editor/toolbar";
 import ScoreGrid from "@/components/score-grid";
 import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
-import {
-  cloneMeasure,
-  emptyBeat,
-  emptyMeasure,
-  type Measure,
-  ORNAMENT,
-  PART_IDS,
-  type Score,
-  STEP,
-  type Subdivision,
-} from "@/lib/constants";
-import { writeOrnament } from "@/lib/ornament";
+import type { Measure, Score } from "@/lib/constants";
 import { decodeStep } from "@/lib/playback-utils";
 
 type Props = {
@@ -29,22 +22,19 @@ type Props = {
 };
 
 const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
-  const [draft, setDraft] = useState<Score>(() => ({
-    ...score,
-    measures: score.measures.map(cloneMeasure),
-  }));
-  const [sel, setSel] = useState<number[]>([]);
-  const [clip, setClip] = useState<ReturnType<typeof cloneMeasure>[] | null>(
-    null,
-  );
   const [isAiOpen, setAiOpen] = useState(false);
-  const pb = usePlayback(draft);
-  const currentMeasure =
-    pb.currentStep >= 0
-      ? decodeStep(pb.currentStep, draft.measures).measureIndex
-      : -1;
-
   const areaRef = useRef<HTMLDivElement>(null);
+
+  const { sel, toggle: toggleSel, clear: clearSel } = useMeasureSelection();
+  const {
+    draft,
+    setDraft,
+    handleToggle,
+    handleSetStep,
+    handleSubdivisionChange,
+  } = useDraftScore(score);
+  const pb = usePlayback(draft);
+  const ops = useMeasureOps({ draft, setDraft, sel, clearSel });
 
   const prevBpm = useRef(pb.bpm);
   useEffect(() => {
@@ -52,131 +42,13 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
       setDraft((d) => ({ ...d, bpm: pb.bpm }));
       prevBpm.current = pb.bpm;
     }
-  }, [pb.bpm]);
+  }, [pb.bpm, setDraft]);
 
-  useEffect(() => {
-    if (currentMeasure < 0 || !areaRef.current) return;
-    const container = areaRef.current;
-    const el = container.querySelector(
-      `[data-measure="${currentMeasure}"]`,
-    ) as HTMLElement;
-
-    if (!el) return;
-    const containerRect = container.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const scrollTop =
-      container.scrollTop +
-      elRect.top -
-      containerRect.top -
-      (container.clientHeight - el.clientHeight) / 2;
-    container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
-  }, [currentMeasure]);
-
-  // 左クリックは OFF↔NORMAL のみ。OFF にする時は装飾音もリセットする
-  const handleToggle = useCallback(
-    (mi: number, partIdx: number, bi: number, si: number) => {
-      const partId = PART_IDS[partIdx];
-      setDraft((d) => {
-        const ms = d.measures.map(cloneMeasure);
-        const beat = ms[mi][bi];
-        const isOff = beat.steps[partId][si] === STEP.OFF;
-        beat.steps[partId][si] = isOff ? STEP.NORMAL : STEP.OFF;
-        if (!isOff) {
-          ms[mi][bi] = writeOrnament(beat, partId, si, ORNAMENT.NONE);
-        }
-        return { ...d, measures: ms };
-      });
-    },
-    [],
-  );
-
-  const handleSetStep = useCallback(
-    (
-      mi: number,
-      partIdx: number,
-      bi: number,
-      si: number,
-      velocity: number,
-      ornament: number,
-    ) => {
-      const partId = PART_IDS[partIdx];
-      setDraft((d) => {
-        const ms = d.measures.map(cloneMeasure);
-        ms[mi][bi].steps[partId][si] = velocity;
-        // OFF 時は装飾音も自動でクリア
-        const ornNext = velocity === STEP.OFF ? ORNAMENT.NONE : ornament;
-        ms[mi][bi] = writeOrnament(ms[mi][bi], partId, si, ornNext);
-        return { ...d, measures: ms };
-      });
-    },
-    [],
-  );
-
-  const handleSubdivisionChange = useCallback(
-    (mi: number, bi: number, sub: Subdivision) => {
-      setDraft((d) => {
-        const ms = d.measures.map(cloneMeasure);
-        ms[mi][bi] = emptyBeat(sub);
-        return { ...d, measures: ms };
-      });
-    },
-    [],
-  );
-
-  const toggleSel = useCallback(
-    (mi: number) =>
-      setSel((s) => (s.includes(mi) ? s.filter((i) => i !== mi) : [...s, mi])),
-    [],
-  );
-
-  const addBlank = () =>
-    setDraft((d) => ({ ...d, measures: [...d.measures, emptyMeasure()] }));
-
-  const addDupe = () => {
-    const src = sel.length
-      ? draft.measures[sel[sel.length - 1]]
-      : draft.measures[draft.measures.length - 1];
-    setDraft((d) => ({ ...d, measures: [...d.measures, cloneMeasure(src)] }));
-  };
-
-  const copyMeas = () => {
-    if (!sel.length) return;
-    setClip(
-      [...sel]
-        .sort((a, b) => a - b)
-        .map((i) => cloneMeasure(draft.measures[i])),
-    );
-  };
-
-  const pasteMeas = () => {
-    if (!clip) return;
-    const at = sel.length ? Math.max(...sel) + 1 : draft.measures.length;
-    setDraft((d) => {
-      const ms = [...d.measures];
-      ms.splice(at, 0, ...clip.map(cloneMeasure));
-      return { ...d, measures: ms };
-    });
-  };
-
-  const clearMeas = () => {
-    if (!sel.length) return;
-    setDraft((d) => ({
-      ...d,
-      measures: d.measures.map((m, i) =>
-        sel.includes(i) ? emptyMeasure() : cloneMeasure(m),
-      ),
-    }));
-  };
-
-  const delMeas = () => {
-    if (draft.measures.length <= 1 || !sel.length) return;
-    const s = new Set(sel);
-    setDraft((d) => ({
-      ...d,
-      measures: d.measures.filter((_, i) => !s.has(i)),
-    }));
-    setSel([]);
-  };
+  const currentMeasure =
+    pb.currentStep >= 0
+      ? decodeStep(pb.currentStep, draft.measures).measureIndex
+      : -1;
+  useFollowPlayback(currentMeasure, areaRef);
 
   const handleAiGenerate = (measures: Measure[], bpm: number) => {
     setDraft((d) => ({ ...d, measures, bpm }));
@@ -204,15 +76,15 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
       />
       <ScoreEditorToolbar
         sel={sel}
-        clipSize={clip?.length ?? 0}
+        clipSize={ops.clipSize}
         canDelete={draft.measures.length > 1}
-        onAddBlank={addBlank}
-        onAddDupe={addDupe}
-        onCopy={copyMeas}
-        onPaste={pasteMeas}
-        onClear={clearMeas}
-        onDelete={delMeas}
-        onDeselect={() => setSel([])}
+        onAddBlank={ops.addBlank}
+        onAddDupe={ops.addDupe}
+        onCopy={ops.copy}
+        onPaste={ops.paste}
+        onClear={ops.clear}
+        onDelete={ops.remove}
+        onDeselect={clearSel}
         onAiGenerate={() => setAiOpen(true)}
       />
       <Transport
