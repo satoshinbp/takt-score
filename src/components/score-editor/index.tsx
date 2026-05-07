@@ -12,10 +12,13 @@ import {
   emptyBeat,
   emptyMeasure,
   type Measure,
+  ORNAMENT,
   PART_IDS,
   type Score,
+  STEP,
   type Subdivision,
 } from "@/lib/constants";
+import { writeOrnament } from "@/lib/ornament";
 import { decodeStep } from "@/lib/playback-utils";
 
 type Props = {
@@ -69,12 +72,40 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
     container.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
   }, [currentMeasure]);
 
+  // 左クリックは OFF↔NORMAL のみ。OFF にする時は装飾音もリセットする
   const handleToggle = useCallback(
     (mi: number, partIdx: number, bi: number, si: number) => {
       const partId = PART_IDS[partIdx];
       setDraft((d) => {
         const ms = d.measures.map(cloneMeasure);
-        ms[mi][bi].steps[partId][si] ^= 1;
+        const beat = ms[mi][bi];
+        const isOff = beat.steps[partId][si] === STEP.OFF;
+        beat.steps[partId][si] = isOff ? STEP.NORMAL : STEP.OFF;
+        if (!isOff) {
+          ms[mi][bi] = writeOrnament(beat, partId, si, ORNAMENT.NONE);
+        }
+        return { ...d, measures: ms };
+      });
+    },
+    [],
+  );
+
+  const handleSetStep = useCallback(
+    (
+      mi: number,
+      partIdx: number,
+      bi: number,
+      si: number,
+      velocity: number,
+      ornament: number,
+    ) => {
+      const partId = PART_IDS[partIdx];
+      setDraft((d) => {
+        const ms = d.measures.map(cloneMeasure);
+        ms[mi][bi].steps[partId][si] = velocity;
+        // OFF 時は装飾音も自動でクリア
+        const ornNext = velocity === STEP.OFF ? ORNAMENT.NONE : ornament;
+        ms[mi][bi] = writeOrnament(ms[mi][bi], partId, si, ornNext);
         return { ...d, measures: ms };
       });
     },
@@ -201,6 +232,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
           measures={draft.measures}
           currentStep={pb.currentStep}
           onToggle={handleToggle}
+          onSetStep={handleSetStep}
           onSubdivisionChange={handleSubdivisionChange}
           selMeasures={sel}
           onSelMeasure={toggleSel}

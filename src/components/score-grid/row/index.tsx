@@ -3,6 +3,7 @@
 import ScoreGridCell, { BEAT_WIDTH_PX } from "@/components/score-grid/row/cell";
 import ScoreGridRowHeader from "@/components/score-grid/row/header";
 import type { Measure, PartConfig, PartId } from "@/lib/constants";
+import { readOrnament } from "@/lib/ornament";
 
 type Props = {
   id: PartId;
@@ -12,6 +13,7 @@ type Props = {
   currentStep: number;
   anchoreEnabled?: boolean;
   onToggle?: (bi: number, si: number) => void;
+  onCellContextMenu?: (bi: number, si: number, rect: DOMRect) => void;
   isRowStart: boolean;
 };
 
@@ -23,6 +25,7 @@ const ScoreGridRow = ({
   currentStep,
   anchoreEnabled = false,
   onToggle,
+  onCellContextMenu,
   isRowStart,
 }: Props) => {
   const beatOffsets = measure.reduce<number[]>((acc, beat, bi) => {
@@ -44,11 +47,17 @@ const ScoreGridRow = ({
             return (
               <ScoreGridCell
                 key={`${bi}-${si}`}
-                isActive={val === 1}
+                velocity={val}
+                ornament={readOrnament(beat, id, si)}
                 isCurrent={global === currentStep}
                 color={config.color}
                 anchor={anchoreEnabled ? global : undefined}
-                onClick={() => onToggle?.(bi, si)}
+                onClick={onToggle ? () => onToggle(bi, si) : undefined}
+                onContextMenu={
+                  onCellContextMenu
+                    ? (rect) => onCellContextMenu(bi, si, rect)
+                    : undefined
+                }
               />
             );
           })}
