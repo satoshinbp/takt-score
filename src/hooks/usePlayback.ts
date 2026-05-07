@@ -3,12 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SOUNDS } from "@/lib/audio";
 import type { Beat, Measure, Score, Subdivision } from "@/lib/constants";
-import { PART_IDS } from "@/lib/constants";
+import { PART_IDS, STEP } from "@/lib/constants";
 import {
   decodeStep,
   getTotalSteps,
   stepDurationSec,
 } from "@/lib/playback-utils";
+
+// STEP 値ごとのゲイン倍率。NORMAL=1.0、ACCENT=1.4、GHOST=0.35
+const VELOCITY_GAIN: Record<number, number> = { 1: 1.0, 2: 1.4, 3: 0.35 };
+
+// 装飾音は本打音の 25ms 前から並べ、本打音の 0.4 倍の音量で発音する
+const GRACE_SEC = 0.025;
+const GRACE_GAIN = 0.4;
 
 export type PlaybackState = {
   isPlaying: boolean;
@@ -173,10 +180,18 @@ class PlaybackEngine {
       const subdivision: Subdivision = beat?.subdivision ?? 4;
 
       if (beat) {
+        const ctx = this.ctx;
         PART_IDS.forEach((id) => {
-          if (beat.steps[id]?.[stepIndex]) {
-            SOUNDS[id]?.(this.ctx!, time);
+          const v = beat.steps[id]?.[stepIndex] ?? STEP.OFF;
+          if (v === STEP.OFF) return;
+          const gain = VELOCITY_GAIN[v] ?? 1.0;
+          // 装飾音は本打音の前に弱めに発音する。25ms 間隔。
+          const orn = beat.ornaments?.[id]?.[stepIndex] ?? 0;
+          for (let g = orn; g >= 1; g--) {
+            const t = Math.max(time - g * GRACE_SEC, ctx.currentTime + 0.001);
+            SOUNDS[id]?.(ctx, t, gain * GRACE_GAIN);
           }
+          SOUNDS[id]?.(ctx, time, gain);
         });
       }
 

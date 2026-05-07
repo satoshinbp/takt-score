@@ -67,41 +67,46 @@ const tone = (
   osc.stop(startSec + durSec);
 };
 
-export type SoundFn = (ctx: AudioContext, startSec: number) => void;
+// gain は強弱倍率。NORMAL=1.0、ACCENT=1.4、GHOST=0.35、grace note は更に 0.4 倍。
+export type SoundFn = (
+  ctx: AudioContext,
+  startSec: number,
+  gain: number,
+) => void;
 
 export const SOUNDS: Partial<Record<string, SoundFn>> = {
-  BD: (ctx, startSec) => {
-    tone(ctx, startSec, 0.35, 160, 42, 1.0);
-    noise(ctx, startSec, 0.04, 200, 0.5, 0.3);
+  BD: (ctx, startSec, gain) => {
+    tone(ctx, startSec, 0.35, 160, 42, 1.0 * gain);
+    noise(ctx, startSec, 0.04, 200, 0.5, 0.3 * gain);
   },
-  SNARE: (ctx, startSec) => {
-    noise(ctx, startSec, 0.17, 3200, 0.7, 0.9);
-    tone(ctx, startSec, 0.1, 210, null, 0.5);
+  SNARE: (ctx, startSec, gain) => {
+    noise(ctx, startSec, 0.17, 3200, 0.7, 0.9 * gain);
+    tone(ctx, startSec, 0.1, 210, null, 0.5 * gain);
   },
-  HH: (ctx, startSec) => {
-    noise(ctx, startSec, 0.052, 10000, 1.6, 0.65);
+  HH: (ctx, startSec, gain) => {
+    noise(ctx, startSec, 0.052, 10000, 1.6, 0.65 * gain);
   },
-  HH_OPEN: (ctx, startSec) => {
-    noise(ctx, startSec, 0.32, 8000, 0.8, 0.55);
+  HH_OPEN: (ctx, startSec, gain) => {
+    noise(ctx, startSec, 0.32, 8000, 0.8, 0.55 * gain);
   },
-  CRASH: (ctx, startSec) => {
-    noise(ctx, startSec, 0.65, 5000, 0.4, 0.7);
-    noise(ctx, startSec, 0.65, 11000, 0.6, 0.4);
+  CRASH: (ctx, startSec, gain) => {
+    noise(ctx, startSec, 0.65, 5000, 0.4, 0.7 * gain);
+    noise(ctx, startSec, 0.65, 11000, 0.6, 0.4 * gain);
   },
-  RIDE: (ctx, startSec) => {
-    noise(ctx, startSec, 0.22, 8000, 1.2, 0.45);
-    tone(ctx, startSec, 0.16, 580, null, 0.22);
+  RIDE: (ctx, startSec, gain) => {
+    noise(ctx, startSec, 0.22, 8000, 1.2, 0.45 * gain);
+    tone(ctx, startSec, 0.16, 580, null, 0.22 * gain);
   },
-  HI_TOM: (ctx, startSec) => {
-    tone(ctx, startSec, 0.28, 280, 130, 0.85, 0.01);
-    noise(ctx, startSec, 0.05, 600, 0.4, 0.12);
+  HI_TOM: (ctx, startSec, gain) => {
+    tone(ctx, startSec, 0.28, 280, 130, 0.85 * gain, 0.01);
+    noise(ctx, startSec, 0.05, 600, 0.4, 0.12 * gain);
   },
-  MID_TOM: (ctx, startSec) => {
-    tone(ctx, startSec, 0.33, 210, 100, 0.85, 0.01);
-    noise(ctx, startSec, 0.05, 450, 0.4, 0.12);
+  MID_TOM: (ctx, startSec, gain) => {
+    tone(ctx, startSec, 0.33, 210, 100, 0.85 * gain, 0.01);
+    noise(ctx, startSec, 0.05, 450, 0.4, 0.12 * gain);
   },
-  LO_TOM: (ctx, startSec) => {
-    tone(ctx, startSec, 0.28, 140, 58, 1.0);
-    noise(ctx, startSec, 0.05, 400, 0.5, 0.2);
+  LO_TOM: (ctx, startSec, gain) => {
+    tone(ctx, startSec, 0.28, 140, 58, 1.0 * gain);
+    noise(ctx, startSec, 0.05, 400, 0.5, 0.2 * gain);
   },
 };
