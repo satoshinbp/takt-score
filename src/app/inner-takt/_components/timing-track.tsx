@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { Tap } from "../_hooks/useInnerTakt";
 
 type Props = { taps: Tap[] };
@@ -22,13 +23,10 @@ export const TimingTrack = ({ taps }: Props) => {
       <div className="relative h-20">
         <div className="absolute inset-x-0 top-1/2 h-px bg-zinc-700" />
         <div
-          className="absolute inset-x-0"
+          className="absolute inset-x-0 border-y border-dashed border-cyan-400/15 bg-cyan-400/5"
           style={{
             top: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
             bottom: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
-            background: "rgba(34, 211, 238, 0.03)",
-            borderTop: "1px dashed rgba(34, 211, 238, 0.13)",
-            borderBottom: "1px dashed rgba(34, 211, 238, 0.13)",
           }}
         />
         <span className="absolute left-0 top-0 text-[8px] text-zinc-600">
@@ -45,20 +43,22 @@ export const TimingTrack = ({ taps }: Props) => {
           );
           const y = 50 + yPct * 50;
           const absDev = Math.abs(tap.deviationMs);
-          const color =
-            absDev < 25 ? "#22d3ee" : absDev < 50 ? "#f97316" : "#ef4444";
+          const toneClass =
+            absDev < 25
+              ? "bg-cyan-400 shadow-cyan-400/50"
+              : absDev < 50
+                ? "bg-orange-500 shadow-orange-500/50"
+                : "bg-red-500 shadow-red-500/50";
           return (
             <div
               key={`${tap.timeSec}-${i}`}
-              className="absolute rounded-full"
+              className={cn("absolute rounded-full shadow-md", toneClass)}
               style={{
                 left: `${x}%`,
                 top: `${y}%`,
                 width: 8,
                 height: 8,
-                background: color,
                 transform: "translate(-50%, -50%)",
-                boxShadow: `0 0 8px ${color}88`,
                 opacity: 0.4 + 0.6 * (i / Math.max(1, recent.length)),
               }}
             />

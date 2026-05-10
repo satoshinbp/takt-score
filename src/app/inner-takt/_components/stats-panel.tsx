@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { Tap } from "../_hooks/useInnerTakt";
 
 type Props = { taps: Tap[] };
@@ -8,14 +9,28 @@ type CellProps = {
   label: string;
   value: string;
   suffix?: string;
-  color?: string;
+  tone?: "idle" | "light" | "cyan" | "orange";
 };
 
-const Cell = ({ label, value, suffix, color }: CellProps) => (
+const VALUE_TONE_CLASS = {
+  idle: "text-zinc-700",
+  light: "text-zinc-100",
+  cyan: "text-cyan-400",
+  orange: "text-orange-500",
+};
+
+const LABEL_TONE_CLASS = {
+  idle: "text-zinc-700",
+  active: "text-zinc-500",
+};
+
+const Cell = ({ label, value, suffix, tone = "idle" }: CellProps) => (
   <div className="text-center min-w-[70px]">
     <div
-      className="text-[22px] font-extrabold leading-none"
-      style={{ color: color ?? "#33334a" }}
+      className={cn(
+        "text-[22px] font-extrabold leading-none",
+        VALUE_TONE_CLASS[tone],
+      )}
     >
       {value}
       {suffix && (
@@ -23,8 +38,10 @@ const Cell = ({ label, value, suffix, color }: CellProps) => (
       )}
     </div>
     <div
-      className="text-[9px] font-bold tracking-[0.14em] mt-1.5"
-      style={{ color: color ? "#5a5a78" : "#33334a" }}
+      className={cn(
+        "text-[9px] font-bold tracking-[0.14em] mt-1.5",
+        tone === "idle" ? LABEL_TONE_CLASS.idle : LABEL_TONE_CLASS.active,
+      )}
     >
       {label}
     </div>
@@ -54,24 +71,14 @@ export const StatsPanel = ({ taps }: Props) => {
 
   return (
     <div className="flex gap-4">
-      <Cell label="MEAN" value={meanLabel} suffix="ms" color="#e8e8f8" />
-      <Cell
-        label="STDEV"
-        value={String(Math.round(std))}
-        suffix="ms"
-        color="#22d3ee"
-      />
-      <Cell
-        label="BEST"
-        value={String(Math.round(best))}
-        suffix="ms"
-        color="#22d3ee"
-      />
+      <Cell label="MEAN" value={meanLabel} suffix="ms" tone="light" />
+      <Cell label="STDEV" value={String(Math.round(std))} suffix="ms" tone="cyan" />
+      <Cell label="BEST" value={String(Math.round(best))} suffix="ms" tone="cyan" />
       <Cell
         label="WORST"
         value={String(Math.round(worst))}
         suffix="ms"
-        color="#f97316"
+        tone="orange"
       />
     </div>
   );

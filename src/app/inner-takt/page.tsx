@@ -122,8 +122,7 @@ const InnerTakt = () => {
         <StatsPanel taps={taps} />
 
         <div
-          className="flex flex-wrap justify-center gap-7 rounded-2xl border border-zinc-800 px-7 py-6 max-w-[720px]"
-          style={{ background: "#0e0d18" }}
+          className="flex flex-wrap justify-center gap-7 rounded-2xl border border-zinc-800 bg-zinc-950 px-7 py-6 max-w-[720px]"
         >
           <Knob
             value={cfg.bpm}
@@ -143,7 +142,7 @@ const InnerTakt = () => {
               if (cfg.accentEvery > v) update("accentEvery", v);
             }}
             label="BEATS / BAR"
-            accent="#22d3ee"
+            accent="cyan"
           />
           <Knob
             value={cfg.accentEvery}
@@ -162,7 +161,7 @@ const InnerTakt = () => {
             onChange={(v) => update("audibleBars", v)}
             label="AUDIBLE"
             unit="bars"
-            accent="#22d3ee"
+            accent="cyan"
           />
           <Knob
             value={cfg.silentBars}
@@ -172,7 +171,7 @@ const InnerTakt = () => {
             onChange={(v) => update("silentBars", v)}
             label="SILENT"
             unit="bars"
-            accent="#ef4444"
+            accent="red"
           />
           <Knob
             value={cfg.fadeBeats}
@@ -182,7 +181,7 @@ const InnerTakt = () => {
             onChange={(v) => update("fadeBeats", v)}
             label="FADE"
             unit="beats"
-            accent="#a78bfa"
+            accent="violet"
           />
         </div>
 

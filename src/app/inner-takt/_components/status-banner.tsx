@@ -2,6 +2,12 @@
 
 import { cn } from "@/lib/utils";
 
+const DOT_STYLES = {
+  idle: "bg-zinc-700 shadow-md shadow-zinc-700/50",
+  silent: "bg-red-500 shadow-md shadow-red-500/60",
+  running: "bg-cyan-400 shadow-md shadow-cyan-400/60",
+};
+
 const Dot = ({
   isRunning,
   isSilent,
@@ -9,15 +15,18 @@ const Dot = ({
   isRunning: boolean;
   isSilent: boolean;
 }) => {
-  const color = !isRunning ? "#33334a" : isSilent ? "#ef4444" : "#22d3ee";
+  const colorClass = !isRunning
+    ? DOT_STYLES.idle
+    : isSilent
+      ? DOT_STYLES.silent
+      : DOT_STYLES.running;
 
   return (
     <div
-      className="size-2 rounded-full transition-all duration-300"
-      style={{
-        background: color,
-        boxShadow: `0 0 12px ${color}`,
-      }}
+      className={cn(
+        "size-2 rounded-full transition-all duration-300",
+        colorClass,
+      )}
     />
   );
 };
@@ -41,18 +50,18 @@ const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
         "flex items-center justify-center gap-3 px-6 py-2.5 min-w-[320px] border",
         "text-xs font-bold tracking-wider transition-all duration-300",
         isSilent && isRunning
-          ? "bg-[#180c10] border-[#3a1820]"
-          : "bg-[#0e0d18] border-[#1e1d2c]",
+          ? "border-red-950 bg-red-950/30"
+          : "border-zinc-800 bg-zinc-950",
       )}
     >
       <Dot isRunning={isRunning} isSilent={isSilent} />
       <span
         className={cn(
           !isRunning
-            ? "text-[#44445a]"
+            ? "text-zinc-600"
             : isSilent
-              ? "text-[#ef4444]"
-              : "text-[#22d3ee]",
+              ? "text-red-500"
+              : "text-cyan-400",
         )}
       >
         {text}

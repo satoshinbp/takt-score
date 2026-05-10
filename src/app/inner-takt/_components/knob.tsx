@@ -1,6 +1,38 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+
+const ACCENT_STYLES = {
+  orange: {
+    bg: "bg-orange-500",
+    border: "border-orange-500",
+    glow: "shadow-md shadow-orange-500/50",
+    stroke: "stroke-orange-500",
+    text: "text-orange-500",
+  },
+  cyan: {
+    bg: "bg-cyan-400",
+    border: "border-cyan-400",
+    glow: "shadow-md shadow-cyan-400/50",
+    stroke: "stroke-cyan-400",
+    text: "text-cyan-400",
+  },
+  red: {
+    bg: "bg-red-500",
+    border: "border-red-500",
+    glow: "shadow-md shadow-red-500/50",
+    stroke: "stroke-red-500",
+    text: "text-red-500",
+  },
+  violet: {
+    bg: "bg-violet-400",
+    border: "border-violet-400",
+    glow: "shadow-md shadow-violet-400/50",
+    stroke: "stroke-violet-400",
+    text: "text-violet-400",
+  },
+} as const;
 
 type KnobProps = {
   value: number;
@@ -11,7 +43,7 @@ type KnobProps = {
   label: string;
   unit?: string;
   size?: number;
-  accent?: string;
+  accent?: keyof typeof ACCENT_STYLES;
 };
 
 export const Knob = ({
@@ -23,7 +55,7 @@ export const Knob = ({
   label,
   unit,
   size = 80,
-  accent = "#f97316",
+  accent = "orange",
 }: KnobProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -36,6 +68,7 @@ export const Knob = ({
   const range = max - min;
   const norm = range > 0 ? (value - min) / range : 0;
   const angle = -135 + norm * 270;
+  const accentStyles = ACCENT_STYLES[accent];
 
   const commitEdit = () => {
     const n = parseFloat(editVal);
@@ -122,12 +155,13 @@ export const Knob = ({
           }
         }}
         onWheel={onWheel}
-        className="relative rounded-full border border-zinc-700/60 shadow-lg"
+        className={cn(
+          "relative rounded-full border border-zinc-700/60 bg-radial",
+          "from-zinc-800 to-zinc-950 shadow-lg",
+        )}
         style={{
           width: size,
           height: size,
-          background:
-            "radial-gradient(circle at 30% 30%, #28283c, #14141e 70%)",
           cursor: isEditing ? "text" : "ns-resize",
           boxShadow:
             "0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
@@ -149,7 +183,7 @@ export const Knob = ({
                 y1={cy + tickInner * Math.sin(rad)}
                 x2={cx + tickOuter * Math.cos(rad)}
                 y2={cy + tickOuter * Math.sin(rad)}
-                stroke={isFilled ? accent : "#2c2c3e"}
+                className={isFilled ? accentStyles.stroke : "stroke-zinc-700"}
                 strokeWidth={2}
                 strokeLinecap="round"
               />
@@ -158,28 +192,27 @@ export const Knob = ({
         </svg>
 
         <div
-          className="absolute rounded-sm"
+          className={cn("absolute rounded-sm", accentStyles.glow)}
           style={{
             top: "50%",
             left: "50%",
             width: 3,
             height: size / 2 - 14,
-            background: accent,
             transformOrigin: "top center",
             transform: `translate(-50%, 0) rotate(${angle + 90}deg)`,
-            boxShadow: `0 0 6px ${accent}aa`,
             marginTop: -1,
           }}
-        />
+        >
+          <div className={cn("h-full w-full rounded-sm", accentStyles.bg)} />
+        </div>
 
         <div
-          className="absolute rounded-full border border-zinc-700/60"
+          className="absolute rounded-full border border-zinc-700/60 bg-radial from-zinc-800 to-zinc-950"
           style={{
             top: "50%",
             left: "50%",
             width: size * 0.42,
             height: size * 0.42,
-            background: "radial-gradient(circle at 35% 35%, #1c1c2e, #0c0c14)",
             transform: "translate(-50%, -50%)",
           }}
         />
@@ -200,25 +233,30 @@ export const Knob = ({
             }}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            className="absolute font-bold font-mono text-center outline-none rounded-sm"
+            className={cn(
+              "absolute rounded-sm border bg-zinc-950 font-bold font-mono",
+              "text-center outline-none",
+              accentStyles.border,
+              accentStyles.text,
+            )}
             style={{
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               width: size * 0.62,
-              background: "#0a0a14",
-              border: `1px solid ${accent}`,
               fontSize: size * 0.18,
-              color: accent,
               padding: "2px 4px",
             }}
           />
         ) : (
           <div
-            className="absolute inset-0 flex items-center justify-center font-bold font-mono pointer-events-none"
+            className={cn(
+              "absolute inset-0 flex items-center justify-center",
+              "pointer-events-none font-bold font-mono",
+              accentStyles.text,
+            )}
             style={{
               fontSize: size * 0.18,
-              color: accent,
               letterSpacing: "-0.02em",
             }}
           >
