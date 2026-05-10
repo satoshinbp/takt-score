@@ -24,7 +24,7 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full bg-background",
+        "sticky top-0 z-50 w-full bg-card text-card-foreground",
         "flex items-center gap-4 px-6 min-h-12 border-b",
       )}
     >
@@ -33,16 +33,16 @@ const Header = () => {
         TaktScore
       </Link>
 
-      <nav className="flex gap-1 rounded-md border border-border bg-muted/40 p-0.5">
+      <nav className="flex gap-1">
         {NAV_TABS.map((tab) => {
-          const active = isActiveTab(pathname, tab.href);
+          const isActive = isActiveTab(pathname, tab.href);
           return (
             <Link
               key={tab.id}
               href={tab.href}
               className={cn(
-                "rounded-sm px-3 py-1 text-[10px] font-bold tracking-[0.1em] transition-colors",
-                active
+                "px-3 py-1 text-xs font-bold tracking-widest transition-colors",
+                isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
