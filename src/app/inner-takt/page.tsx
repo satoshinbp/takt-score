@@ -3,10 +3,10 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BeatDots } from "./_components/beat-dots";
+import BeatDots from "./_components/beat-dots";
 import { Knob } from "./_components/knob";
 import { StatsPanel } from "./_components/stats-panel";
-import { StatusBanner } from "./_components/status-banner";
+import StatusBanner from "./_components/status-banner";
 import { TimingTrack } from "./_components/timing-track";
 import { type InnerTaktCfg, useInnerTakt } from "./_hooks/useInnerTakt";
 
@@ -93,116 +93,118 @@ const InnerTakt = () => {
   }, [isRunning, start, stop, recordTap, resetTaps]);
 
   return (
-    <div className="flex flex-col items-center gap-7 px-6 py-8">
-      <div className="text-center">
-        <div className="text-[22px] font-extrabold tracking-[0.04em] text-zinc-100">
-          INNER TAKT
+    <div className="max-w-3xl mx-auto">
+      <div className="flex flex-col items-center gap-6 p-6">
+        <div className="text-center">
+          <div className="text-2xl font-extrabold tracking-wider text-zinc-100">
+            INNER TAKT
+          </div>
+          <div className="text-xs tracking-widest mt-1">
+            Rhythm Trainer · Tap &lt;SPACE&gt; on each beat
+          </div>
         </div>
-        <div className="text-[10px] tracking-[0.14em] text-zinc-600 mt-1">
-          RHYTHM TRAINER · TAP &lt;SPACE&gt; ON EACH BEAT
+
+        <StatusBanner
+          isRunning={isRunning}
+          isSilent={isSilent}
+          cycleProgress={cycleProgress}
+        />
+
+        <BeatDots
+          beatsPerBar={cfg.beatsPerBar}
+          currentBeat={isRunning ? currentBeat : -1}
+          accentEvery={cfg.accentEvery}
+          isSilent={isSilent}
+          fadeAmount={fadeAmount}
+        />
+
+        <TimingTrack taps={taps} />
+        <StatsPanel taps={taps} />
+
+        <div
+          className="flex flex-wrap justify-center gap-7 rounded-2xl border border-zinc-800 px-7 py-6 max-w-[720px]"
+          style={{ background: "#0e0d18" }}
+        >
+          <Knob
+            value={cfg.bpm}
+            min={40}
+            max={240}
+            step={1}
+            onChange={(v) => update("bpm", v)}
+            label="BPM"
+          />
+          <Knob
+            value={cfg.beatsPerBar}
+            min={2}
+            max={8}
+            step={1}
+            onChange={(v) => {
+              update("beatsPerBar", v);
+              if (cfg.accentEvery > v) update("accentEvery", v);
+            }}
+            label="BEATS / BAR"
+            accent="#22d3ee"
+          />
+          <Knob
+            value={cfg.accentEvery}
+            min={1}
+            max={cfg.beatsPerBar}
+            step={1}
+            onChange={(v) => update("accentEvery", v)}
+            label="ACCENT"
+            unit={`every ${cfg.accentEvery} beat${cfg.accentEvery > 1 ? "s" : ""}`}
+          />
+          <Knob
+            value={cfg.audibleBars}
+            min={1}
+            max={16}
+            step={1}
+            onChange={(v) => update("audibleBars", v)}
+            label="AUDIBLE"
+            unit="bars"
+            accent="#22d3ee"
+          />
+          <Knob
+            value={cfg.silentBars}
+            min={1}
+            max={16}
+            step={1}
+            onChange={(v) => update("silentBars", v)}
+            label="SILENT"
+            unit="bars"
+            accent="#ef4444"
+          />
+          <Knob
+            value={cfg.fadeBeats}
+            min={0}
+            max={8}
+            step={0.5}
+            onChange={(v) => update("fadeBeats", v)}
+            label="FADE"
+            unit="beats"
+            accent="#a78bfa"
+          />
         </div>
-      </div>
 
-      <StatusBanner
-        isRunning={isRunning}
-        isSilent={isSilent}
-        cycleProgress={cycleProgress}
-      />
-
-      <BeatDots
-        beatsPerBar={cfg.beatsPerBar}
-        currentBeat={isRunning ? currentBeat : -1}
-        accentEvery={cfg.accentEvery}
-        isSilent={isSilent}
-        fadeAmount={fadeAmount}
-      />
-
-      <TimingTrack taps={taps} />
-      <StatsPanel taps={taps} />
-
-      <div
-        className="flex flex-wrap justify-center gap-7 rounded-2xl border border-zinc-800 px-7 py-6 max-w-[720px]"
-        style={{ background: "#0e0d18" }}
-      >
-        <Knob
-          value={cfg.bpm}
-          min={40}
-          max={240}
-          step={1}
-          onChange={(v) => update("bpm", v)}
-          label="BPM"
-        />
-        <Knob
-          value={cfg.beatsPerBar}
-          min={2}
-          max={8}
-          step={1}
-          onChange={(v) => {
-            update("beatsPerBar", v);
-            if (cfg.accentEvery > v) update("accentEvery", v);
-          }}
-          label="BEATS / BAR"
-          accent="#22d3ee"
-        />
-        <Knob
-          value={cfg.accentEvery}
-          min={1}
-          max={cfg.beatsPerBar}
-          step={1}
-          onChange={(v) => update("accentEvery", v)}
-          label="ACCENT"
-          unit={`every ${cfg.accentEvery} beat${cfg.accentEvery > 1 ? "s" : ""}`}
-        />
-        <Knob
-          value={cfg.audibleBars}
-          min={1}
-          max={16}
-          step={1}
-          onChange={(v) => update("audibleBars", v)}
-          label="AUDIBLE"
-          unit="bars"
-          accent="#22d3ee"
-        />
-        <Knob
-          value={cfg.silentBars}
-          min={1}
-          max={16}
-          step={1}
-          onChange={(v) => update("silentBars", v)}
-          label="SILENT"
-          unit="bars"
-          accent="#ef4444"
-        />
-        <Knob
-          value={cfg.fadeBeats}
-          min={0}
-          max={8}
-          step={0.5}
-          onChange={(v) => update("fadeBeats", v)}
-          label="FADE"
-          unit="beats"
-          accent="#a78bfa"
-        />
-      </div>
-
-      <div className="flex items-center gap-3">
-        {isRunning ? (
-          <Button type="button" onClick={stop} size="lg">
-            <Square size={12} />
-            STOP
+        <div className="flex items-center gap-3">
+          {isRunning ? (
+            <Button type="button" onClick={stop} size="lg">
+              <Square size={12} />
+              Stop
+            </Button>
+          ) : (
+            <Button type="button" onClick={start} size="lg">
+              <Play size={12} />
+              Start
+            </Button>
+          )}
+          <Button type="button" variant="outline" onClick={resetTaps}>
+            Reset Taps
           </Button>
-        ) : (
-          <Button type="button" onClick={start} size="lg">
-            <Play size={12} />
-            START
-          </Button>
-        )}
-        <Button type="button" variant="outline" onClick={resetTaps}>
-          RESET TAPS
-        </Button>
-        <span className="text-xs tracking-widest text-muted-foreground">
-          SPACE: tap · ESC: stop · R: reset taps · scroll/drag knobs
-        </span>
+          <span className="text-xs tracking-widest">
+            SPACE: tap · ESC: stop · R: reset taps · scroll/drag knobs
+          </span>
+        </div>
       </div>
     </div>
   );

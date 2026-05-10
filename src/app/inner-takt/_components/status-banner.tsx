@@ -1,16 +1,34 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
+const Dot = ({
+  isRunning,
+  isSilent,
+}: {
+  isRunning: boolean;
+  isSilent: boolean;
+}) => {
+  const color = !isRunning ? "#33334a" : isSilent ? "#ef4444" : "#22d3ee";
+
+  return (
+    <div
+      className="size-2 rounded-full transition-all duration-300"
+      style={{
+        background: color,
+        boxShadow: `0 0 12px ${color}`,
+      }}
+    />
+  );
+};
+
 type Props = {
   isRunning: boolean;
   isSilent: boolean;
   cycleProgress: { pos: number; total: number } | null;
 };
 
-export const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
-  const dotColor = !isRunning ? "#33334a" : isSilent ? "#ef4444" : "#22d3ee";
-  const textColor = !isRunning ? "#44445a" : isSilent ? "#ef4444" : "#22d3ee";
-  const bgColor = isSilent && isRunning ? "#180c10" : "#0e0d18";
-  const borderColor = isSilent && isRunning ? "#3a1820" : "#1e1d2c";
+const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
   const text = !isRunning
     ? "PRESS SPACE TO BEGIN"
     : isSilent
@@ -19,32 +37,33 @@ export const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
 
   return (
     <div
-      className="flex items-center justify-center gap-3 rounded-full px-6 py-2.5 transition-all duration-300 min-w-[320px]"
-      style={{
-        background: bgColor,
-        border: `1px solid ${borderColor}`,
-      }}
+      className={cn(
+        "flex items-center justify-center gap-3 px-6 py-2.5 min-w-[320px] border",
+        "text-xs font-bold tracking-wider transition-all duration-300",
+        isSilent && isRunning
+          ? "bg-[#180c10] border-[#3a1820]"
+          : "bg-[#0e0d18] border-[#1e1d2c]",
+      )}
     >
-      <div
-        className="rounded-full transition-all duration-300"
-        style={{
-          width: 10,
-          height: 10,
-          background: dotColor,
-          boxShadow: isRunning ? `0 0 12px ${dotColor}` : "none",
-        }}
-      />
+      <Dot isRunning={isRunning} isSilent={isSilent} />
       <span
-        className="text-[11px] font-bold tracking-[0.18em]"
-        style={{ color: textColor }}
+        className={cn(
+          !isRunning
+            ? "text-[#44445a]"
+            : isSilent
+              ? "text-[#ef4444]"
+              : "text-[#22d3ee]",
+        )}
       >
         {text}
       </span>
       {cycleProgress && (
-        <span className="text-[10px] tracking-[0.1em] text-zinc-500 ml-1.5">
+        <span>
           {cycleProgress.pos + 1} / {cycleProgress.total}
         </span>
       )}
     </div>
   );
 };
+
+export default StatusBanner;
