@@ -30,8 +30,8 @@ const Page = () => {
   if (!scores) return null;
 
   return (
-    <div className="flex flex-col flex-1 px-6 py-4">
-      <div className="flex flex-col flex-1 gap-4">
+    <div className="max-w-5xl mx-auto">
+      <div className="flex flex-col flex-1 gap-4 p-4">
         <DashboardHeader
           count={scores.length}
           onCreate={() => router.push("/scores/new")}

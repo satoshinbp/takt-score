@@ -35,7 +35,7 @@ const RootLayout = ({
     >
       <body>
         <ThemeProvider>
-          <div className="flex flex-col h-screen">
+          <div className="h-screen">
             <Header />
             {children}
           </div>
