@@ -12,11 +12,11 @@ const ACCENT_STYLES = {
     text: "text-orange-500",
   },
   cyan: {
-    bg: "bg-cyan-400",
-    border: "border-cyan-400",
-    glow: "shadow-md shadow-cyan-400/50",
-    stroke: "stroke-cyan-400",
-    text: "text-cyan-400",
+    bg: "bg-secondary",
+    border: "border-secondary",
+    glow: "shadow-md shadow-secondary/50",
+    stroke: "stroke-secondary",
+    text: "text-secondary",
   },
   red: {
     bg: "bg-red-500",
@@ -265,10 +265,12 @@ export const Knob = ({
         )}
       </div>
       <div className="text-center">
-        <div className="text-[9px] tracking-[0.14em] text-zinc-400 font-bold">
+        <div className="text-sm tracking-[0.14em] text-zinc-400 font-bold">
           {label}
         </div>
-        {unit && <div className="text-[8px] text-zinc-600 mt-0.5">{unit}</div>}
+        {unit && (
+          <div className="text-xs text-muted-foreground mt-0.5">{unit}</div>
+        )}
       </div>
     </div>
   );

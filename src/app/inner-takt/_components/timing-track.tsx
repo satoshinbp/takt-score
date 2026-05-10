@@ -11,28 +11,28 @@ export const TimingTrack = ({ taps }: Props) => {
   const recent = taps.slice(-32);
 
   return (
-    <div className="w-full max-w-[600px] rounded-xl border border-zinc-800 bg-zinc-950/80 px-6 py-5">
+    <div className="w-full bg-card text-card-foreground p-6">
       <div className="flex justify-between mb-3">
-        <span className="text-[9px] font-bold tracking-[0.14em] text-zinc-400">
+        <span className="text-sm font-bold tracking-wider text-muted-foreground">
           TIMING DEVIATION
         </span>
-        <span className="text-[9px] tracking-[0.08em] text-zinc-600">
+        <span className="text-sm tracking-wide text-muted-foreground">
           ±{TOLERANCE_MS}ms
         </span>
       </div>
-      <div className="relative h-20">
-        <div className="absolute inset-x-0 top-1/2 h-px bg-zinc-700" />
+      <div className="relative h-32">
+        <div className="absolute inset-x-0 top-1/2 h-px bg-muted-foreground" />
         <div
-          className="absolute inset-x-0 border-y border-dashed border-cyan-400/15 bg-cyan-400/5"
+          className="absolute inset-x-0 border-y border-dashed border-primary/15 bg-primary/5"
           style={{
             top: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
             bottom: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
           }}
         />
-        <span className="absolute left-0 top-0 text-[8px] text-zinc-600">
+        <span className="absolute left-0 top-0 text-xs text-muted-foreground">
           EARLY
         </span>
-        <span className="absolute left-0 bottom-0 text-[8px] text-zinc-600">
+        <span className="absolute left-0 bottom-0 text-xs text-muted-foreground">
           LATE
         </span>
         {recent.map((tap, i) => {
@@ -45,7 +45,7 @@ export const TimingTrack = ({ taps }: Props) => {
           const absDev = Math.abs(tap.deviationMs);
           const toneClass =
             absDev < 25
-              ? "bg-cyan-400 shadow-cyan-400/50"
+              ? "bg-secondary shadow-secondary/50"
               : absDev < 50
                 ? "bg-orange-500 shadow-orange-500/50"
                 : "bg-red-500 shadow-red-500/50";

@@ -99,7 +99,7 @@ const InnerTakt = () => {
           <div className="text-2xl font-extrabold tracking-wider text-zinc-100">
             INNER TAKT
           </div>
-          <div className="text-xs tracking-widest mt-1">
+          <div className="text-xs text-muted-foreground tracking-widest mt-1">
             Rhythm Trainer · Tap &lt;SPACE&gt; on each beat
           </div>
         </div>
@@ -121,9 +121,7 @@ const InnerTakt = () => {
         <TimingTrack taps={taps} />
         <StatsPanel taps={taps} />
 
-        <div
-          className="flex flex-wrap justify-center gap-7 rounded-2xl border border-zinc-800 bg-zinc-950 px-7 py-6 max-w-[720px]"
-        >
+        <div className="w-full flex flex-wrap justify-center gap-6 bg-card p-6">
           <Knob
             value={cfg.bpm}
             min={40}
@@ -200,7 +198,7 @@ const InnerTakt = () => {
           <Button type="button" variant="outline" onClick={resetTaps}>
             Reset Taps
           </Button>
-          <span className="text-xs tracking-widest">
+          <span className="text-xs text-muted-foreground tracking-widest">
             SPACE: tap · ESC: stop · R: reset taps · scroll/drag knobs
           </span>
         </div>

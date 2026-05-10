@@ -15,32 +15,24 @@ type CellProps = {
 const VALUE_TONE_CLASS = {
   idle: "text-zinc-700",
   light: "text-zinc-100",
-  cyan: "text-cyan-400",
+  cyan: "text-secondary",
   orange: "text-orange-500",
-};
-
-const LABEL_TONE_CLASS = {
-  idle: "text-zinc-700",
-  active: "text-zinc-500",
 };
 
 const Cell = ({ label, value, suffix, tone = "idle" }: CellProps) => (
   <div className="text-center min-w-[70px]">
     <div
-      className={cn(
-        "text-[22px] font-extrabold leading-none",
-        VALUE_TONE_CLASS[tone],
-      )}
+      className={cn("text-2xl font-bold leading-none", VALUE_TONE_CLASS[tone])}
     >
       {value}
       {suffix && (
-        <span className="text-[11px] text-zinc-500 ml-0.5">{suffix}</span>
+        <span className="text-sm text-muted-foreground ml-0.5">{suffix}</span>
       )}
     </div>
     <div
       className={cn(
-        "text-[9px] font-bold tracking-[0.14em] mt-1.5",
-        tone === "idle" ? LABEL_TONE_CLASS.idle : LABEL_TONE_CLASS.active,
+        "text-xs font-bold tracking-wider mt-1.5",
+        tone === "idle" ? "text-muted" : "text-muted-foreground",
       )}
     >
       {label}
@@ -72,8 +64,18 @@ export const StatsPanel = ({ taps }: Props) => {
   return (
     <div className="flex gap-4">
       <Cell label="MEAN" value={meanLabel} suffix="ms" tone="light" />
-      <Cell label="STDEV" value={String(Math.round(std))} suffix="ms" tone="cyan" />
-      <Cell label="BEST" value={String(Math.round(best))} suffix="ms" tone="cyan" />
+      <Cell
+        label="STDEV"
+        value={String(Math.round(std))}
+        suffix="ms"
+        tone="cyan"
+      />
+      <Cell
+        label="BEST"
+        value={String(Math.round(best))}
+        suffix="ms"
+        tone="cyan"
+      />
       <Cell
         label="WORST"
         value={String(Math.round(worst))}
