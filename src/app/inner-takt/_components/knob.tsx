@@ -25,12 +25,13 @@ export const Knob = ({
   size = 80,
   accent = "#f97316",
 }: KnobProps) => {
-  const [dragging, setDragging] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [editVal, setEditVal] = useState("");
   const startY = useRef(0);
   const startVal = useRef(0);
   const movedRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const range = max - min;
   const norm = range > 0 ? (value - min) / range : 0;
@@ -43,11 +44,15 @@ export const Knob = ({
       nv = Math.max(min, Math.min(max, nv));
       onChange(nv);
     }
-    setEditing(false);
+    setIsEditing(false);
   };
 
   useEffect(() => {
-    if (!dragging) return;
+    if (isEditing) inputRef.current?.focus();
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (!isDragging) return;
     const move = (e: MouseEvent) => {
       const dy = startY.current - e.clientY;
       if (Math.abs(dy) > 2) movedRef.current = true;
@@ -57,14 +62,14 @@ export const Knob = ({
       nv = Math.max(min, Math.min(max, nv));
       onChange(nv);
     };
-    const up = () => setDragging(false);
+    const up = () => setIsDragging(false);
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
     return () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
-  }, [dragging, range, step, min, max, onChange]);
+  }, [isDragging, range, step, min, max, onChange]);
 
   const onWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -81,17 +86,39 @@ export const Knob = ({
   return (
     <div className="flex flex-col items-center gap-2 select-none">
       <div
+        role="slider"
+        tabIndex={0}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        aria-label={label}
         onMouseDown={(e) => {
-          if (editing) return;
+          if (isEditing) return;
           movedRef.current = false;
-          setDragging(true);
+          setIsDragging(true);
           startY.current = e.clientY;
           startVal.current = value;
         }}
         onClick={() => {
-          if (!movedRef.current && !editing) {
+          if (!movedRef.current && !isEditing) {
             setEditVal(String(value));
-            setEditing(true);
+            setIsEditing(true);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (isEditing) return;
+          if (e.key === "ArrowUp" || e.key === "ArrowRight") {
+            e.preventDefault();
+            onChange(Math.max(min, Math.min(max, value + step)));
+          } else if (e.key === "ArrowDown" || e.key === "ArrowLeft") {
+            e.preventDefault();
+            onChange(Math.max(min, Math.min(max, value - step)));
+          } else if (e.key === "Home") {
+            e.preventDefault();
+            onChange(min);
+          } else if (e.key === "End") {
+            e.preventDefault();
+            onChange(max);
           }
         }}
         onWheel={onWheel}
@@ -101,7 +128,7 @@ export const Knob = ({
           height: size,
           background:
             "radial-gradient(circle at 30% 30%, #28283c, #14141e 70%)",
-          cursor: editing ? "text" : "ns-resize",
+          cursor: isEditing ? "text" : "ns-resize",
           boxShadow:
             "0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
         }}
@@ -114,7 +141,7 @@ export const Knob = ({
           {Array.from({ length: 11 }).map((_, i) => {
             const a = -135 + (i / 10) * 270;
             const rad = (a * Math.PI) / 180;
-            const filled = i / 10 <= norm;
+            const isFilled = i / 10 <= norm;
             return (
               <line
                 key={i}
@@ -122,7 +149,7 @@ export const Knob = ({
                 y1={cy + tickInner * Math.sin(rad)}
                 x2={cx + tickOuter * Math.cos(rad)}
                 y2={cy + tickOuter * Math.sin(rad)}
-                stroke={filled ? accent : "#2c2c3e"}
+                stroke={isFilled ? accent : "#2c2c3e"}
                 strokeWidth={2}
                 strokeLinecap="round"
               />
@@ -152,15 +179,14 @@ export const Knob = ({
             left: "50%",
             width: size * 0.42,
             height: size * 0.42,
-            background:
-              "radial-gradient(circle at 35% 35%, #1c1c2e, #0c0c14)",
+            background: "radial-gradient(circle at 35% 35%, #1c1c2e, #0c0c14)",
             transform: "translate(-50%, -50%)",
           }}
         />
 
-        {editing ? (
+        {isEditing ? (
           <input
-            autoFocus
+            ref={inputRef}
             type="number"
             value={editVal}
             min={min}
@@ -170,7 +196,7 @@ export const Knob = ({
             onBlur={commitEdit}
             onKeyDown={(e) => {
               if (e.key === "Enter") commitEdit();
-              if (e.key === "Escape") setEditing(false);
+              if (e.key === "Escape") setIsEditing(false);
             }}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
@@ -204,9 +230,7 @@ export const Knob = ({
         <div className="text-[9px] tracking-[0.14em] text-zinc-400 font-bold">
           {label}
         </div>
-        {unit && (
-          <div className="text-[8px] text-zinc-600 mt-0.5">{unit}</div>
-        )}
+        {unit && <div className="text-[8px] text-zinc-600 mt-0.5">{unit}</div>}
       </div>
     </div>
   );

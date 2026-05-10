@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { playClick } from "@/lib/metronome-audio";
 
 export type InnerTaktCfg = {
@@ -48,8 +54,9 @@ const SCHEDULER_TICK_MS = 20;
 const RING_MAX = 64;
 
 export const useInnerTakt = (cfg: InnerTaktCfg) => {
-  const [running, setRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [currentBeat, setCurrentBeat] = useState(-1);
+  const [beatIndex, setBeatIndex] = useState(0);
   const [isSilent, setIsSilent] = useState(false);
   const [fadeAmount, setFadeAmount] = useState(1);
   const [taps, setTaps] = useState<Tap[]>([]);
@@ -80,38 +87,42 @@ export const useInnerTakt = (cfg: InnerTaktCfg) => {
     return ctxRef.current;
   };
 
-  const schedulerRef = useRef<() => void>(() => {});
-  schedulerRef.current = () => {
-    if (!runningRef.current) return;
-    const ctx = ctxRef.current;
-    if (!ctx) return;
-    const c = cfgRef.current;
-    const beatLen = 60 / c.bpm;
+  const schedulerRef = useRef<() => void>(() => {
+    return;
+  });
+  useLayoutEffect(() => {
+    schedulerRef.current = () => {
+      if (!runningRef.current) return;
+      const ctx = ctxRef.current;
+      if (!ctx) return;
+      const c = cfgRef.current;
+      const beatLen = 60 / c.bpm;
 
-    while (nextBeatTimeRef.current < ctx.currentTime + SCHEDULE_AHEAD_SEC) {
-      const gbi = beatIndexRef.current;
-      const beatInBar = gbi % c.beatsPerBar;
-      const isAccent = beatInBar % c.accentEvery === 0;
-      const ph = phaseAt(gbi, c);
-      const t = nextBeatTimeRef.current;
+      while (nextBeatTimeRef.current < ctx.currentTime + SCHEDULE_AHEAD_SEC) {
+        const gbi = beatIndexRef.current;
+        const beatInBar = gbi % c.beatsPerBar;
+        const isAccent = beatInBar % c.accentEvery === 0;
+        const ph = phaseAt(gbi, c);
+        const t = nextBeatTimeRef.current;
 
-      beatTimesRef.current.push({ globalBeatIndex: gbi, timeSec: t });
-      if (beatTimesRef.current.length > RING_MAX) {
-        beatTimesRef.current.shift();
+        beatTimesRef.current.push({ globalBeatIndex: gbi, timeSec: t });
+        if (beatTimesRef.current.length > RING_MAX) {
+          beatTimesRef.current.shift();
+        }
+
+        if (ph.fade > 0.001) {
+          playClick(ctx, t, isAccent, ph.fade);
+        }
+
+        nextBeatTimeRef.current += beatLen;
+        beatIndexRef.current += 1;
       }
-
-      if (ph.fade > 0.001) {
-        playClick(ctx, t, isAccent, ph.fade);
-      }
-
-      nextBeatTimeRef.current += beatLen;
-      beatIndexRef.current += 1;
-    }
-    timerRef.current = setTimeout(
-      () => schedulerRef.current(),
-      SCHEDULER_TICK_MS,
-    );
-  };
+      timerRef.current = setTimeout(
+        () => schedulerRef.current(),
+        SCHEDULER_TICK_MS,
+      );
+    };
+  });
 
   // RAF loop drives the visual beat indicator + fade interpolation
   useEffect(() => {
@@ -136,6 +147,7 @@ export const useInnerTakt = (cfg: InnerTaktCfg) => {
         if (bi >= 0) {
           const beatInBar = bi % c.beatsPerBar;
           setCurrentBeat((prev) => (prev === beatInBar ? prev : beatInBar));
+          setBeatIndex(bi);
           const ph = phaseAt(bi, c);
           const nextPh = phaseAt(bi + 1, c);
           const intoBeat = Math.min(1, Math.max(0, (now - beatTime) / beatLen));
@@ -156,7 +168,7 @@ export const useInnerTakt = (cfg: InnerTaktCfg) => {
     nextBeatTimeRef.current = ctx.currentTime + 0.1;
     beatIndexRef.current = 0;
     beatTimesRef.current = [];
-    setRunning(true);
+    setIsRunning(true);
     setTaps([]);
     setCurrentBeat(-1);
     schedulerRef.current();
@@ -166,7 +178,7 @@ export const useInnerTakt = (cfg: InnerTaktCfg) => {
     runningRef.current = false;
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = null;
-    setRunning(false);
+    setIsRunning(false);
     setCurrentBeat(-1);
     setIsSilent(false);
     setFadeAmount(1);
@@ -212,22 +224,22 @@ export const useInnerTakt = (cfg: InnerTaktCfg) => {
 
   // Cycle progress for the status banner
   const cycleProgress = (() => {
-    if (!running) return null;
+    if (!isRunning) return null;
     const c = cfg;
     const totalBeats = (c.audibleBars + c.silentBars) * c.beatsPerBar;
-    const gbi = beatIndexRef.current > 0 ? beatIndexRef.current - 1 : 0;
+    const gbi = beatIndex;
     const pos = ((gbi % totalBeats) + totalBeats) % totalBeats;
     const audibleBeats = c.audibleBars * c.beatsPerBar;
-    const inAudible = pos < audibleBeats;
+    const isAudible = pos < audibleBeats;
     return {
-      inAudible,
-      pos: inAudible ? pos : pos - audibleBeats,
-      total: inAudible ? audibleBeats : c.silentBars * c.beatsPerBar,
+      isAudible,
+      pos: isAudible ? pos : pos - audibleBeats,
+      total: isAudible ? audibleBeats : c.silentBars * c.beatsPerBar,
     };
   })();
 
   return {
-    running,
+    isRunning,
     currentBeat,
     isSilent,
     fadeAmount,

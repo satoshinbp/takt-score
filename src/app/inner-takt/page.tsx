@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { type InnerTaktCfg, useInnerTakt } from "@/hooks/useInnerTakt";
-import { BeatDots } from "../../components/inner-takt/beat-dots";
-import { Knob } from "../../components/inner-takt/knob";
-import { StatsPanel } from "../../components/inner-takt/stats-panel";
-import { StatusBanner } from "../../components/inner-takt/status-banner";
-import { TimingTrack } from "../../components/inner-takt/timing-track";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { BeatDots } from "./_components/beat-dots";
+import { Knob } from "./_components/knob";
+import { StatsPanel } from "./_components/stats-panel";
+import { StatusBanner } from "./_components/status-banner";
+import { TimingTrack } from "./_components/timing-track";
+import { type InnerTaktCfg, useInnerTakt } from "./_hooks/useInnerTakt";
 
 const STORAGE_KEY = "taktscore_innertakt";
 
@@ -21,31 +21,38 @@ const DEFAULT_CFG: InnerTaktCfg = {
 
 const InnerTakt = () => {
   const [cfg, setCfg] = useState<InnerTaktCfg>(DEFAULT_CFG);
-  const [hydrated, setHydrated] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    let savedCfg = DEFAULT_CFG;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<InnerTaktCfg>;
-        setCfg((prev) => ({ ...prev, ...parsed }));
-      }
-    } catch {}
-    setHydrated(true);
+      if (raw)
+        savedCfg = {
+          ...DEFAULT_CFG,
+          ...(JSON.parse(raw) as Partial<InnerTaktCfg>),
+        };
+    } catch (_e) {
+      void _e;
+    }
+    setCfg(savedCfg); // eslint-disable-line react-hooks/set-state-in-effect
+    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!isHydrated) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
-    } catch {}
-  }, [cfg, hydrated]);
+    } catch (_e) {
+      void _e;
+    }
+  }, [cfg, isHydrated]);
 
   const update = <K extends keyof InnerTaktCfg>(key: K, val: InnerTaktCfg[K]) =>
     setCfg((prev) => ({ ...prev, [key]: val }));
 
   const {
-    running,
+    isRunning,
     currentBeat,
     isSilent,
     fadeAmount,
@@ -68,7 +75,7 @@ const InnerTakt = () => {
       if (e.code === "Space") {
         e.preventDefault();
         if (e.repeat) return;
-        if (!running) {
+        if (!isRunning) {
           start();
           return;
         }
@@ -81,7 +88,7 @@ const InnerTakt = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [running, start, stop, recordTap, resetTaps]);
+  }, [isRunning, start, stop, recordTap, resetTaps]);
 
   return (
     <div
@@ -99,14 +106,14 @@ const InnerTakt = () => {
         </div>
 
         <StatusBanner
-          running={running}
+          isRunning={isRunning}
           isSilent={isSilent}
           cycleProgress={cycleProgress}
         />
 
         <BeatDots
           beatsPerBar={cfg.beatsPerBar}
-          currentBeat={running ? currentBeat : -1}
+          currentBeat={isRunning ? currentBeat : -1}
           accentEvery={cfg.accentEvery}
           isSilent={isSilent}
           fadeAmount={fadeAmount}
@@ -183,16 +190,16 @@ const InnerTakt = () => {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={running ? stop : start}
+            onClick={isRunning ? stop : start}
             className="rounded-lg px-8 py-3 text-xs font-extrabold tracking-[0.14em] text-white"
             style={{
-              background: running ? "#ef4444" : "#f97316",
-              boxShadow: running
+              background: isRunning ? "#ef4444" : "#f97316",
+              boxShadow: isRunning
                 ? "0 0 20px rgba(239, 68, 68, 0.4)"
                 : "0 0 20px rgba(249, 115, 22, 0.33)",
             }}
           >
-            {running ? "■ STOP" : "▶ START"}
+            {isRunning ? "■ STOP" : "▶ START"}
           </button>
           <button
             type="button"

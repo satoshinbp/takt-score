@@ -1,17 +1,17 @@
 "use client";
 
 type Props = {
-  running: boolean;
+  isRunning: boolean;
   isSilent: boolean;
   cycleProgress: { pos: number; total: number } | null;
 };
 
-export const StatusBanner = ({ running, isSilent, cycleProgress }: Props) => {
-  const dotColor = !running ? "#33334a" : isSilent ? "#ef4444" : "#22d3ee";
-  const textColor = !running ? "#44445a" : isSilent ? "#ef4444" : "#22d3ee";
-  const bgColor = isSilent && running ? "#180c10" : "#0e0d18";
-  const borderColor = isSilent && running ? "#3a1820" : "#1e1d2c";
-  const text = !running
+export const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
+  const dotColor = !isRunning ? "#33334a" : isSilent ? "#ef4444" : "#22d3ee";
+  const textColor = !isRunning ? "#44445a" : isSilent ? "#ef4444" : "#22d3ee";
+  const bgColor = isSilent && isRunning ? "#180c10" : "#0e0d18";
+  const borderColor = isSilent && isRunning ? "#3a1820" : "#1e1d2c";
+  const text = !isRunning
     ? "PRESS SPACE TO BEGIN"
     : isSilent
       ? "SILENT — KEEP THE TAKT"
@@ -31,7 +31,7 @@ export const StatusBanner = ({ running, isSilent, cycleProgress }: Props) => {
           width: 10,
           height: 10,
           background: dotColor,
-          boxShadow: running ? `0 0 12px ${dotColor}` : "none",
+          boxShadow: isRunning ? `0 0 12px ${dotColor}` : "none",
         }}
       />
       <span

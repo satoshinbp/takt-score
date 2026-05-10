@@ -1,6 +1,6 @@
 "use client";
 
-import type { Tap } from "@/hooks/useInnerTakt";
+import type { Tap } from "../_hooks/useInnerTakt";
 
 type Props = { taps: Tap[] };
 
@@ -45,8 +45,7 @@ export const StatsPanel = ({ taps }: Props) => {
   const devs = taps.map((t) => t.deviationMs);
   const abs = devs.map(Math.abs);
   const mean = devs.reduce((a, b) => a + b, 0) / devs.length;
-  const variance =
-    devs.reduce((a, b) => a + (b - mean) ** 2, 0) / devs.length;
+  const variance = devs.reduce((a, b) => a + (b - mean) ** 2, 0) / devs.length;
   const std = Math.sqrt(variance);
   const best = Math.min(...abs);
   const worst = Math.max(...abs);

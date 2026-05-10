@@ -1,6 +1,6 @@
 "use client";
 
-import type { Tap } from "@/hooks/useInnerTakt";
+import type { Tap } from "../_hooks/useInnerTakt";
 
 type Props = { taps: Tap[] };
 
