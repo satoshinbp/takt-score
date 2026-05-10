@@ -8,8 +8,8 @@ import { TaktScoreIcon } from "@/components/icon";
 import { cn } from "@/lib/utils";
 
 const NAV_TABS = [
-  { id: "scores", label: "SCORES", href: "/" },
-  { id: "innertakt", label: "INNER TAKT", href: "/inner-takt" },
+  { id: "scores", label: "Scores", href: "/" },
+  { id: "innertakt", label: "Inner Takt", href: "/inner-takt" },
 ] as const;
 
 const isActiveTab = (pathname: string, href: string) => {
@@ -41,7 +41,7 @@ const Header = () => {
               key={tab.id}
               href={tab.href}
               className={cn(
-                "px-3 py-1 text-xs font-bold tracking-widest transition-colors",
+                "px-3 py-1 text-xs font-bold tracking-wider transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
