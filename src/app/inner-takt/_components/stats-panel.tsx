@@ -26,7 +26,9 @@ const Cell = ({ label, value, suffix, tone = "idle" }: CellProps) => (
     >
       {value}
       {suffix && (
-        <span className="text-sm text-muted-foreground ml-0.5">{suffix}</span>
+        <span className="text-sm text-muted-foreground ml-0.5 leading-none">
+          {suffix}
+        </span>
       )}
     </div>
     <div
