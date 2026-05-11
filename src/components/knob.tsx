@@ -46,7 +46,7 @@ type KnobProps = {
   accent?: keyof typeof ACCENT_STYLES;
 };
 
-export const Knob = ({
+const Knob = ({
   value,
   min,
   max,
@@ -275,3 +275,5 @@ export const Knob = ({
     </div>
   );
 };
+
+export default Knob;

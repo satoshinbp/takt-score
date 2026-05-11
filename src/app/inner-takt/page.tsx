@@ -2,12 +2,12 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Play, Square } from "lucide-react";
+import Knob from "@/components/knob";
 import { Button } from "@/components/ui/button";
 import BeatDots from "./_components/beat-dots";
-import { Knob } from "./_components/knob";
-import { StatsPanel } from "./_components/stats-panel";
+import StatsPanel from "./_components/stats-panel";
 import StatusBanner from "./_components/status-banner";
-import { TimingTrack } from "./_components/timing-track";
+import TimingTrack from "./_components/timing-track";
 import { type InnerTaktCfg, useInnerTakt } from "./_hooks/useInnerTakt";
 
 const STORAGE_KEY = "taktscore_innertakt";

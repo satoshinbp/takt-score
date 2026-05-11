@@ -42,7 +42,7 @@ const Cell = ({ label, value, suffix, tone = "idle" }: CellProps) => (
   </div>
 );
 
-export const StatsPanel = ({ taps }: Props) => {
+const StatsPanel = ({ taps }: Props) => {
   if (taps.length === 0) {
     return (
       <div className="flex gap-4">
@@ -87,3 +87,5 @@ export const StatsPanel = ({ taps }: Props) => {
     </div>
   );
 };
+
+export default StatsPanel;

@@ -7,7 +7,7 @@ type Props = { taps: Tap[] };
 
 const TOLERANCE_MS = 60;
 
-export const TimingTrack = ({ taps }: Props) => {
+const TimingTrack = ({ taps }: Props) => {
   const recent = taps.slice(-32);
 
   return (
@@ -72,3 +72,5 @@ export const TimingTrack = ({ taps }: Props) => {
     </div>
   );
 };
+
+export default TimingTrack;
