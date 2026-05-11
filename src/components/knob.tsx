@@ -157,7 +157,7 @@ const Knob = ({
         onWheel={onWheel}
         className={cn(
           "relative rounded-full border border-zinc-700/60 bg-radial",
-          "from-zinc-800 to-zinc-950 shadow-lg",
+          "from-zinc-800 to-zinc-950 shadow-lg"
         )}
         style={{
           width: size,
@@ -237,7 +237,7 @@ const Knob = ({
               "absolute rounded-sm border bg-zinc-950 font-bold font-mono",
               "text-center outline-none",
               accentStyles.border,
-              accentStyles.text,
+              accentStyles.text
             )}
             style={{
               top: "50%",
@@ -253,7 +253,7 @@ const Knob = ({
             className={cn(
               "absolute inset-0 flex items-center justify-center",
               "pointer-events-none font-bold font-mono",
-              accentStyles.text,
+              accentStyles.text
             )}
             style={{
               fontSize: size * 0.18,
