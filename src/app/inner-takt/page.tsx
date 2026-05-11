@@ -183,19 +183,24 @@ const InnerTakt = () => {
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="w-full flex items-center gap-2">
           {isRunning ? (
-            <Button type="button" onClick={stop} size="lg">
+            <Button type="button" onClick={stop} size="lg" className="flex-1">
               <Square size={12} />
               Stop
             </Button>
           ) : (
-            <Button type="button" onClick={start} size="lg">
+            <Button type="button" onClick={start} size="lg" className="flex-1">
               <Play size={12} />
               Start
             </Button>
           )}
-          <Button type="button" variant="outline" onClick={resetTaps}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={resetTaps}
+            className="flex-1"
+          >
             Reset Taps
           </Button>
           <span className="text-xs text-muted-foreground tracking-widest">
