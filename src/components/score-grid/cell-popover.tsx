@@ -72,7 +72,7 @@ const CellPopover = ({
       >
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase text-muted-foreground">
+            <span className="text-xs uppercase text-muted-foreground">
               強弱
             </span>
             <ToggleGroup
@@ -94,7 +94,7 @@ const CellPopover = ({
             </ToggleGroup>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase text-muted-foreground">
+            <span className="text-xs uppercase text-muted-foreground">
               装飾音
             </span>
             <ToggleGroup

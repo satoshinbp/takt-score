@@ -265,7 +265,7 @@ const Knob = ({
         )}
       </div>
       <div className="text-center">
-        <div className="text-sm tracking-[0.14em] text-zinc-400 font-bold">
+        <div className="text-sm tracking-widest text-zinc-400 font-bold">
           {label}
         </div>
         {unit && (

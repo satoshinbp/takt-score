@@ -13,7 +13,7 @@ const isFilled = (v: number) => v !== STEP.OFF;
 const getStepCellClass = (
   velocity: number,
   isCurrent: boolean,
-  isGhost: boolean,
+  isGhost: boolean
 ) =>
   cn(
     "relative h-6 flex-1 mx-px rounded-sm border cursor-pointer transition duration-75",
@@ -28,13 +28,13 @@ const getStepCellClass = (
           : !isFilled(velocity)
             ? "border-border"
             : "",
-    !isCurrent && !isFilled(velocity) && "hover:bg-[var(--surface-3)]",
+    !isCurrent && !isFilled(velocity) && "hover:bg-[var(--surface-3)]"
   );
 
 const getStepCellStyle = (
   velocity: number,
   isCurrent: boolean,
-  color: string,
+  color: string
 ) => {
   if (!isFilled(velocity)) return undefined;
 
@@ -42,7 +42,9 @@ const getStepCellStyle = (
   const isGhost = velocity === STEP.GHOST;
 
   // ACCENT は強い glow、GHOST は半透明で弱い印象に
-  const shadows = [`0 0 ${isAccent ? 14 : 8}px ${color}${isAccent ? "99" : "55"}`];
+  const shadows = [
+    `0 0 ${isAccent ? 14 : 8}px ${color}${isAccent ? "99" : "55"}`,
+  ];
   if (isCurrent) shadows.push(`inset 0 0 0 2px rgba(245,200,66,0.75)`);
 
   return {
@@ -137,17 +139,14 @@ const ScoreGridCell = ({
           className="absolute left-0.5 top-0.5 flex flex-col gap-[1px] pointer-events-none"
         >
           {Array.from({ length: ornamentCount }).map((_, i) => (
-            <span
-              key={i}
-              className="block size-1 rounded-full bg-foreground"
-            />
+            <span key={i} className="block size-1 rounded-full bg-foreground" />
           ))}
         </span>
       )}
       {isAccent && (
         <span
           aria-hidden
-          className="absolute right-0.5 top-0 text-[9px] leading-none font-bold text-foreground pointer-events-none"
+          className="absolute right-0.5 top-0 text-xs leading-none font-bold text-foreground pointer-events-none"
         >
           &gt;
         </span>
