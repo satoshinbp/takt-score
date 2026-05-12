@@ -45,7 +45,7 @@ const TimingChart = ({ taps }: Props) => {
             style={{
               left: `${x}%`,
               top: `${y}%`,
-              opacity: 0.4 + 0.6 * (i / Math.max(1, TAPS_TO_SHOW - 1)),
+              opacity: 1 - 0.6 * ((recent.length - 1 - i) / (TAPS_TO_SHOW - 1)),
             }}
           />
         );
