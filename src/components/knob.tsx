@@ -12,11 +12,11 @@ const ACCENT_STYLES = {
     text: "text-orange-500",
   },
   cyan: {
-    bg: "bg-secondary",
-    border: "border-secondary",
-    glow: "shadow-md shadow-secondary/50",
-    stroke: "stroke-secondary",
-    text: "text-secondary",
+    bg: "bg-cyan-400",
+    border: "border-cyan-400",
+    glow: "shadow-md shadow-cyan-400/50",
+    stroke: "stroke-cyan-400",
+    text: "text-cyan-400",
   },
   red: {
     bg: "bg-red-500",

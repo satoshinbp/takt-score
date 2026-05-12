@@ -32,7 +32,7 @@ const TimingTrack = ({ taps }: Props) => {
         <div className="relative h-32 flex-1">
           <div className="absolute inset-x-0 top-1/2 h-px bg-muted-foreground" />
           <div
-            className="absolute inset-x-0 border-y border-dashed border-primary/15 bg-primary/5"
+            className="absolute inset-x-0 border-y border-dashed border-cyan-400/15 bg-cyan-400/5"
             style={{
               top: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
               bottom: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
@@ -42,13 +42,13 @@ const TimingTrack = ({ taps }: Props) => {
             const x = (i / Math.max(1, recent.length - 1)) * 100;
             const yPct = Math.max(
               -1,
-              Math.min(1, tap.deviationMs / TOLERANCE_MS),
+              Math.min(1, tap.deviationMs / TOLERANCE_MS)
             );
             const y = 50 + yPct * 50;
             const absDev = Math.abs(tap.deviationMs);
             const toneClass =
               absDev < 25
-                ? "bg-secondary shadow-secondary/50"
+                ? "bg-cyan-400 shadow-cyan-400/50"
                 : absDev < 50
                   ? "bg-orange-500 shadow-orange-500/50"
                   : "bg-red-500 shadow-red-500/50";

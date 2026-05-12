@@ -15,7 +15,7 @@ type CellProps = {
 const VALUE_TONE_CLASS = {
   idle: "text-zinc-700",
   light: "text-zinc-100",
-  cyan: "text-secondary",
+  cyan: "text-cyan-400",
   orange: "text-orange-500",
 };
 
@@ -34,7 +34,7 @@ const Cell = ({ label, value, suffix, tone = "idle" }: CellProps) => (
     <div
       className={cn(
         "text-xs font-bold tracking-wider mt-1.5",
-        tone === "idle" ? "text-muted" : "text-muted-foreground",
+        tone === "idle" ? "text-muted" : "text-muted-foreground"
       )}
     >
       {label}
