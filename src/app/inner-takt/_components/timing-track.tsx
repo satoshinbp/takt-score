@@ -5,7 +5,7 @@ import type { Tap } from "../_hooks/useInnerTakt";
 
 type Props = { taps: Tap[] };
 
-const TOLERANCE_MS = 60;
+const TOLERANCE_MS = 120;
 const GOOD_MS = 25;
 const OK_MS = 50;
 const TAPS_TO_SHOW = 32;
@@ -19,8 +19,8 @@ const TimingChart = ({ taps }: Props) => {
       <div
         className="absolute inset-x-0 border-y border-dashed border-cyan-400/15 bg-cyan-400/5"
         style={{
-          top: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
-          bottom: `${50 - 25 * (15 / TOLERANCE_MS)}%`,
+          top: `${50 - 50 * (GOOD_MS / TOLERANCE_MS)}%`,
+          bottom: `${50 - 50 * (GOOD_MS / TOLERANCE_MS)}%`,
         }}
       />
       {recent.map((tap, i) => {
