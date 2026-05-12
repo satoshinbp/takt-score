@@ -1,13 +1,15 @@
 {
   "enabledPlugins": {
-    "git@shinya-plugins": true
+    "git@shinya-plugins": true,
+    "clean-code@shinya-plugins": true
   },
   "extraKnownMarketplaces": {
     "shinya-plugins": {
       "source": {
         "source": "github",
         "repo": "0113shins/claude-plugin"
-      }
+      },
+      "autoUpdate": true
     }
   }
 }
