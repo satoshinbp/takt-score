@@ -75,9 +75,11 @@ export type SoundFn = (
 ) => void;
 
 export const SOUNDS: Partial<Record<string, SoundFn>> = {
+  // 短く締まったキック：高速ピッチドロップ + ビーターのクリック
   BD: (ctx, startSec, gain) => {
-    tone(ctx, startSec, 0.35, 160, 42, 1.0 * gain);
-    noise(ctx, startSec, 0.04, 200, 0.5, 0.3 * gain);
+    tone(ctx, startSec, 0.18, 120, 38, 1.0 * gain);
+    tone(ctx, startSec, 0.025, 1800, 90, 0.35 * gain);
+    noise(ctx, startSec, 0.012, 3500, 1.0, 0.22 * gain);
   },
   SNARE: (ctx, startSec, gain) => {
     noise(ctx, startSec, 0.17, 3200, 0.7, 0.9 * gain);
@@ -93,20 +95,33 @@ export const SOUNDS: Partial<Record<string, SoundFn>> = {
     noise(ctx, startSec, 0.65, 5000, 0.4, 0.7 * gain);
     noise(ctx, startSec, 0.65, 11000, 0.6, 0.4 * gain);
   },
+  // ライド：インハーモニックな金属倍音でピン感、長いシマーで持続感
   RIDE: (ctx, startSec, gain) => {
-    noise(ctx, startSec, 0.22, 8000, 1.2, 0.45 * gain);
-    tone(ctx, startSec, 0.16, 580, null, 0.22 * gain);
+    tone(ctx, startSec, 0.22, 2400, null, 0.18 * gain, 0.001);
+    tone(ctx, startSec, 0.18, 3170, null, 0.13 * gain, 0.001);
+    tone(ctx, startSec, 0.15, 4280, null, 0.09 * gain, 0.001);
+    noise(ctx, startSec, 0.45, 7500, 1.4, 0.28 * gain);
+    noise(ctx, startSec, 0.35, 11500, 1.8, 0.16 * gain);
   },
+  // ハイタム：スティックのアタック + 基音と微デチューン倍音で胴鳴り
   HI_TOM: (ctx, startSec, gain) => {
-    tone(ctx, startSec, 0.28, 280, 130, 0.85 * gain, 0.01);
-    noise(ctx, startSec, 0.05, 600, 0.4, 0.12 * gain);
+    tone(ctx, startSec, 0.35, 320, 175, 0.9 * gain, 0.003);
+    tone(ctx, startSec, 0.28, 478, 268, 0.28 * gain, 0.003);
+    noise(ctx, startSec, 0.02, 2200, 0.8, 0.22 * gain);
+    noise(ctx, startSec, 0.04, 700, 0.5, 0.1 * gain);
   },
+  // ミッドタム：ハイタムより低く、胴鳴りをさらに長めに
   MID_TOM: (ctx, startSec, gain) => {
-    tone(ctx, startSec, 0.33, 210, 100, 0.85 * gain, 0.01);
-    noise(ctx, startSec, 0.05, 450, 0.4, 0.12 * gain);
+    tone(ctx, startSec, 0.42, 230, 125, 0.9 * gain, 0.003);
+    tone(ctx, startSec, 0.34, 345, 190, 0.28 * gain, 0.003);
+    noise(ctx, startSec, 0.02, 1800, 0.8, 0.2 * gain);
+    noise(ctx, startSec, 0.04, 520, 0.5, 0.1 * gain);
   },
+  // フロアタム：BDと差別化するため明確な音程感と長いサステイン
   LO_TOM: (ctx, startSec, gain) => {
-    tone(ctx, startSec, 0.28, 140, 58, 1.0 * gain);
-    noise(ctx, startSec, 0.05, 400, 0.5, 0.2 * gain);
+    tone(ctx, startSec, 0.6, 88, 70, 1.0 * gain, 0.004);
+    tone(ctx, startSec, 0.45, 132, 105, 0.35 * gain, 0.004);
+    noise(ctx, startSec, 0.025, 1500, 0.7, 0.18 * gain);
+    noise(ctx, startSec, 0.05, 350, 0.5, 0.1 * gain);
   },
 };
