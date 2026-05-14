@@ -39,8 +39,8 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* === Custom additions below — not part of shadcn defaults === */
-  --chart-primary: oklch(0.609 0.126 221.723);
-  --chart-secondary: oklch(0.646 0.222 41.116);
+  --chart-regular: oklch(0.609 0.126 221.723);
+  --chart-accent: oklch(0.646 0.222 41.116);
 }
 
 .dark {
@@ -77,8 +77,8 @@
   --sidebar-ring: oklch(0.556 0 0);
 
   /* === Custom additions below — not part of shadcn defaults === */
-  --chart-primary: oklch(0.789 0.154 211.53);
-  --chart-secondary: oklch(0.705 0.213 47.604);
+  --chart-regular: oklch(0.789 0.154 211.53);
+  --chart-accent: oklch(0.705 0.213 47.604);
 }
 
 @theme inline {
@@ -124,8 +124,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* === Custom additions below — not part of shadcn defaults === */
-  --color-chart-primary: var(--chart-primary);
-  --color-chart-secondary: var(--chart-secondary);
+  --color-chart-regular: var(--chart-regular);
+  --color-chart-accent: var(--chart-accent);
 }
 
 @layer base {
