@@ -30,7 +30,7 @@ const RootLayout = ({
         fontMono.variable,
         "font-sans",
         roboto.variable,
-        notoSansHeading.variable,
+        notoSansHeading.variable
       )}
     >
       <body>

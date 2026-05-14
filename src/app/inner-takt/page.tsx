@@ -111,7 +111,6 @@ const InnerTakt = () => {
           isSilent={isSilent}
           cycleProgress={cycleProgress}
         />
-
         <BeatDots
           beatsPerBar={config.beatsPerBar}
           currentBeat={isRunning ? currentBeat : -1}
@@ -119,10 +118,8 @@ const InnerTakt = () => {
           isSilent={isSilent}
           fadeAmount={fadeAmount}
         />
-
         <TimingTrack taps={taps} />
         <StatsPanel taps={taps} />
-
         <ConfigKnobs config={config} update={update} />
 
         <div className="w-full flex items-center gap-2">
