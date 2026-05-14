@@ -157,12 +157,12 @@ const Knob = ({
         onWheel={onWheel}
         className={cn(
           "relative rounded-full border border-zinc-700/60 bg-radial",
-          "from-zinc-800 to-zinc-950 shadow-lg"
+          "from-zinc-800 to-zinc-950 shadow-lg",
+          isEditing ? "cursor-text" : "cursor-ns-resize"
         )}
         style={{
           width: size,
           height: size,
-          cursor: isEditing ? "text" : "ns-resize",
           boxShadow:
             "0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
         }}
@@ -193,28 +193,27 @@ const Knob = ({
 
         <div
           className={cn(
-            "absolute rounded-sm w-[3px] m-[-1px]",
+            "absolute top-1/2 left-1/2 -translate-x-1/2 origin-top",
+            "rounded-sm w-[3px] m-[-1px]",
             accentStyles.glow
           )}
           style={{
-            top: "50%",
-            left: "50%",
             height: size / 2 - 14,
-            transformOrigin: "top center",
-            transform: `translate(-50%, 0) rotate(${angle - 90}deg)`,
+            rotate: `${angle - 90}deg`,
           }}
         >
           <div className={cn("h-full w-full rounded-sm", accentStyles.bg)} />
         </div>
 
         <div
-          className="absolute rounded-full border border-zinc-700/60 bg-radial from-zinc-800 to-zinc-950"
+          className={cn(
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+            "rounded-full border border-zinc-700/60 bg-radial",
+            "from-zinc-800 to-zinc-950"
+          )}
           style={{
-            top: "50%",
-            left: "50%",
             width: size * 0.42,
             height: size * 0.42,
-            transform: "translate(-50%, -50%)",
           }}
         />
 
@@ -235,15 +234,13 @@ const Knob = ({
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              "absolute rounded-sm border bg-zinc-950 font-bold font-mono",
+              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+              "rounded-sm border bg-zinc-950 font-bold font-mono",
               "text-center outline-none px-0.5 py-1",
               accentStyles.border,
               accentStyles.text
             )}
             style={{
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
               width: size * 0.62,
               fontSize: size * 0.18,
             }}
@@ -252,12 +249,11 @@ const Knob = ({
           <div
             className={cn(
               "absolute inset-0 flex items-center justify-center",
-              "pointer-events-none font-bold font-mono",
+              "pointer-events-none font-bold font-mono tracking-tight",
               accentStyles.text
             )}
             style={{
               fontSize: size * 0.18,
-              letterSpacing: "-0.02em",
             }}
           >
             {Math.round(value * 10) / 10}
@@ -265,7 +261,7 @@ const Knob = ({
         )}
       </div>
       <div className="text-center">
-        <div className="text-sm tracking-widest text-zinc-400 font-bold">
+        <div className="text-sm tracking-widest text-muted-foreground font-semibold">
           {label}
         </div>
         {unit && (
