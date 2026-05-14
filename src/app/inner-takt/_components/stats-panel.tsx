@@ -9,14 +9,14 @@ type CellProps = {
   label: string;
   value: string;
   suffix?: string;
-  tone?: "idle" | "light" | "cyan" | "orange";
+  tone?: "idle" | "light" | "regular" | "accent";
 };
 
 const VALUE_TONE_CLASS = {
   idle: "text-zinc-700",
   light: "text-zinc-100",
-  cyan: "text-cyan-400",
-  orange: "text-orange-500",
+  regular: "text-regular-beat",
+  accent: "text-accent-beat",
 };
 
 const Cell = ({ label, value, suffix, tone = "idle" }: CellProps) => (
@@ -70,19 +70,19 @@ const StatsPanel = ({ taps }: Props) => {
         label="STDEV"
         value={String(Math.round(std))}
         suffix="ms"
-        tone="cyan"
+        tone="regular"
       />
       <Cell
         label="BEST"
         value={String(Math.round(best))}
         suffix="ms"
-        tone="cyan"
+        tone="regular"
       />
       <Cell
         label="WORST"
         value={String(Math.round(worst))}
         suffix="ms"
-        tone="orange"
+        tone="accent"
       />
     </div>
   );

@@ -4,19 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const ACCENT_STYLES = {
-  orange: {
-    bg: "bg-orange-500",
-    border: "border-orange-500",
-    glow: "shadow-md shadow-orange-500/50",
-    stroke: "stroke-orange-500",
-    text: "text-orange-500",
+  "accent-beat": {
+    bg: "bg-accent-beat",
+    border: "border-accent-beat",
+    glow: "shadow-md shadow-accent-beat/50",
+    stroke: "stroke-accent-beat",
+    text: "text-accent-beat",
   },
-  cyan: {
-    bg: "bg-cyan-400",
-    border: "border-cyan-400",
-    glow: "shadow-md shadow-cyan-400/50",
-    stroke: "stroke-cyan-400",
-    text: "text-cyan-400",
+  "regular-beat": {
+    bg: "bg-regular-beat",
+    border: "border-regular-beat",
+    glow: "shadow-md shadow-regular-beat/50",
+    stroke: "stroke-regular-beat",
+    text: "text-regular-beat",
   },
   red: {
     bg: "bg-red-500",
@@ -55,7 +55,7 @@ const Knob = ({
   label,
   unit,
   size = 80,
-  accent = "orange",
+  accent = "accent-beat",
 }: KnobProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);

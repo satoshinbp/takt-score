@@ -32,7 +32,7 @@ const ConfigKnobs = ({ config, update }: Props) => {
           if (config.accentEvery > v) update("accentEvery", v);
         }}
         label="BEATS / BAR"
-        accent="cyan"
+        accent="regular-beat"
       />
       <Knob
         value={config.accentEvery}
@@ -51,7 +51,7 @@ const ConfigKnobs = ({ config, update }: Props) => {
         onChange={(v) => update("audibleBars", v)}
         label="AUDIBLE"
         unit="bars"
-        accent="cyan"
+        accent="regular-beat"
       />
       <Knob
         value={config.silentBars}

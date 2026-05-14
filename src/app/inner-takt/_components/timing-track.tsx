@@ -17,7 +17,7 @@ const TimingChart = ({ taps }: Props) => {
     <div className="relative h-32 flex-1">
       <div className="absolute inset-x-0 top-1/2 h-px bg-muted-foreground" />
       <div
-        className="absolute inset-x-0 border-y border-dashed border-cyan-400/15 bg-cyan-400/5"
+        className="absolute inset-x-0 border-y border-dashed border-regular-beat/15 bg-regular-beat/5"
         style={{
           top: `${50 - 50 * (GOOD_MS / TOLERANCE_MS)}%`,
           bottom: `${50 - 50 * (GOOD_MS / TOLERANCE_MS)}%`,
@@ -30,9 +30,9 @@ const TimingChart = ({ taps }: Props) => {
         const absDev = Math.abs(tap.deviationMs);
         const toneClass =
           absDev < GOOD_MS
-            ? "bg-cyan-400 shadow-cyan-400/50"
+            ? "bg-regular-beat shadow-regular-beat/50"
             : absDev < OK_MS
-              ? "bg-orange-500 shadow-orange-500/50"
+              ? "bg-accent-beat shadow-accent-beat/50"
               : "bg-red-500 shadow-red-500/50";
 
         return (

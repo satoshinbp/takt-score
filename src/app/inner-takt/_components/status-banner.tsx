@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 const DOT_STYLES = {
   idle: "bg-zinc-700 shadow-md shadow-zinc-700/50",
   silent: "bg-red-500 shadow-md shadow-red-500/60",
-  running: "bg-cyan-400 shadow-md shadow-cyan-400/60",
+  running: "bg-regular-beat shadow-md shadow-regular-beat/60",
 };
 
 const Dot = ({
@@ -49,9 +49,7 @@ const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
       className={cn(
         "flex items-center justify-center gap-3 px-6 py-2.5 min-w-[320px] border",
         "text-xs font-bold tracking-wider transition-all duration-300",
-        isSilent && isRunning
-          ? "border-red-950 bg-red-950/30"
-          : "border-zinc-800 bg-zinc-950"
+        isSilent && isRunning && "border-destructive bg-destructive/10"
       )}
     >
       <Dot isRunning={isRunning} isSilent={isSilent} />
@@ -60,8 +58,8 @@ const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
           !isRunning
             ? "text-zinc-600"
             : isSilent
-              ? "text-red-500"
-              : "text-cyan-400"
+              ? "text-destructive"
+              : "text-regular-beat"
         )}
       >
         {text}

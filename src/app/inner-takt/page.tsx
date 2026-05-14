@@ -98,7 +98,7 @@ const InnerTakt = () => {
     <div className="max-w-3xl mx-auto">
       <div className="flex flex-col items-center gap-6 p-6">
         <div className="text-center">
-          <div className="text-2xl font-extrabold tracking-wider text-zinc-100">
+          <div className="text-2xl font-extrabold tracking-wider">
             INNER TAKT
           </div>
           <div className="text-xs text-muted-foreground tracking-widest mt-1">
