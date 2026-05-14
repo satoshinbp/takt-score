@@ -6,7 +6,7 @@ import { useBeatScheduler } from "./useBeatScheduler";
 import { useTapRecorder } from "./useTapRecorder";
 import { useVisualBeat } from "./useVisualBeat";
 
-export type { InnerTaktConfig as InnerTaktCfg, Tap } from "./useBeatScheduler";
+export type { InnerTaktConfig, Tap } from "./useBeatScheduler";
 
 const calcCycleProgress = (beatIndex: number, config: InnerTaktConfig) => {
   const totalBeats =

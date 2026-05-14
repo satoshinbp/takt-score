@@ -2,17 +2,17 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Play, Square } from "lucide-react";
-import Knob from "@/components/knob";
 import { Button } from "@/components/ui/button";
 import BeatDots from "./_components/beat-dots";
+import ConfigKnobs from "./_components/config-knobs";
 import StatsPanel from "./_components/stats-panel";
 import StatusBanner from "./_components/status-banner";
 import TimingTrack from "./_components/timing-track";
-import { type InnerTaktCfg, useInnerTakt } from "./_hooks/useInnerTakt";
+import { type InnerTaktConfig, useInnerTakt } from "./_hooks/useInnerTakt";
 
 const STORAGE_KEY = "taktscore_innertakt";
 
-const DEFAULT_CFG: InnerTaktCfg = {
+const DEFAULT_CFG: InnerTaktConfig = {
   bpm: 90,
   beatsPerBar: 4,
   accentEvery: 4,
@@ -22,7 +22,7 @@ const DEFAULT_CFG: InnerTaktCfg = {
 };
 
 const InnerTakt = () => {
-  const [cfg, setCfg] = useState<InnerTaktCfg>(DEFAULT_CFG);
+  const [config, setConfig] = useState<InnerTaktConfig>(DEFAULT_CFG);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useLayoutEffect(() => {
@@ -32,26 +32,28 @@ const InnerTakt = () => {
       if (raw)
         savedCfg = {
           ...DEFAULT_CFG,
-          ...(JSON.parse(raw) as Partial<InnerTaktCfg>),
+          ...(JSON.parse(raw) as Partial<InnerTaktConfig>),
         };
     } catch (_e) {
       void _e;
     }
-    setCfg(savedCfg); // eslint-disable-line react-hooks/set-state-in-effect
+    setConfig(savedCfg); // eslint-disable-line react-hooks/set-state-in-effect
     setIsHydrated(true);
   }, []);
 
   useEffect(() => {
     if (!isHydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     } catch (_e) {
       void _e;
     }
-  }, [cfg, isHydrated]);
+  }, [config, isHydrated]);
 
-  const update = <K extends keyof InnerTaktCfg>(key: K, val: InnerTaktCfg[K]) =>
-    setCfg((prev) => ({ ...prev, [key]: val }));
+  const update = <K extends keyof InnerTaktConfig>(
+    key: K,
+    val: InnerTaktConfig[K]
+  ) => setConfig((prev) => ({ ...prev, [key]: val }));
 
   const {
     isRunning,
@@ -64,7 +66,7 @@ const InnerTakt = () => {
     stop,
     recordTap,
     resetTaps,
-  } = useInnerTakt(cfg);
+  } = useInnerTakt(config);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -111,9 +113,9 @@ const InnerTakt = () => {
         />
 
         <BeatDots
-          beatsPerBar={cfg.beatsPerBar}
+          beatsPerBar={config.beatsPerBar}
           currentBeat={isRunning ? currentBeat : -1}
-          accentEvery={cfg.accentEvery}
+          accentEvery={config.accentEvery}
           isSilent={isSilent}
           fadeAmount={fadeAmount}
         />
@@ -121,67 +123,7 @@ const InnerTakt = () => {
         <TimingTrack taps={taps} />
         <StatsPanel taps={taps} />
 
-        <div className="w-full flex flex-wrap justify-center gap-6 bg-card p-6">
-          <Knob
-            value={cfg.bpm}
-            min={40}
-            max={240}
-            step={1}
-            onChange={(v) => update("bpm", v)}
-            label="BPM"
-          />
-          <Knob
-            value={cfg.beatsPerBar}
-            min={2}
-            max={8}
-            step={1}
-            onChange={(v) => {
-              update("beatsPerBar", v);
-              if (cfg.accentEvery > v) update("accentEvery", v);
-            }}
-            label="BEATS / BAR"
-            accent="cyan"
-          />
-          <Knob
-            value={cfg.accentEvery}
-            min={1}
-            max={cfg.beatsPerBar}
-            step={1}
-            onChange={(v) => update("accentEvery", v)}
-            label="ACCENT"
-            unit={`every ${cfg.accentEvery} beat${cfg.accentEvery > 1 ? "s" : ""}`}
-          />
-          <Knob
-            value={cfg.audibleBars}
-            min={1}
-            max={16}
-            step={1}
-            onChange={(v) => update("audibleBars", v)}
-            label="AUDIBLE"
-            unit="bars"
-            accent="cyan"
-          />
-          <Knob
-            value={cfg.silentBars}
-            min={1}
-            max={16}
-            step={1}
-            onChange={(v) => update("silentBars", v)}
-            label="SILENT"
-            unit="bars"
-            accent="red"
-          />
-          <Knob
-            value={cfg.fadeBeats}
-            min={0}
-            max={8}
-            step={0.5}
-            onChange={(v) => update("fadeBeats", v)}
-            label="FADE"
-            unit="beats"
-            accent="violet"
-          />
-        </div>
+        <ConfigKnobs config={config} update={update} />
 
         <div className="w-full flex items-center gap-2">
           {isRunning ? (
