@@ -33,7 +33,7 @@ const TimingChart = ({ taps }: Props) => {
             ? "bg-chart-regular shadow-chart-regular/50"
             : absDev < OK_MS
               ? "bg-chart-accent shadow-chart-accent/50"
-              : "bg-red-500 shadow-red-500/50";
+              : "bg-destructive shadow-destructive/50";
 
         return (
           <div

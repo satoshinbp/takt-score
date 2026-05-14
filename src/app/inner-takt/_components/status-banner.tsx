@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 
 const DOT_STYLES = {
-  idle: "bg-zinc-700 shadow-md shadow-zinc-700/50",
-  silent: "bg-red-500 shadow-md shadow-red-500/60",
+  idle: "bg-muted-foreground shadow-md shadow-muted-foreground/50",
+  silent: "bg-destructive shadow-md shadow-destructive/60",
   running: "bg-chart-regular shadow-md shadow-chart-regular/60",
 };
 
@@ -56,7 +56,7 @@ const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
       <span
         className={cn(
           !isRunning
-            ? "text-zinc-600"
+            ? "text-muted-foreground"
             : isSilent
               ? "text-destructive"
               : "text-chart-regular"

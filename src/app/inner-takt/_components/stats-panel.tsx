@@ -13,8 +13,8 @@ type CellProps = {
 };
 
 const VALUE_TONE_CLASS = {
-  idle: "text-zinc-700",
-  light: "text-zinc-100",
+  idle: "text-muted",
+  light: "text-muted-foreground",
   regular: "text-chart-regular",
   accent: "text-chart-accent",
 };

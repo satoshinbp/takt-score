@@ -19,11 +19,11 @@ const ACCENT_STYLES = {
     text: "text-chart-regular",
   },
   red: {
-    bg: "bg-red-500",
-    border: "border-red-500",
-    glow: "shadow-md shadow-red-500/50",
-    stroke: "stroke-red-500",
-    text: "text-red-500",
+    bg: "bg-destructive",
+    border: "border-destructive",
+    glow: "shadow-md shadow-destructive/50",
+    stroke: "stroke-destructive",
+    text: "text-destructive",
   },
   violet: {
     bg: "bg-violet-400",
