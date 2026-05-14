@@ -46,15 +46,22 @@ const tone = (
   f1: number | null,
   gain: number,
   atk = 0,
+  type: OscillatorType = "sine",
+  // ピッチドロップ完了までの相対位置（durSec に対する比）。小さいほど即座にピッチが落ちる
+  rampRatio = 0.6,
 ) => {
   const osc = ctx.createOscillator();
+  osc.type = type;
   const gainNode = ctx.createGain();
   osc.connect(gainNode);
   gainNode.connect(ctx.destination);
   osc.frequency.setValueAtTime(f0, startSec);
 
   if (f1)
-    osc.frequency.exponentialRampToValueAtTime(f1, startSec + durSec * 0.6);
+    osc.frequency.exponentialRampToValueAtTime(
+      f1,
+      startSec + durSec * rampRatio,
+    );
 
   if (atk > 0) {
     gainNode.gain.setValueAtTime(0.0001, startSec);
@@ -103,19 +110,21 @@ export const SOUNDS: Partial<Record<string, SoundFn>> = {
     noise(ctx, startSec, 0.45, 7500, 1.4, 0.28 * gain);
     noise(ctx, startSec, 0.35, 11500, 1.8, 0.16 * gain);
   },
-  // ハイタム：スティックのアタック + 基音と微デチューン倍音で胴鳴り
+  // ハイタム：高Qノイズで皮の主モードを表現、三角波で薄く音程感を補強、即時ピッチドロップでスイープ感を消す
   HI_TOM: (ctx, startSec, gain) => {
-    tone(ctx, startSec, 0.35, 320, 175, 0.9 * gain, 0.003);
-    tone(ctx, startSec, 0.28, 478, 268, 0.28 * gain, 0.003);
-    noise(ctx, startSec, 0.02, 2200, 0.8, 0.22 * gain);
-    noise(ctx, startSec, 0.04, 700, 0.5, 0.1 * gain);
+    noise(ctx, startSec, 0.22, 380, 6, 0.45 * gain);
+    noise(ctx, startSec, 0.14, 600, 2.5, 0.18 * gain);
+    tone(ctx, startSec, 0.16, 380, 200, 0.35 * gain, 0.001, "triangle", 0.08);
+    noise(ctx, startSec, 0.025, 1500, 0.4, 0.4 * gain);
+    noise(ctx, startSec, 0.008, 4500, 0.5, 0.3 * gain);
   },
-  // ミッドタム：ハイタムより低く、胴鳴りをさらに長めに
+  // ミッドタム：HI_TOMと同じ構造で低めの帯域
   MID_TOM: (ctx, startSec, gain) => {
-    tone(ctx, startSec, 0.42, 230, 125, 0.9 * gain, 0.003);
-    tone(ctx, startSec, 0.34, 345, 190, 0.28 * gain, 0.003);
-    noise(ctx, startSec, 0.02, 1800, 0.8, 0.2 * gain);
-    noise(ctx, startSec, 0.04, 520, 0.5, 0.1 * gain);
+    noise(ctx, startSec, 0.26, 260, 6, 0.45 * gain);
+    noise(ctx, startSec, 0.18, 420, 2.5, 0.18 * gain);
+    tone(ctx, startSec, 0.2, 260, 140, 0.35 * gain, 0.001, "triangle", 0.08);
+    noise(ctx, startSec, 0.025, 1200, 0.4, 0.4 * gain);
+    noise(ctx, startSec, 0.008, 4200, 0.5, 0.28 * gain);
   },
   // フロアタム：BDと差別化するため明確な音程感と長いサステイン
   LO_TOM: (ctx, startSec, gain) => {
