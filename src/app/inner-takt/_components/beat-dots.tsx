@@ -12,16 +12,16 @@ type Props = {
 
 const ACCENT_STYLES = {
   size: "size-[30px]",
-  active: "bg-accent-beat border-accent-beat",
-  dim: "bg-accent-beat/15 border-accent-beat/40",
-  glow: "shadow-lg shadow-accent-beat/60",
+  active: "bg-chart-secondary border-chart-secondary",
+  dim: "bg-chart-secondary/15 border-chart-secondary/40",
+  glow: "shadow-lg shadow-chart-secondary/60",
 };
 
 const REGULAR_STYLES = {
   size: "size-[22px]",
-  active: "bg-regular-beat border-regular-beat",
-  dim: "bg-regular-beat/15 border-regular-beat/40",
-  glow: "shadow-lg shadow-regular-beat/60",
+  active: "bg-chart-primary border-chart-primary",
+  dim: "bg-chart-primary/15 border-chart-primary/40",
+  glow: "shadow-lg shadow-chart-primary/60",
 };
 
 const BeatDots = ({

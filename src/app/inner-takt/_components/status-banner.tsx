@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 const DOT_STYLES = {
   idle: "bg-zinc-700 shadow-md shadow-zinc-700/50",
   silent: "bg-red-500 shadow-md shadow-red-500/60",
-  running: "bg-regular-beat shadow-md shadow-regular-beat/60",
+  running: "bg-chart-primary shadow-md shadow-chart-primary/60",
 };
 
 const Dot = ({
@@ -59,7 +59,7 @@ const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
             ? "text-zinc-600"
             : isSilent
               ? "text-destructive"
-              : "text-regular-beat"
+              : "text-chart-primary"
         )}
       >
         {text}

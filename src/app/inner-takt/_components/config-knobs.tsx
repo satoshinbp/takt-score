@@ -13,7 +13,7 @@ type Props = {
 
 const ConfigKnobs = ({ config, update }: Props) => {
   return (
-    <div className="w-full flex flex-wrap justify-center gap-6 bg-card p-6">
+    <div className="w-full flex flex-wrap justify-center gap-6 bg-card p-6 border">
       <Knob
         value={config.bpm}
         min={40}
@@ -32,7 +32,7 @@ const ConfigKnobs = ({ config, update }: Props) => {
           if (config.accentEvery > v) update("accentEvery", v);
         }}
         label="BEATS / BAR"
-        accent="regular-beat"
+        accent="chart-primary"
       />
       <Knob
         value={config.accentEvery}
@@ -51,7 +51,7 @@ const ConfigKnobs = ({ config, update }: Props) => {
         onChange={(v) => update("audibleBars", v)}
         label="AUDIBLE"
         unit="bars"
-        accent="regular-beat"
+        accent="chart-primary"
       />
       <Knob
         value={config.silentBars}

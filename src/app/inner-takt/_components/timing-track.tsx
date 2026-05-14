@@ -17,7 +17,7 @@ const TimingChart = ({ taps }: Props) => {
     <div className="relative h-32 flex-1">
       <div className="absolute inset-x-0 top-1/2 h-px bg-muted-foreground" />
       <div
-        className="absolute inset-x-0 border-y border-dashed border-regular-beat/15 bg-regular-beat/5"
+        className="absolute inset-x-0 border-y border-dashed border-chart-primary/15 bg-chart-primary/5"
         style={{
           top: `${50 - 50 * (GOOD_MS / TOLERANCE_MS)}%`,
           bottom: `${50 - 50 * (GOOD_MS / TOLERANCE_MS)}%`,
@@ -30,9 +30,9 @@ const TimingChart = ({ taps }: Props) => {
         const absDev = Math.abs(tap.deviationMs);
         const toneClass =
           absDev < GOOD_MS
-            ? "bg-regular-beat shadow-regular-beat/50"
+            ? "bg-chart-primary shadow-chart-primary/50"
             : absDev < OK_MS
-              ? "bg-accent-beat shadow-accent-beat/50"
+              ? "bg-chart-secondary shadow-chart-secondary/50"
               : "bg-red-500 shadow-red-500/50";
 
         return (
@@ -56,7 +56,7 @@ const TimingChart = ({ taps }: Props) => {
 
 const TimingTrack = ({ taps }: Props) => {
   return (
-    <div className="w-full bg-card text-card-foreground p-4">
+    <div className="w-full bg-card text-card-foreground p-4 border">
       <div className="flex justify-between mb-2">
         <span className="text-sm font-bold tracking-wider text-muted-foreground">
           TIMING DEVIATION
