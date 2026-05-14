@@ -192,15 +192,16 @@ const Knob = ({
         </svg>
 
         <div
-          className={cn("absolute rounded-sm", accentStyles.glow)}
+          className={cn(
+            "absolute rounded-sm w-[3px] m-[-1px]",
+            accentStyles.glow
+          )}
           style={{
             top: "50%",
             left: "50%",
-            width: 3,
             height: size / 2 - 14,
             transformOrigin: "top center",
-            transform: `translate(-50%, 0) rotate(${angle + 90}deg)`,
-            marginTop: -1,
+            transform: `translate(-50%, 0) rotate(${angle - 90}deg)`,
           }}
         >
           <div className={cn("h-full w-full rounded-sm", accentStyles.bg)} />
@@ -235,7 +236,7 @@ const Knob = ({
             onClick={(e) => e.stopPropagation()}
             className={cn(
               "absolute rounded-sm border bg-zinc-950 font-bold font-mono",
-              "text-center outline-none",
+              "text-center outline-none px-0.5 py-1",
               accentStyles.border,
               accentStyles.text
             )}
@@ -245,7 +246,6 @@ const Knob = ({
               transform: "translate(-50%, -50%)",
               width: size * 0.62,
               fontSize: size * 0.18,
-              padding: "2px 4px",
             }}
           />
         ) : (
