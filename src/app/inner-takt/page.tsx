@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/use-translation";
 import BeatDots from "./_components/beat-dots";
 import ConfigKnobs from "./_components/config-knobs";
 import StatsPanel from "./_components/stats-panel";
@@ -22,6 +23,7 @@ const DEFAULT_CFG: InnerTaktConfig = {
 };
 
 const InnerTakt = () => {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<InnerTaktConfig>(DEFAULT_CFG);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -102,7 +104,7 @@ const InnerTakt = () => {
             INNER TAKT
           </div>
           <div className="text-xs text-muted-foreground tracking-widest mt-1">
-            Rhythm Trainer · Tap &lt;SPACE&gt; on each beat
+            {t("innerTakt.subtitle")}
           </div>
         </div>
 
@@ -126,12 +128,12 @@ const InnerTakt = () => {
           {isRunning ? (
             <Button type="button" onClick={stop} size="lg" className="flex-1">
               <Square size={12} />
-              Stop
+              {t("innerTakt.stop")}
             </Button>
           ) : (
             <Button type="button" onClick={start} size="lg" className="flex-1">
               <Play size={12} />
-              Start
+              {t("innerTakt.start")}
             </Button>
           )}
           <Button
@@ -140,10 +142,10 @@ const InnerTakt = () => {
             onClick={resetTaps}
             className="flex-1"
           >
-            Reset Taps
+            {t("innerTakt.resetTaps")}
           </Button>
           <span className="text-xs text-muted-foreground tracking-widest">
-            SPACE: tap · ESC: stop · R: reset taps · scroll/drag knobs
+            {t("innerTakt.shortcutsHint")}
           </span>
         </div>
       </div>

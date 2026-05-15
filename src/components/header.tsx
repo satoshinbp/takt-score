@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { TaktScoreIcon } from "@/components/icon";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
 
@@ -64,13 +65,10 @@ const Header = () => {
       </nav>
 
       <div className="ml-auto flex items-center">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setLang(lang === "ja" ? "en" : "ja")}
-          className={cn(
-            "px-2 py-1 rounded hover:bg-muted transition-colors",
-            "text-xs font-semibold tracking-wider"
-          )}
           title={
             isMounted
               ? lang === "ja"
@@ -80,11 +78,11 @@ const Header = () => {
           }
         >
           {isMounted ? (lang === "ja" ? "EN" : "JA") : "JA"}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setTheme(isDark ? "light" : "dark")}
-          className="p-2 rounded hover:bg-muted transition-colors"
           title={
             isMounted
               ? isDark
@@ -94,7 +92,7 @@ const Header = () => {
           }
         >
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        </Button>
       </div>
     </header>
   );

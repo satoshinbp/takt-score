@@ -36,7 +36,7 @@ const RootLayout = ({
     >
       <body>
         <ThemeProvider>
-          <div className="h-screen">
+          <div className="h-screen bg-muted dark:bg-background text-foreground">
             <Header />
             {children}
           </div>

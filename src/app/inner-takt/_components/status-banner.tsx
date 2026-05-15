@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
 
 const DOT_STYLES = {
@@ -38,17 +39,18 @@ type Props = {
 };
 
 const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
+  const { t } = useTranslation();
   const text = !isRunning
-    ? "PRESS SPACE TO BEGIN"
+    ? t("innerTakt.statusIdle")
     : isSilent
-      ? "SILENT — KEEP THE TAKT"
-      : "AUDIBLE";
+      ? t("innerTakt.statusSilent")
+      : t("innerTakt.statusAudible");
 
   return (
     <div
       className={cn(
         "flex items-center justify-center gap-3 px-6 py-2.5 min-w-[320px] border",
-        "text-xs font-bold tracking-wider transition-all duration-300",
+        "bg-card text-xs text-card-foreground font-bold tracking-wider transition-all duration-300",
         isSilent && isRunning && "border-destructive bg-destructive/10"
       )}
     >

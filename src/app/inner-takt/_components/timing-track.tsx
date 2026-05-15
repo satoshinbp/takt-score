@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
 import type { Tap } from "../_hooks/useInnerTakt";
 
@@ -55,11 +56,12 @@ const TimingChart = ({ taps }: Props) => {
 };
 
 const TimingTrack = ({ taps }: Props) => {
+  const { t } = useTranslation();
   return (
     <div className="w-full bg-card text-card-foreground p-4 border">
       <div className="flex justify-between mb-2">
         <span className="text-sm font-bold tracking-wider text-muted-foreground">
-          TIMING DEVIATION
+          {t("innerTakt.timing.deviation")}
         </span>
         <span className="text-sm tracking-wide text-muted-foreground">
           ±{TOLERANCE_MS}ms
@@ -68,10 +70,10 @@ const TimingTrack = ({ taps }: Props) => {
       <div className="flex gap-4">
         <div className="flex flex-col justify-between w-8 shrink-0">
           <span className="text-xs text-muted-foreground leading-none">
-            EARLY
+            {t("innerTakt.timing.early")}
           </span>
           <span className="text-xs text-muted-foreground leading-none">
-            LATE
+            {t("innerTakt.timing.late")}
           </span>
         </div>
         <TimingChart taps={taps} />

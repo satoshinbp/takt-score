@@ -261,7 +261,7 @@ const Knob = ({
         )}
       </div>
       <div className="text-center">
-        <div className="text-sm tracking-widest text-muted-foreground font-semibold">
+        <div className="text-xs tracking-wider text-muted-foreground font-semibold">
           {label}
         </div>
         {unit && (

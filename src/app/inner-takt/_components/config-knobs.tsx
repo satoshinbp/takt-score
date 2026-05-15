@@ -1,6 +1,7 @@
 "use client";
 
 import Knob from "@/components/knob";
+import { useTranslation } from "@/hooks/use-translation";
 import type { InnerTaktConfig } from "../_hooks/useInnerTakt";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const ConfigKnobs = ({ config, update }: Props) => {
+  const { t } = useTranslation();
   return (
     <div className="w-full flex flex-wrap justify-center gap-6 bg-card p-6 border">
       <Knob
@@ -20,7 +22,7 @@ const ConfigKnobs = ({ config, update }: Props) => {
         max={240}
         step={1}
         onChange={(v) => update("bpm", v)}
-        label="BPM"
+        label={t("innerTakt.knob.bpm")}
       />
       <Knob
         value={config.beatsPerBar}
@@ -31,7 +33,7 @@ const ConfigKnobs = ({ config, update }: Props) => {
           update("beatsPerBar", v);
           if (config.accentEvery > v) update("accentEvery", v);
         }}
-        label="BEATS / BAR"
+        label={t("innerTakt.knob.beatsPerBar")}
         accent="chart-regular"
       />
       <Knob
@@ -40,8 +42,13 @@ const ConfigKnobs = ({ config, update }: Props) => {
         max={config.beatsPerBar}
         step={1}
         onChange={(v) => update("accentEvery", v)}
-        label="ACCENT"
-        unit={`every ${config.accentEvery} beat${config.accentEvery > 1 ? "s" : ""}`}
+        label={t("innerTakt.knob.accent")}
+        unit={t(
+          config.accentEvery === 1
+            ? "innerTakt.knob.accentUnitOne"
+            : "innerTakt.knob.accentUnitOther",
+          { count: config.accentEvery }
+        )}
       />
       <Knob
         value={config.audibleBars}
@@ -49,8 +56,8 @@ const ConfigKnobs = ({ config, update }: Props) => {
         max={16}
         step={1}
         onChange={(v) => update("audibleBars", v)}
-        label="AUDIBLE"
-        unit="bars"
+        label={t("innerTakt.knob.audible")}
+        unit={t("innerTakt.unit.bars")}
         accent="chart-regular"
       />
       <Knob
@@ -59,8 +66,8 @@ const ConfigKnobs = ({ config, update }: Props) => {
         max={16}
         step={1}
         onChange={(v) => update("silentBars", v)}
-        label="SILENT"
-        unit="bars"
+        label={t("innerTakt.knob.silent")}
+        unit={t("innerTakt.unit.bars")}
         accent="red"
       />
       <Knob
@@ -69,8 +76,8 @@ const ConfigKnobs = ({ config, update }: Props) => {
         max={8}
         step={0.5}
         onChange={(v) => update("fadeBeats", v)}
-        label="FADE"
-        unit="beats"
+        label={t("innerTakt.knob.fade")}
+        unit={t("innerTakt.unit.beats")}
         accent="violet"
       />
     </div>
