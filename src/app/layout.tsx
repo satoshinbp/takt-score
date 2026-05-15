@@ -25,6 +25,7 @@ const RootLayout = ({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "antialiased",
         fontMono.variable,

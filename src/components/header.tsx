@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -20,12 +21,19 @@ const isActiveTab = (pathname: string, href: string) => {
 const Header = () => {
   const { resolvedTheme, setTheme } = useTheme();
   const pathname = usePathname();
+  const isMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
+
+  const isDark = isMounted && resolvedTheme === "dark";
 
   return (
     <header
       className={cn(
         "sticky top-0 z-50 w-full bg-card text-card-foreground",
-        "flex items-center gap-4 px-6 min-h-12 border-b",
+        "flex items-center gap-4 px-6 min-h-12 border-b"
       )}
     >
       <Link href="/" className="flex items-center gap-2 text-lg font-bold">
@@ -44,7 +52,7 @@ const Header = () => {
                 "px-3 py-1 text-xs font-bold tracking-wider transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {tab.label}
@@ -56,15 +64,17 @@ const Header = () => {
       <div className="ml-auto flex items-center">
         <button
           type="button"
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          onClick={() => setTheme(isDark ? "light" : "dark")}
           className="p-2 rounded hover:bg-muted transition-colors"
           title={
-            resolvedTheme === "dark"
-              ? "ライトモードに切り替え"
-              : "ダークモードに切り替え"
+            isMounted
+              ? isDark
+                ? "ライトモードに切り替え"
+                : "ダークモードに切り替え"
+              : undefined
           }
         >
-          {resolvedTheme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </div>
     </header>
