@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "@/hooks/use-translation";
 
 type Props = {
   sel: number[];
@@ -41,44 +42,57 @@ const ScoreEditorToolbar = ({
   onDeselect,
   onAiGenerate,
 }: Props) => {
+  const { t } = useTranslation();
   const selSorted = [...sel].sort((a, b) => a - b);
 
   return (
     <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b flex-wrap">
       <Button variant="outline" onClick={onAiGenerate} size="sm">
-        <Sparkles size={12} /> AI 生成
+        <Sparkles size={12} /> {t("scoreEditorToolbar.aiGenerate")}
       </Button>
 
       <Separator orientation="vertical" />
-      <span className="text-xs uppercase mr-0.5">追加</span>
+      <span className="text-xs uppercase mr-0.5">
+        {t("scoreEditorToolbar.add")}
+      </span>
 
       <Button variant="outline" onClick={onAddBlank} size="sm">
-        <Plus size={12} /> 空の小節
+        <Plus size={12} /> {t("scoreEditorToolbar.addBlank")}
       </Button>
       <Button variant="outline" onClick={onAddDupe} size="sm">
-        <CirclePlus size={12} /> {sel.length ? "選択を複製" : "末尾を複製"}
+        <CirclePlus size={12} />{" "}
+        {sel.length
+          ? t("scoreEditorToolbar.duplicateSelected")
+          : t("scoreEditorToolbar.duplicateLast")}
       </Button>
 
       <Separator orientation="vertical" />
 
-      <span className="text-xs uppercase mr-0.5">選択操作</span>
+      <span className="text-xs uppercase mr-0.5">
+        {t("scoreEditorToolbar.selectionOps")}
+      </span>
       {sel.length === 0 ? (
         <span className="text-xs flex items-center gap-1 px-1">
-          <ArrowDown size={12} /> 下のM番号をクリックして小節を選択
+          <ArrowDown size={12} /> {t("scoreEditorToolbar.selectPrompt")}
         </span>
       ) : (
         <>
-          <Badge>M{selSorted.map((i) => i + 1).join(", ")} 選択中</Badge>
+          <Badge>
+            {t("scoreEditorToolbar.selectedBadge", {
+              measures: selSorted.map((i) => i + 1).join(", "),
+            })}
+          </Badge>
           <Button variant="outline" onClick={onCopy} size="sm">
-            <Copy size={12} /> コピー
+            <Copy size={12} /> {t("scoreEditorToolbar.copy")}
           </Button>
           {clipSize > 0 && (
             <Button variant="outline" onClick={onPaste} size="sm">
-              <ClipboardPaste size={12} /> 貼り付け ({clipSize})
+              <ClipboardPaste size={12} />{" "}
+              {t("scoreEditorToolbar.paste", { count: clipSize })}
             </Button>
           )}
           <Button variant="outline" onClick={onClear} size="sm">
-            <Trash size={12} /> クリア
+            <Trash size={12} /> {t("scoreEditorToolbar.clear")}
           </Button>
           <Button
             variant="destructive"
@@ -86,10 +100,10 @@ const ScoreEditorToolbar = ({
             disabled={!canDelete}
             size="sm"
           >
-            <X size={12} /> 削除
+            <X size={12} /> {t("scoreEditorToolbar.delete")}
           </Button>
           <Button variant="outline" onClick={onDeselect} size="sm">
-            解除
+            {t("scoreEditorToolbar.deselect")}
           </Button>
         </>
       )}
@@ -98,7 +112,8 @@ const ScoreEditorToolbar = ({
         <>
           <Separator orientation="vertical" />
           <Button variant="outline" onClick={onPaste} size="sm">
-            <ClipboardPaste size={12} /> 貼り付け ({clipSize})
+            <ClipboardPaste size={12} />{" "}
+            {t("scoreEditorToolbar.paste", { count: clipSize })}
           </Button>
         </>
       )}

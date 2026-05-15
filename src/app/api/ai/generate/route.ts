@@ -40,7 +40,7 @@ const beatSchema = {
             type: "array",
             items: { type: "number", enum: [0, 1] },
           },
-        ]),
+        ])
       ),
       required: PART_IDS,
     },
@@ -68,10 +68,10 @@ const validateMeasures = (raw: unknown): Measure[] => {
             const arr = steps[id];
             if (!Array.isArray(arr) || arr.length !== sub)
               throw new Error(
-                `steps.${id} in measure[${mi}][${bi}] must have length ${sub}`,
+                `steps.${id} in measure[${mi}][${bi}] must have length ${sub}`
               );
             return [id, arr.map((v) => (v ? 1 : 0))];
-          }),
+          })
         ) as Record<PartId, number[]>,
       };
     });
@@ -82,8 +82,8 @@ export const POST = async (req: Request) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY が設定されていません" },
-      { status: 500 },
+      { error: "ANTHROPIC_API_KEY is not configured" },
+      { status: 500 }
     );
   }
 
@@ -154,8 +154,8 @@ TaktScore というドラムシーケンサーのデータ形式で出力しま�
   const toolUse = message.content.find((b) => b.type === "tool_use");
   if (!toolUse || toolUse.type !== "tool_use") {
     return NextResponse.json(
-      { error: "AI がパターンを生成できませんでした" },
-      { status: 500 },
+      { error: "AI failed to generate a pattern" },
+      { status: 500 }
     );
   }
 
@@ -164,7 +164,7 @@ TaktScore というドラムシーケンサーのデータ形式で出力しま�
   try {
     const measures = validateMeasures(input.measures);
     const responseBpm = Math.round(
-      Math.max(30, Math.min(300, input.bpm || bpm || 120)),
+      Math.max(30, Math.min(300, input.bpm || bpm || 120))
     );
     return NextResponse.json({
       measures,
@@ -173,8 +173,8 @@ TaktScore というドラムシーケンサーのデータ形式で出力しま�
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
-      { error: `生成データが不正です: ${msg}` },
-      { status: 500 },
+      { error: `Generated data is invalid: ${msg}` },
+      { status: 500 }
     );
   }
 };

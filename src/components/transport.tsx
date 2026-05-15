@@ -4,6 +4,7 @@ import { Pause, Play, Repeat, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
+import { useTranslation } from "@/hooks/use-translation";
 import type { Measure } from "@/lib/constants";
 import { decodeStep, getTotalSteps } from "@/lib/playback-utils";
 
@@ -32,6 +33,7 @@ const Transport = ({
   onSeek,
   onLoopToggle,
 }: TransportProps) => {
+  const { t } = useTranslation();
   const totalSteps = getTotalSteps(measures);
   const { measureIndex: currentMeasure, beatIndex: currentBeat } =
     currentStep >= 0
@@ -43,7 +45,7 @@ const Transport = ({
       <Toggle
         pressed={isPlaying}
         onPressedChange={onToggle}
-        title={isPlaying ? "一時停止" : "再生"}
+        title={isPlaying ? t("transport.pause") : t("transport.play")}
       >
         {isPlaying ? <Pause size={12} /> : <Play size={12} />}
       </Toggle>
@@ -52,7 +54,7 @@ const Transport = ({
         variant="ghost"
         onClick={onStop}
         size="icon"
-        title="停止"
+        title={t("transport.stop")}
       >
         <Square size={12} />
       </Button>
@@ -81,7 +83,11 @@ const Transport = ({
           }
         />
       </div>
-      <Toggle pressed={loop} onPressedChange={onLoopToggle} title="ループ">
+      <Toggle
+        pressed={loop}
+        onPressedChange={onLoopToggle}
+        title={t("transport.loop")}
+      >
         <Repeat size={12} />
       </Toggle>
     </div>

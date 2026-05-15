@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "@/hooks/use-translation";
 import type { Measure } from "@/lib/constants";
 import { detectBpm } from "@/lib/detect-bpm";
 
@@ -33,17 +34,28 @@ type Props = {
 };
 
 const GENRES = [
-  { value: "rock", label: "Rock" },
-  { value: "pop", label: "Pop" },
-  { value: "jazz", label: "Jazz" },
-  { value: "funk", label: "Funk" },
-  { value: "metal", label: "Metal" },
-  { value: "blues", label: "Blues" },
-  { value: "latin", label: "Latin" },
-  { value: "other", label: "その他" },
-];
+  "rock",
+  "pop",
+  "jazz",
+  "funk",
+  "metal",
+  "blues",
+  "latin",
+  "other",
+] as const;
+const GENRE_LABELS: Record<(typeof GENRES)[number], string | null> = {
+  rock: "Rock",
+  pop: "Pop",
+  jazz: "Jazz",
+  funk: "Funk",
+  metal: "Metal",
+  blues: "Blues",
+  latin: "Latin",
+  other: null,
+};
 
 const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
+  const { t } = useTranslation();
   const [songTitle, setSongTitle] = useState("");
   const [artist, setArtist] = useState("");
   const [genre, setGenre] = useState("");
@@ -66,7 +78,7 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
       const detected = await detectBpm(file);
       setBpm(String(detected));
     } catch {
-      setError("BPM の検出に失敗しました。手動で入力してください。");
+      setError(t("aiDialog.bpmDetectFailed"));
     } finally {
       setIsDetecting(false);
     }
@@ -95,13 +107,13 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
       });
       const json = (await res.json()) as GenerateResponse & { error?: string };
       if (!res.ok || json.error) {
-        setError(json.error ?? "生成に失敗しました");
+        setError(json.error ?? t("aiDialog.generateFailed"));
         return;
       }
       onGenerate(json.measures, json.bpm);
       onOpenChange(false);
     } catch {
-      setError("ネットワークエラーが発生しました");
+      setError(t("aiDialog.networkError"));
     } finally {
       setIsGenerating(false);
     }
@@ -113,7 +125,7 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Music size={16} />
-            AI で譜面を生成
+            {t("aiDialog.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -122,7 +134,7 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
           className="flex flex-col gap-4"
         >
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="song-title">曲名 *</Label>
+            <Label htmlFor="song-title">{t("aiDialog.songTitle")}</Label>
             <Input
               id="song-title"
               value={songTitle}
@@ -133,7 +145,7 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="artist">アーティスト</Label>
+            <Label htmlFor="artist">{t("aiDialog.artist")}</Label>
             <Input
               id="artist"
               value={artist}
@@ -144,15 +156,15 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
 
           <div className="flex gap-3">
             <div className="flex flex-col gap-1.5 flex-1">
-              <Label>ジャンル</Label>
+              <Label>{t("aiDialog.genre")}</Label>
               <Select value={genre} onValueChange={setGenre}>
                 <SelectTrigger>
-                  <SelectValue placeholder="選択…" />
+                  <SelectValue placeholder={t("aiDialog.genrePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {GENRES.map((g) => (
-                    <SelectItem key={g.value} value={g.value}>
-                      {g.label}
+                    <SelectItem key={g} value={g}>
+                      {GENRE_LABELS[g] ?? t("aiDialog.genreOther")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -160,7 +172,9 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
             </div>
 
             <div className="flex flex-col gap-1.5 w-20">
-              <Label htmlFor="measure-count">小節数</Label>
+              <Label htmlFor="measure-count">
+                {t("aiDialog.measureCount")}
+              </Label>
               <Input
                 id="measure-count"
                 type="number"
@@ -173,7 +187,7 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label>音声ファイル（BPM 自動検出）</Label>
+            <Label>{t("aiDialog.audioFile")}</Label>
             <div className="flex items-center gap-2">
               <Button
                 type="button"
@@ -188,10 +202,12 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
                 ) : (
                   <Upload size={12} />
                 )}
-                {isDetecting ? "検出中…" : "選択"}
+                {isDetecting
+                  ? t("aiDialog.detecting")
+                  : t("aiDialog.selectFile")}
               </Button>
               <span className="text-xs text-muted-foreground truncate">
-                {audioFileName || "MP3 / WAV など"}
+                {audioFileName || t("aiDialog.filePlaceholder")}
               </span>
               <input
                 ref={fileInputRef}
@@ -217,12 +233,12 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="requests">追加リクエスト</Label>
+            <Label htmlFor="requests">{t("aiDialog.requests")}</Label>
             <Textarea
               id="requests"
               value={requests}
               onChange={(e) => setRequests(e.target.value)}
-              placeholder="初心者向け、ハーフタイム、フィル多めなど"
+              placeholder={t("aiDialog.requestsPlaceholder")}
               rows={2}
             />
           </div>
@@ -236,7 +252,7 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
               onClick={() => onOpenChange(false)}
               disabled={isGenerating}
             >
-              キャンセル
+              {t("aiDialog.cancel")}
             </Button>
             <Button
               type="submit"
@@ -245,10 +261,10 @@ const AiGenerateDialog = ({ open, onOpenChange, onGenerate }: Props) => {
               {isGenerating ? (
                 <>
                   <Loader2 size={12} className="animate-spin" />
-                  生成中…
+                  {t("aiDialog.generating")}
                 </>
               ) : (
-                "生成する"
+                t("aiDialog.generate")
               )}
             </Button>
           </div>

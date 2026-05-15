@@ -7,7 +7,9 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useTranslation } from "@/hooks/use-translation";
 import { ORNAMENT, STEP } from "@/lib/constants";
+import type { DictKey } from "@/lib/i18n";
 
 type Props = {
   open: boolean;
@@ -18,18 +20,22 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-const VELOCITY_OPTIONS: { value: number; label: string; hint: string }[] = [
-  { value: STEP.OFF, label: "off", hint: "鳴らさない" },
-  { value: STEP.NORMAL, label: "normal", hint: "通常" },
-  { value: STEP.ACCENT, label: "accent", hint: "強く（>）" },
-  { value: STEP.GHOST, label: "ghost", hint: "弱く（半透明）" },
+const VELOCITY_OPTIONS: { value: number; label: string; hintKey: DictKey }[] = [
+  { value: STEP.OFF, label: "off", hintKey: "cellPopover.hint.off" },
+  { value: STEP.NORMAL, label: "normal", hintKey: "cellPopover.hint.normal" },
+  { value: STEP.ACCENT, label: "accent", hintKey: "cellPopover.hint.accent" },
+  { value: STEP.GHOST, label: "ghost", hintKey: "cellPopover.hint.ghost" },
 ];
 
-const ORNAMENT_OPTIONS: { value: number; label: string; hint: string }[] = [
-  { value: ORNAMENT.NONE, label: "none", hint: "装飾音なし" },
-  { value: ORNAMENT.FLAM, label: "flam", hint: "装飾音 1" },
-  { value: ORNAMENT.DRAG, label: "drag", hint: "装飾音 2" },
-  { value: ORNAMENT.RUFF, label: "ruff", hint: "装飾音 3" },
+const ORNAMENT_OPTIONS: { value: number; label: string; hintKey: DictKey }[] = [
+  {
+    value: ORNAMENT.NONE,
+    label: "none",
+    hintKey: "cellPopover.hint.ornamentNone",
+  },
+  { value: ORNAMENT.FLAM, label: "flam", hintKey: "cellPopover.hint.flam" },
+  { value: ORNAMENT.DRAG, label: "drag", hintKey: "cellPopover.hint.drag" },
+  { value: ORNAMENT.RUFF, label: "ruff", hintKey: "cellPopover.hint.ruff" },
 ];
 
 const CellPopover = ({
@@ -40,6 +46,7 @@ const CellPopover = ({
   onChange,
   onOpenChange,
 }: Props) => {
+  const { t } = useTranslation();
   // 仮想アンカー: 直前にクリックしたセルの矩形を Radix に伝える
   const virtualRef = useRef<{ getBoundingClientRect: () => DOMRect }>({
     getBoundingClientRect: () => new DOMRect(),
@@ -73,7 +80,7 @@ const CellPopover = ({
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
             <span className="text-xs uppercase text-muted-foreground">
-              強弱
+              {t("cellPopover.velocity")}
             </span>
             <ToggleGroup
               type="single"
@@ -86,7 +93,7 @@ const CellPopover = ({
                 <ToggleGroupItem
                   key={opt.value}
                   value={String(opt.value)}
-                  title={opt.hint}
+                  title={t(opt.hintKey)}
                 >
                   {opt.label}
                 </ToggleGroupItem>
@@ -95,7 +102,7 @@ const CellPopover = ({
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-xs uppercase text-muted-foreground">
-              装飾音
+              {t("cellPopover.ornament")}
             </span>
             <ToggleGroup
               type="single"
@@ -108,7 +115,7 @@ const CellPopover = ({
                 <ToggleGroupItem
                   key={opt.value}
                   value={String(opt.value)}
-                  title={opt.hint}
+                  title={t(opt.hintKey)}
                 >
                   {opt.label}
                 </ToggleGroupItem>

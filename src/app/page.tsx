@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import DashboardHeader from "@/app/_components/header";
 import NewScoreCard from "@/app/_components/new-score-card";
 import ScoreCard from "@/app/_components/score-card";
+import { useTranslation } from "@/hooks/use-translation";
 import { cloneMeasure, type Score } from "@/lib/constants";
 import { makeSamples } from "@/lib/samples";
 import { loadScores, saveScores } from "@/lib/storage";
@@ -12,6 +13,7 @@ import { loadScores, saveScores } from "@/lib/storage";
 const Page = () => {
   const [scores, setScores] = useState<Score[] | null>(null);
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     void (async () => {
@@ -45,7 +47,7 @@ const Page = () => {
                 const copied: Score = {
                   ...s,
                   id: `s${Date.now()}`,
-                  title: `${s.title} (コピー)`,
+                  title: `${s.title} ${t("scoreCard.copySuffix")}`,
                   measures: s.measures.map(cloneMeasure),
                   createdAt: Date.now(),
                   updatedAt: Date.now(),

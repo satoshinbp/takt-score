@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { TaktScoreIcon } from "@/components/icon";
+import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
 
 const NAV_TABS = [
@@ -21,6 +22,7 @@ const isActiveTab = (pathname: string, href: string) => {
 const Header = () => {
   const { resolvedTheme, setTheme } = useTheme();
   const pathname = usePathname();
+  const { lang, setLang, t } = useTranslation();
   const isMounted = useSyncExternalStore(
     () => () => undefined,
     () => true,
@@ -64,13 +66,30 @@ const Header = () => {
       <div className="ml-auto flex items-center">
         <button
           type="button"
+          onClick={() => setLang(lang === "ja" ? "en" : "ja")}
+          className={cn(
+            "px-2 py-1 rounded hover:bg-muted transition-colors",
+            "text-xs font-semibold tracking-wider"
+          )}
+          title={
+            isMounted
+              ? lang === "ja"
+                ? t("header.langSwitchToEn")
+                : t("header.langSwitchToJa")
+              : undefined
+          }
+        >
+          {isMounted ? (lang === "ja" ? "EN" : "JA") : "JA"}
+        </button>
+        <button
+          type="button"
           onClick={() => setTheme(isDark ? "light" : "dark")}
           className="p-2 rounded hover:bg-muted transition-colors"
           title={
             isMounted
               ? isDark
-                ? "ライトモードに切り替え"
-                : "ダークモードに切り替え"
+                ? t("header.toLight")
+                : t("header.toDark")
               : undefined
           }
         >
