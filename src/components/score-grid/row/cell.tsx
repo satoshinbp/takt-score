@@ -41,7 +41,7 @@ const getStepCellStyle = (
   const isAccent = velocity === STEP.ACCENT;
   const isGhost = velocity === STEP.GHOST;
 
-  // ACCENT は強い glow、GHOST は半透明で弱い印象に
+  // ACCENT gets a strong glow; GHOST is semi-transparent for a softer look.
   const shadows = [
     `0 0 ${isAccent ? 14 : 8}px ${color}${isAccent ? "99" : "55"}`,
   ];
@@ -61,7 +61,7 @@ type Props = {
   color: string;
   anchor?: number;
   onClick?: () => void;
-  // 右クリック・長押しで呼ばれる。座標はポップオーバーの位置基準として使う
+  // Called on right-click or long-press. The rect is used as the popover anchor.
   onContextMenu?: (rect: DOMRect) => void;
 };
 

@@ -8,13 +8,13 @@ import {
   stepDurationSec,
 } from "@/lib/playback-utils";
 
-const measure16 = () => emptyMeasure(); // 全拍 subdivision=4 → 16 steps
+const measure16 = () => emptyMeasure(); // all beats subdivision=4 → 16 steps
 const measure12 = () => {
   const m = emptyMeasure();
-  return m.map(() => emptyBeat(3)); // 全拍 subdivision=3 → 12 steps
+  return m.map(() => emptyBeat(3)); // all beats subdivision=3 → 12 steps
 };
 const mixedMeasure = () => {
-  // 1拍目だけ subdivision=3、残り subdivision=4 → 3+4+4+4 = 15 steps
+  // beat 1 is subdivision=3, the rest subdivision=4 → 3+4+4+4 = 15 steps
   const m = emptyMeasure();
   m[0] = emptyBeat(3);
   return m;
@@ -55,7 +55,7 @@ describe("getMeasureStepOffset", () => {
 
   it("mi=2 は 2小節分の合計", () => {
     expect(
-      getMeasureStepOffset([measure16(), measure12(), measure16()], 2),
+      getMeasureStepOffset([measure16(), measure12(), measure16()], 2)
     ).toBe(28);
   });
 });

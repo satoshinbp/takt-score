@@ -10,7 +10,7 @@ export const GET = () => {
   const raw = readFileSync(FILE, "utf-8");
   const scores: unknown[] = JSON.parse(raw) as unknown[];
 
-  // 旧形式（Measure が Record<PartId, number[]>）を Beat[] に変換
+  // Migrate the legacy format (Measure as Record<PartId, number[]>) to Beat[].
   const migrated = scores.map((score) => {
     if (typeof score !== "object" || score === null) return score;
     const s = score as Record<string, unknown>;
@@ -19,7 +19,7 @@ export const GET = () => {
     return {
       ...s,
       measures: (s.measures as unknown[]).map((m) =>
-        isMeasureLegacy(m) ? migrateMeasureV1(m) : m,
+        isMeasureLegacy(m) ? migrateMeasureV1(m) : m
       ),
     };
   });

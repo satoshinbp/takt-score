@@ -10,10 +10,10 @@ import {
   stepDurationSec,
 } from "@/lib/playback-utils";
 
-// STEP 値ごとのゲイン倍率。NORMAL=1.0、ACCENT=1.4、GHOST=0.35
+// Gain multiplier per STEP value. NORMAL=1.0, ACCENT=1.4, GHOST=0.35.
 const VELOCITY_GAIN: Record<number, number> = { 1: 1.0, 2: 1.4, 3: 0.35 };
 
-// 装飾音は本打音の 25ms 前から並べ、本打音の 0.4 倍の音量で発音する
+// Grace notes are placed starting 25ms before the main hit, at 0.4× its gain.
 const GRACE_SEC = 0.025;
 const GRACE_GAIN = 0.4;
 
@@ -100,7 +100,7 @@ class PlaybackEngine {
 
   private start() {
     if (!this.ctx) return;
-    // 少し未来から開始（即時再生のズレ防止）
+    // Start slightly in the future to avoid timing drift on immediate playback.
     this.nextTime = this.ctx.currentTime + 0.05;
     this.timer = setTimeout(() => this.scheduler(), 0);
     this.raf = requestAnimationFrame(() => this.rafLoop());
@@ -128,23 +128,23 @@ class PlaybackEngine {
   }
 
   /**
-   * ===== UI更新ループ（requestAnimationFrame）=====
-   * 「今どのstepが鳴っているか」を計算してReactに反映する
+   * ===== UI update loop (requestAnimationFrame) =====
+   * Computes which step is currently sounding and reflects it into React state.
    */
   private rafLoop() {
     if (!this.isPlaying() || !this.ctx) return;
 
     const now = this.ctx.currentTime;
 
-    // lookaheadウィンドウ外のイベントを削除（過去stepの再ハイライト防止）
+    // Drop events outside the lookahead window to prevent re-highlighting past steps.
     this.scheduledEvents = this.scheduledEvents.filter(
-      (e) => e.time > now - 0.05,
+      (e) => e.time > now - 0.05
     );
 
     let lastPlayedStep = -1;
 
-    // start() の初期オフセット(0.05s)と合わせた先読みで補正
-    // 100ms では次ステップが window に入り早期ジャンプが起きる
+    // Match the lookahead to start()'s initial offset (0.05s).
+    // At 100ms the next step enters the window and causes an early jump.
     for (const e of this.scheduledEvents) {
       if (e.time <= now + 0.05) lastPlayedStep = e.step;
     }
@@ -158,8 +158,8 @@ class PlaybackEngine {
   }
 
   /**
-   * ===== スケジューラ =====
-   * 未来の音をまとめて予約する（これが音ズレ防止の核心）
+   * ===== Scheduler =====
+   * Pre-schedules future sounds in batches. This is the core of jitter-free playback.
    */
   private scheduler() {
     if (!this.timer || !this.ctx) return;
@@ -185,7 +185,7 @@ class PlaybackEngine {
           const v = beat.steps[id]?.[stepIndex] ?? STEP.OFF;
           if (v === STEP.OFF) return;
           const gain = VELOCITY_GAIN[v] ?? 1.0;
-          // 装飾音は本打音の前に弱めに発音する。25ms 間隔。
+          // Grace notes are played softer before the main hit, spaced 25ms apart.
           const orn = beat.ornaments?.[id]?.[stepIndex] ?? 0;
           for (let g = orn; g >= 1; g--) {
             const t = Math.max(time - g * GRACE_SEC, ctx.currentTime + 0.001);
@@ -243,7 +243,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   const stop = useCallback(() => engineRef.current!.stop(), []);
   const seekTo = useCallback(
     (step: number) => engineRef.current!.seekTo(step),
-    [],
+    []
   );
 
   const toggle = useCallback(() => {

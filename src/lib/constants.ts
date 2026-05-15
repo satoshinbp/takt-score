@@ -1,9 +1,9 @@
 export const BEATS_PER_MEASURE = 4;
 
 export type Subdivision = 4 | 3 | 6;
-// 4 = 16分音符（デフォルト）
-// 3 = 8分3連（1拍を3等分）
-// 6 = 16分3連・6連符（1拍を6等分）
+// 4 = sixteenth notes (default)
+// 3 = eighth-note triplet (beat split into 3)
+// 6 = sixteenth-note triplet / sextuplet (beat split into 6)
 
 export type PartId =
   | "CRASH"
@@ -64,8 +64,8 @@ export type OrnamentValue = (typeof ORNAMENT)[keyof typeof ORNAMENT];
 
 export type Beat = {
   subdivision: Subdivision;
-  steps: Record<PartId, number[]>; // length === subdivision、値は STEP のいずれか
-  ornaments?: Record<PartId, number[]>; // 未指定は全 NONE 扱い
+  steps: Record<PartId, number[]>; // length === subdivision; values are one of STEP
+  ornaments?: Record<PartId, number[]>; // omitted means all NONE
 };
 
 /** Beat[] length === BEATS_PER_MEASURE */
@@ -83,7 +83,7 @@ export type Score = {
 export const emptyBeat = (subdivision: Subdivision = 4): Beat => ({
   subdivision,
   steps: Object.fromEntries(
-    PART_IDS.map((id) => [id, Array<number>(subdivision).fill(0)]),
+    PART_IDS.map((id) => [id, Array<number>(subdivision).fill(0)])
   ) as Record<PartId, number[]>,
 });
 
@@ -95,12 +95,12 @@ export const cloneMeasure = (m: Measure): Measure =>
     const cloned: Beat = {
       subdivision: beat.subdivision,
       steps: Object.fromEntries(
-        PART_IDS.map((id) => [id, [...beat.steps[id]]]),
+        PART_IDS.map((id) => [id, [...beat.steps[id]]])
       ) as Record<PartId, number[]>,
     };
     if (beat.ornaments) {
       cloned.ornaments = Object.fromEntries(
-        PART_IDS.map((id) => [id, [...(beat.ornaments![id] ?? [])]]),
+        PART_IDS.map((id) => [id, [...(beat.ornaments![id] ?? [])]])
       ) as Record<PartId, number[]>;
     }
     return cloned;

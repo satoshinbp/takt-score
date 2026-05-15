@@ -47,8 +47,8 @@ const CellPopover = ({
   onOpenChange,
 }: Props) => {
   const { t } = useTranslation();
-  // 仮想アンカー: 直前にクリックしたセルの矩形を Radix に伝える．
-  // rect ごとに新しい closure を作ることで，ref を mutate せずに最新値を渡す．
+  // Virtual anchor: passes the most recently clicked cell's rect to Radix.
+  // Creating a fresh closure per rect avoids mutating a ref while still passing the latest value.
   const virtualRef = useMemo(
     () => ({
       current: {

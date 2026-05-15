@@ -7,8 +7,8 @@ import {
   type SchedulerRefs,
 } from "./useBeatScheduler";
 
-// RAF ループから「今鳴っているはずのビート」を求める．
-// リングは時刻順に並んでいるので，末尾から走査して最初に now 以下を見つけたら確定．
+// Finds the beat that should currently be sounding, called from the RAF loop.
+// The ring is ordered by time, so scanning from the tail and taking the first entry <= now is sufficient.
 const findActiveBeat = (
   now: number,
   ring: ScheduledBeat[]
@@ -19,19 +19,19 @@ const findActiveBeat = (
   return null;
 };
 
-// 画面描画専任．スケジューラが書き込むリングを RAF で読み取り，
-// 「今のビート位置」と「フェード強度」を React state に反映する．
-// 音は鳴らさないし，鳴る／鳴らない自体の決定にも関与しない．
-// reset は呼び出し側（合成フック）が start/stop のタイミングで明示的に呼ぶ．
+// Display-only hook. Reads the ring written by the scheduler via RAF and
+// reflects "the current beat position" and "fade amount" into React state.
+// It does not produce audio, nor decide whether audio plays.
+// reset is called explicitly by the caller (composite hook) at start/stop boundaries.
 export const useVisualBeat = (refs: SchedulerRefs) => {
   const [currentBeat, setCurrentBeat] = useState(-1);
   const [beatIndex, setBeatIndex] = useState(0);
   const [isSilent, setIsSilent] = useState(false);
   const [fadeAmount, setFadeAmount] = useState(1);
 
-  // スケジューラが停止時にリングを空にする契約なので，
-  // ここでは「リングを読んでアクティブビートがあれば描画」だけを行えばよい．
-  // 停止中は findActiveBeat が null を返すので自然に no-op になる．
+  // The scheduler clears the ring on stop by contract, so this hook only needs to
+  // "read the ring and render if an active beat exists".
+  // While stopped, findActiveBeat returns null, which naturally makes this a no-op.
   useEffect(() => {
     let raf = 0;
     const loop = () => {
@@ -46,7 +46,7 @@ export const useVisualBeat = (refs: SchedulerRefs) => {
           setCurrentBeat((prev) => (prev === beatInBar ? prev : beatInBar));
           setBeatIndex(bi);
 
-          // 現ビートと次ビートのフェード値を線形補間して，滑らかな見た目にする
+          // Linearly interpolate between the current and next beat's fade values for smooth visuals.
           const beatLen = 60 / c.bpm;
           const fadeNow = fadeAt(bi, c);
           const fadeNext = fadeAt(bi + 1, c);

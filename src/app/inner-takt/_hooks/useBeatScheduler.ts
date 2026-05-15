@@ -35,22 +35,22 @@ export type SchedulerRefs = {
 };
 
 const RING_MAX = 64;
-// JavaScript の setTimeout には揺らぎがある．
-// 揺らぎより長い「先読み窓」の中に常にビートを詰めておけば，音は途切れない．
+// JavaScript's setTimeout has timing jitter.
+// As long as beats are queued within a lookahead window larger than that jitter, audio stays continuous.
 const SCHEDULE_AHEAD_SEC = 0.15;
 const SCHEDULER_TICK_MS = 20;
-// currentTime ぴったりに予約すると既に再生位置を
-// 過ぎていて発音されない事故が起きるので，少し未来からスタートする．
+// Scheduling exactly at currentTime risks the playback head already being past it, dropping the note,
+// so we start slightly in the future.
 const START_OFFSET_SEC = 0.1;
 
-// 与えたビートのフェード強度(0=無音, 1=フル音量)を返す．
+// Returns the fade amount for the given beat (0 = silent, 1 = full volume).
 export const fadeAt = (beatIdx: number, config: InnerTaktConfig): number => {
   const totalBeats =
     (config.audibleBars + config.silentBars) * config.beatsPerBar;
   const pos = ((beatIdx % totalBeats) + totalBeats) % totalBeats;
   const audibleBeats = config.audibleBars * config.beatsPerBar;
 
-  // 可聴区間: 末尾 fadeBeats 拍で 1 → 0 へ徐々に減衰
+  // Audible section: linearly fade 1 → 0 over the final fadeBeats beats.
   if (pos < audibleBeats) {
     if (config.fadeBeats > 0 && pos >= audibleBeats - config.fadeBeats) {
       return (audibleBeats - pos) / config.fadeBeats;
@@ -58,7 +58,7 @@ export const fadeAt = (beatIdx: number, config: InnerTaktConfig): number => {
     return 1;
   }
 
-  // 無音区間: 末尾 fadeBeats 拍で 0 → 1 へ徐々に復帰
+  // Silent section: linearly ramp 0 → 1 over the final fadeBeats beats.
   const silentPos = pos - audibleBeats;
   const silentTotal = config.silentBars * config.beatsPerBar;
   if (config.fadeBeats > 0 && silentPos >= silentTotal - config.fadeBeats) {

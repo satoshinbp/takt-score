@@ -1,4 +1,4 @@
-// 乱数ループはメインスレッドを詰まらせてスケジューラ遅延を招くため、初回生成後はキャッシュを使う
+// Random-fill loops stall the main thread and cause scheduler delays, so reuse a cached buffer after the first build.
 const noiseBufferCache = new Map<string, AudioBuffer>();
 
 const getNoiseBuffer = (ctx: AudioContext, durSec: number): AudioBuffer => {
@@ -20,7 +20,7 @@ const noise = (
   durSec: number,
   freq: number,
   q: number,
-  gain: number,
+  gain: number
 ) => {
   const source = ctx.createBufferSource();
   source.buffer = getNoiseBuffer(ctx, durSec);
@@ -47,8 +47,8 @@ const tone = (
   gain: number,
   atk = 0,
   type: OscillatorType = "sine",
-  // ピッチドロップ完了までの相対位置（durSec に対する比）。小さいほど即座にピッチが落ちる
-  rampRatio = 0.6,
+  // Relative position (fraction of durSec) at which the pitch drop completes. Smaller = quicker drop.
+  rampRatio = 0.6
 ) => {
   const osc = ctx.createOscillator();
   osc.type = type;
@@ -60,7 +60,7 @@ const tone = (
   if (f1)
     osc.frequency.exponentialRampToValueAtTime(
       f1,
-      startSec + durSec * rampRatio,
+      startSec + durSec * rampRatio
     );
 
   if (atk > 0) {
@@ -74,15 +74,15 @@ const tone = (
   osc.stop(startSec + durSec);
 };
 
-// gain は強弱倍率。NORMAL=1.0、ACCENT=1.4、GHOST=0.35、grace note は更に 0.4 倍。
+// gain is the velocity multiplier. NORMAL=1.0, ACCENT=1.4, GHOST=0.35; grace notes get an additional 0.4× on top.
 export type SoundFn = (
   ctx: AudioContext,
   startSec: number,
-  gain: number,
+  gain: number
 ) => void;
 
 export const SOUNDS: Partial<Record<string, SoundFn>> = {
-  // 短く締まったキック：高速ピッチドロップ + ビーターのクリック
+  // Tight, punchy kick: fast pitch drop + beater click.
   BD: (ctx, startSec, gain) => {
     tone(ctx, startSec, 0.18, 120, 38, 1.0 * gain);
     tone(ctx, startSec, 0.025, 1800, 90, 0.35 * gain);
@@ -102,7 +102,7 @@ export const SOUNDS: Partial<Record<string, SoundFn>> = {
     noise(ctx, startSec, 0.65, 5000, 0.4, 0.7 * gain);
     noise(ctx, startSec, 0.65, 11000, 0.6, 0.4 * gain);
   },
-  // ライド：インハーモニックな金属倍音でピン感、長いシマーで持続感
+  // Ride: inharmonic metallic partials give the ping, with a long shimmer for sustain.
   RIDE: (ctx, startSec, gain) => {
     tone(ctx, startSec, 0.22, 2400, null, 0.18 * gain, 0.001);
     tone(ctx, startSec, 0.18, 3170, null, 0.13 * gain, 0.001);
@@ -110,7 +110,7 @@ export const SOUNDS: Partial<Record<string, SoundFn>> = {
     noise(ctx, startSec, 0.45, 7500, 1.4, 0.28 * gain);
     noise(ctx, startSec, 0.35, 11500, 1.8, 0.16 * gain);
   },
-  // ハイタム：高Qノイズで皮の主モードを表現、三角波で薄く音程感を補強、即時ピッチドロップでスイープ感を消す
+  // High tom: high-Q noise models the head's main mode, triangle wave adds subtle pitch, immediate pitch drop kills the sweep feel.
   HI_TOM: (ctx, startSec, gain) => {
     noise(ctx, startSec, 0.22, 380, 6, 0.45 * gain);
     noise(ctx, startSec, 0.14, 600, 2.5, 0.18 * gain);
@@ -118,7 +118,7 @@ export const SOUNDS: Partial<Record<string, SoundFn>> = {
     noise(ctx, startSec, 0.025, 1500, 0.4, 0.4 * gain);
     noise(ctx, startSec, 0.008, 4500, 0.5, 0.3 * gain);
   },
-  // ミッドタム：HI_TOMと同じ構造で低めの帯域
+  // Mid tom: same structure as HI_TOM but in a lower frequency band.
   MID_TOM: (ctx, startSec, gain) => {
     noise(ctx, startSec, 0.26, 260, 6, 0.45 * gain);
     noise(ctx, startSec, 0.18, 420, 2.5, 0.18 * gain);
@@ -126,7 +126,7 @@ export const SOUNDS: Partial<Record<string, SoundFn>> = {
     noise(ctx, startSec, 0.025, 1200, 0.4, 0.4 * gain);
     noise(ctx, startSec, 0.008, 4200, 0.5, 0.28 * gain);
   },
-  // フロアタム：BDと差別化するため明確な音程感と長いサステイン
+  // Floor tom: distinct pitch and long sustain to differentiate it from the BD.
   LO_TOM: (ctx, startSec, gain) => {
     tone(ctx, startSec, 0.6, 88, 70, 1.0 * gain, 0.004);
     tone(ctx, startSec, 0.45, 132, 105, 0.35 * gain, 0.004);
