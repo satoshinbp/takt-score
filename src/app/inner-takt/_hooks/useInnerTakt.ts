@@ -47,7 +47,7 @@ export const useInnerTakt = (config: InnerTaktConfig) => {
   return {
     isRunning,
     currentBeat: visual.currentBeat,
-    isSilent: visual.isSilent,
+    isSilent: cycleProgress ? !cycleProgress.isAudible : false,
     fadeAmount: visual.fadeAmount,
     taps: tap.taps,
     cycleProgress,

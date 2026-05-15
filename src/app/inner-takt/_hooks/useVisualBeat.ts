@@ -26,7 +26,6 @@ const findActiveBeat = (
 export const useVisualBeat = (refs: SchedulerRefs) => {
   const [currentBeat, setCurrentBeat] = useState(-1);
   const [beatIndex, setBeatIndex] = useState(0);
-  const [isSilent, setIsSilent] = useState(false);
   const [fadeAmount, setFadeAmount] = useState(1);
 
   // The scheduler clears the ring on stop by contract, so this hook only needs to
@@ -56,7 +55,6 @@ export const useVisualBeat = (refs: SchedulerRefs) => {
           );
           const fade = fadeNow + (fadeNext - fadeNow) * intoBeat;
           setFadeAmount(fade);
-          setIsSilent(fade < 0.5);
         }
       }
       raf = requestAnimationFrame(loop);
@@ -67,9 +65,8 @@ export const useVisualBeat = (refs: SchedulerRefs) => {
 
   const reset = useCallback(() => {
     setCurrentBeat(-1);
-    setIsSilent(false);
     setFadeAmount(1);
   }, []);
 
-  return { currentBeat, beatIndex, isSilent, fadeAmount, reset };
+  return { currentBeat, beatIndex, fadeAmount, reset };
 };
