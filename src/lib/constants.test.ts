@@ -8,7 +8,7 @@ import {
 } from "@/lib/constants";
 
 describe("emptyBeat", () => {
-  it("subdivision=4 のとき各パートの steps が length 4 の 0 配列", () => {
+  it("subdivision=4 gives each part a length-4 zero array for steps", () => {
     const beat = emptyBeat(4);
     expect(beat.subdivision).toBe(4);
     PART_IDS.forEach((id) => {
@@ -16,7 +16,7 @@ describe("emptyBeat", () => {
     });
   });
 
-  it("subdivision=3 のとき各パートの steps が length 3 の 0 配列", () => {
+  it("subdivision=3 gives each part a length-3 zero array for steps", () => {
     const beat = emptyBeat(3);
     expect(beat.subdivision).toBe(3);
     PART_IDS.forEach((id) => {
@@ -25,23 +25,23 @@ describe("emptyBeat", () => {
     });
   });
 
-  it("引数省略時は subdivision=4", () => {
+  it("defaults to subdivision=4 when the argument is omitted", () => {
     expect(emptyBeat().subdivision).toBe(4);
   });
 });
 
 describe("emptyMeasure", () => {
-  it(`Beat が ${BEATS_PER_MEASURE} 拍で構成される`, () => {
+  it(`consists of ${BEATS_PER_MEASURE} beats`, () => {
     expect(emptyMeasure()).toHaveLength(BEATS_PER_MEASURE);
   });
 
-  it("全拍の subdivision が 4", () => {
+  it("every beat has subdivision=4", () => {
     emptyMeasure().forEach((beat) => {
       expect(beat.subdivision).toBe(4);
     });
   });
 
-  it("全ステップが 0", () => {
+  it("every step is 0", () => {
     emptyMeasure().forEach((beat) => {
       PART_IDS.forEach((id) => {
         expect(beat.steps[id].every((v) => v === 0)).toBe(true);
@@ -51,14 +51,14 @@ describe("emptyMeasure", () => {
 });
 
 describe("cloneMeasure", () => {
-  it("元を変更してもクローンに影響しない", () => {
+  it("mutating the original does not affect the clone", () => {
     const original = emptyMeasure();
     const cloned = cloneMeasure(original);
     original[0].steps.HH[0] = 1;
     expect(cloned[0].steps.HH[0]).toBe(0);
   });
 
-  it("subdivision を正しくコピーする", () => {
+  it("copies subdivision correctly", () => {
     const m = emptyMeasure();
     m[1] = emptyBeat(3);
     const cloned = cloneMeasure(m);

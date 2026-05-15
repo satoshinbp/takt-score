@@ -3,25 +3,25 @@ import { PART_IDS } from "@/lib/constants";
 import { isMeasureLegacy, migrateMeasureV1 } from "@/lib/migrate";
 
 describe("isMeasureLegacy", () => {
-  it("object（旧形式）は true", () => {
+  it("returns true for an object (legacy format)", () => {
     expect(isMeasureLegacy({ HH: [0, 0, 0, 0] })).toBe(true);
   });
 
-  it("array（新形式）は false", () => {
+  it("returns false for an array (new format)", () => {
     expect(isMeasureLegacy([{ subdivision: 4, steps: {} }])).toBe(false);
   });
 
-  it("null は false", () => {
+  it("returns false for null", () => {
     expect(isMeasureLegacy(null)).toBe(false);
   });
 });
 
 describe("migrateMeasureV1", () => {
   const allZero = Object.fromEntries(
-    PART_IDS.map((id) => [id, Array<number>(16).fill(0)]),
+    PART_IDS.map((id) => [id, Array<number>(16).fill(0)])
   );
 
-  it("全 0 の旧 Measure → subdivision=4 の Beat 4 つ", () => {
+  it("all-zero legacy Measure → 4 Beats with subdivision=4", () => {
     const result = migrateMeasureV1(allZero);
     expect(result).toHaveLength(4);
     result.forEach((beat) => {
@@ -29,7 +29,7 @@ describe("migrateMeasureV1", () => {
     });
   });
 
-  it("フラット index 0 のヒット → 1 拍目 steps[0] が 1", () => {
+  it("flat index 0 hit → beat 1 steps[0] is 1", () => {
     const old = {
       ...allZero,
       HH: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -39,7 +39,7 @@ describe("migrateMeasureV1", () => {
     expect(result[1].steps.HH[0]).toBe(0);
   });
 
-  it("フラット index 15 のヒット → 4 拍目 steps[3] が 1", () => {
+  it("flat index 15 hit → beat 4 steps[3] is 1", () => {
     const old = {
       ...allZero,
       BD: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -48,7 +48,7 @@ describe("migrateMeasureV1", () => {
     expect(result[3].steps.BD[3]).toBe(1);
   });
 
-  it("フラット index 4 のヒット → 2 拍目 steps[0] が 1", () => {
+  it("flat index 4 hit → beat 2 steps[0] is 1", () => {
     const old = {
       ...allZero,
       SNARE: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
