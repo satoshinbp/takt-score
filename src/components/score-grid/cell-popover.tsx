@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import {
   Popover,
   PopoverAnchor,
@@ -47,16 +47,16 @@ const CellPopover = ({
   onOpenChange,
 }: Props) => {
   const { t } = useTranslation();
-  // 仮想アンカー: 直前にクリックしたセルの矩形を Radix に伝える
+  // 仮想アンカー: 直前にクリックしたセルの矩形を Radix に伝える．
+  // useEffect だと初回オープン時に Radix が空 DOMRect を読んで左上に飛ぶので，
+  // レンダリング中に同期で closure を更新する．
   const virtualRef = useRef<{ getBoundingClientRect: () => DOMRect }>({
     getBoundingClientRect: () => new DOMRect(),
   });
-
-  useEffect(() => {
-    if (rect) {
-      virtualRef.current = { getBoundingClientRect: () => rect };
-    }
-  }, [rect]);
+  if (rect) {
+    // eslint-disable-next-line react-hooks/refs
+    virtualRef.current.getBoundingClientRect = () => rect;
+  }
 
   const handleVelocity = (s: string) => {
     if (s === "") return;
