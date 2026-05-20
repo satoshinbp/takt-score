@@ -193,8 +193,7 @@ const Knob = ({
 
         <div
           className={cn(
-            "absolute top-1/2 left-1/2 -translate-x-1/2 origin-top",
-            "rounded-sm w-[3px] m-[-1px]",
+            "absolute top-1/2 left-1/2 -translate-x-1/2 origin-top rounded-sm w-1",
             accentStyles.glow
           )}
           style={{
