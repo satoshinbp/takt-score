@@ -13,17 +13,19 @@ const isFilled = (v: number) => v !== STEP.OFF;
 const getStepCellClass = (
   velocity: number,
   isCurrent: boolean,
-  isGhost: boolean
+  isGhost: boolean,
+  isEditable: boolean
 ) => {
   const isOn = isFilled(velocity);
   return cn(
-    "relative h-6 flex-1 mx-px rounded-sm border cursor-pointer transition duration-75",
+    "relative h-6 flex-1 mx-px rounded-sm border transition duration-75",
+    isEditable ? "cursor-pointer" : "cursor-default",
     isCurrent && "bg-accent",
     isGhost && "border-dashed",
     !isOn && !isCurrent && "border-border",
     !isOn && isCurrent && "border-[rgba(245,200,66,0.3)]",
     isOn && (!isGhost || isCurrent) && "border-transparent",
-    !isOn && !isCurrent && "hover:bg-accent"
+    isEditable && !isOn && !isCurrent && "hover:bg-accent"
   );
 };
 
@@ -75,7 +77,7 @@ const ScoreGridCell = ({
 
   const isAccent = velocity === STEP.ACCENT;
   const isGhost = velocity === STEP.GHOST;
-  const className = getStepCellClass(velocity, isCurrent, isGhost);
+  const className = getStepCellClass(velocity, isCurrent, isGhost, !!onClick);
   const style = getStepCellStyle(velocity, isCurrent, color);
 
   const fireContext = (target: HTMLElement) => {
