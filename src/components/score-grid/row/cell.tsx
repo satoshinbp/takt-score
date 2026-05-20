@@ -14,22 +14,18 @@ const getStepCellClass = (
   velocity: number,
   isCurrent: boolean,
   isGhost: boolean
-) =>
-  cn(
+) => {
+  const isOn = isFilled(velocity);
+  return cn(
     "relative h-6 flex-1 mx-px rounded-sm border cursor-pointer transition duration-75",
     isCurrent && "bg-accent",
     isGhost && "border-dashed",
-    isCurrent && isFilled(velocity)
-      ? "border-transparent"
-      : isCurrent
-        ? "border-[rgba(245,200,66,0.3)]"
-        : isFilled(velocity) && !isGhost
-          ? "border-transparent"
-          : !isFilled(velocity)
-            ? "border-border"
-            : "",
-    !isCurrent && !isFilled(velocity) && "hover:bg-[var(--surface-3)]"
+    !isOn && !isCurrent && "border-border",
+    !isOn && isCurrent && "border-[rgba(245,200,66,0.3)]",
+    isOn && (!isGhost || isCurrent) && "border-transparent",
+    !isOn && !isCurrent && "hover:bg-[var(--surface-3)]"
   );
+};
 
 const getStepCellStyle = (
   velocity: number,
