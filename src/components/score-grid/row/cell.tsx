@@ -23,7 +23,7 @@ const getStepCellClass = (
     !isOn && !isCurrent && "border-border",
     !isOn && isCurrent && "border-[rgba(245,200,66,0.3)]",
     isOn && (!isGhost || isCurrent) && "border-transparent",
-    !isOn && !isCurrent && "hover:bg-[var(--surface-3)]"
+    !isOn && !isCurrent && "hover:bg-accent"
   );
 };
 
