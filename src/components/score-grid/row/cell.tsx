@@ -136,7 +136,7 @@ const ScoreGridCell = ({
       {ornamentCount > 0 && (
         <span
           aria-hidden
-          className="absolute left-0.5 top-0.5 flex flex-col gap-[1px] pointer-events-none"
+          className="absolute left-0.5 top-0.5 flex flex-col gap-px pointer-events-none"
         >
           {Array.from({ length: ornamentCount }).map((_, i) => (
             <span key={i} className="block size-1 rounded-full bg-foreground" />
