@@ -20,7 +20,7 @@ const ScoreCard = ({ score, onCopy }: Props) => {
     <div
       className={cn(
         "relative p-4 transition-all border bg-card text-card-foreground",
-        "hover:-translate-y-px hover:shadow-lg"
+        "hover:-translate-y-px hover:shadow-lg",
       )}
     >
       {score.measures.length > 0 && (

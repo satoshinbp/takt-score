@@ -26,7 +26,7 @@ const Dot = ({
     <div
       className={cn(
         "size-2 rounded-full transition-all duration-300",
-        colorClass
+        colorClass,
       )}
     />
   );
@@ -51,7 +51,7 @@ const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
       className={cn(
         "flex items-center justify-center gap-3 px-6 py-2.5 min-w-[320px] border",
         "bg-card text-xs text-card-foreground font-bold tracking-wider transition-all duration-300",
-        isSilent && isRunning && "border-destructive bg-destructive/10"
+        isSilent && isRunning && "border-destructive bg-destructive/10",
       )}
     >
       <Dot isRunning={isRunning} isSilent={isSilent} />
@@ -61,7 +61,7 @@ const StatusBanner = ({ isRunning, isSilent, cycleProgress }: Props) => {
             ? "text-muted-foreground"
             : isSilent
               ? "text-destructive"
-              : "text-chart-regular"
+              : "text-chart-regular",
         )}
       >
         {text}

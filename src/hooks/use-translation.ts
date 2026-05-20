@@ -19,7 +19,7 @@ export const useTranslation = () => {
   const t = useCallback(
     (key: DictKey, params?: Record<string, string | number>) =>
       translate(lang, key, params),
-    [lang]
+    [lang],
   );
   return { lang, t, setLang: setLangStore };
 };

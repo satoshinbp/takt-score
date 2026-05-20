@@ -54,7 +54,7 @@ const InnerTakt = () => {
 
   const update = <K extends keyof InnerTaktConfig>(
     key: K,
-    val: InnerTaktConfig[K]
+    val: InnerTaktConfig[K],
   ) => setConfig((prev) => ({ ...prev, [key]: val }));
 
   const {

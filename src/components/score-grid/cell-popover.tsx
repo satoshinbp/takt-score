@@ -55,7 +55,7 @@ const CellPopover = ({
         getBoundingClientRect: () => rect ?? new DOMRect(),
       },
     }),
-    [rect]
+    [rect],
   );
 
   const handleVelocity = (s: string) => {

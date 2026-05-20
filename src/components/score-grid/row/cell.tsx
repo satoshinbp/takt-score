@@ -14,7 +14,7 @@ const getStepCellClass = (
   velocity: number,
   isCurrent: boolean,
   isGhost: boolean,
-  isEditable: boolean
+  isEditable: boolean,
 ) => {
   const isOn = isFilled(velocity);
   return cn(
@@ -25,14 +25,14 @@ const getStepCellClass = (
     !isOn && !isCurrent && "border-border",
     !isOn && isCurrent && "border-[rgba(245,200,66,0.3)]",
     isOn && (!isGhost || isCurrent) && "border-transparent",
-    isEditable && !isOn && !isCurrent && "hover:bg-accent"
+    isEditable && !isOn && !isCurrent && "hover:bg-accent",
   );
 };
 
 const getStepCellStyle = (
   velocity: number,
   isCurrent: boolean,
-  color: string
+  color: string,
 ) => {
   if (!isFilled(velocity)) return undefined;
 

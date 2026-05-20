@@ -41,7 +41,7 @@ const TimingChart = ({ taps }: Props) => {
             key={`${tap.timeSec}-${i}`}
             className={cn(
               "absolute size-2 rounded-full shadow-md -translate-x-1/2 -translate-y-1/2",
-              toneClass
+              toneClass,
             )}
             style={{
               left: `${x}%`,

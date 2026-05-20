@@ -45,7 +45,7 @@ const BeatDots = ({
               "rounded-full border-2 transition-all duration-100",
               styles.size,
               isCurrent ? styles.active : styles.dim,
-              isCurrent && !isSilent && styles.glow
+              isCurrent && !isSilent && styles.glow,
             )}
             style={{ opacity }}
           />
