@@ -87,7 +87,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         onDeselect={clearSel}
         onAiGenerate={() => setAiOpen(true)}
       />
-      <div ref={areaRef} className="flex-1 overflow-auto px-4 py-3.5 pb-24">
+      <div ref={areaRef} className="flex-1 overflow-auto px-4 py-3.5">
         <ScoreGrid
           measures={draft.measures}
           currentStep={pb.currentStep}
@@ -98,20 +98,18 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
           onSelMeasure={toggleSel}
         />
       </div>
-      <div className="fixed bottom-0 left-0 right-0">
-        <Transport
-          isPlaying={pb.isPlaying}
-          currentStep={pb.currentStep}
-          bpm={pb.bpm}
-          loop={pb.loop}
-          measures={draft.measures}
-          onToggle={pb.toggle}
-          onStop={pb.stop}
-          onBpmChange={pb.setBpm}
-          onSeek={pb.seekTo}
-          onLoopToggle={() => pb.setLoop((l) => !l)}
-        />
-      </div>
+      <Transport
+        isPlaying={pb.isPlaying}
+        currentStep={pb.currentStep}
+        bpm={pb.bpm}
+        loop={pb.loop}
+        measures={draft.measures}
+        onToggle={pb.toggle}
+        onStop={pb.stop}
+        onBpmChange={pb.setBpm}
+        onSeek={pb.seekTo}
+        onLoopToggle={() => pb.setLoop((l) => !l)}
+      />
     </div>
   );
 };
