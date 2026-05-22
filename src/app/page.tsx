@@ -24,33 +24,35 @@ const Page = () => {
   if (!scores) return null;
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="flex flex-col flex-1 gap-4 p-4">
-        <DashboardHeader
-          count={scores.length}
-          onCreate={() => router.push("/scores/new")}
-        />
-        <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
-          {scores.map((s) => (
-            <ScoreCard
-              key={s.id}
-              score={s}
-              onCopy={(s) => {
-                const copied: Score = {
-                  ...s,
-                  id: `s${Date.now()}`,
-                  title: `${s.title} ${t("scoreCard.copySuffix")}`,
-                  measures: s.measures.map(cloneMeasure),
-                  createdAt: Date.now(),
-                  updatedAt: Date.now(),
-                };
-                const next = [...scores, copied];
-                setScores(next);
-                void saveScores(next);
-              }}
-            />
-          ))}
-          <NewScoreCard />
+    <div className="h-full overflow-y-auto">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex flex-col flex-1 gap-4 p-4">
+          <DashboardHeader
+            count={scores.length}
+            onCreate={() => router.push("/scores/new")}
+          />
+          <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
+            {scores.map((s) => (
+              <ScoreCard
+                key={s.id}
+                score={s}
+                onCopy={(s) => {
+                  const copied: Score = {
+                    ...s,
+                    id: `s${Date.now()}`,
+                    title: `${s.title} ${t("scoreCard.copySuffix")}`,
+                    measures: s.measures.map(cloneMeasure),
+                    createdAt: Date.now(),
+                    updatedAt: Date.now(),
+                  };
+                  const next = [...scores, copied];
+                  setScores(next);
+                  void saveScores(next);
+                }}
+              />
+            ))}
+            <NewScoreCard />
+          </div>
         </div>
       </div>
     </div>

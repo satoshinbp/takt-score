@@ -36,7 +36,7 @@ const RootLayout = ({
     >
       <body>
         <ThemeProvider>
-          <div className="h-screen overflow-hidden flex flex-col bg-muted dark:bg-background text-foreground">
+          <div className="h-screen flex flex-col bg-muted dark:bg-background text-foreground">
             <Header />
             <div className="flex-1 overflow-hidden">{children}</div>
           </div>
