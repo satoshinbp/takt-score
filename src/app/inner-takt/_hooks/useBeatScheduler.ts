@@ -50,21 +50,22 @@ export const fadeAt = (beatIdx: number, config: InnerTaktConfig): number => {
   const pos = ((beatIdx % totalBeats) + totalBeats) % totalBeats;
   const audibleBeats = config.audibleBars * config.beatsPerBar;
 
-  // Audible section: linearly fade 1 → 0 over the final fadeBeats beats.
-  if (pos < audibleBeats) {
-    if (config.fadeBeats > 0 && pos >= audibleBeats - config.fadeBeats) {
-      return (audibleBeats - pos) / config.fadeBeats;
-    }
-    return 1;
-  }
+  // Silent section stays fully silent; the fade-in starts only at the audible boundary.
+  if (pos >= audibleBeats) return 0;
 
-  // Silent section: linearly ramp 0 → 1 over the final fadeBeats beats.
-  const silentPos = pos - audibleBeats;
-  const silentTotal = config.silentBars * config.beatsPerBar;
-  if (config.fadeBeats > 0 && silentPos >= silentTotal - config.fadeBeats) {
-    return 1 - (silentTotal - silentPos) / config.fadeBeats;
+  if (config.fadeBeats > 0) {
+    let fade = 1;
+    // Fade-in: 0 → 1 over the first fadeBeats of the audible section.
+    if (pos < config.fadeBeats) {
+      fade = Math.min(fade, pos / config.fadeBeats);
+    }
+    // Fade-out: 1 → 0 over the final fadeBeats of the audible section.
+    if (pos >= audibleBeats - config.fadeBeats) {
+      fade = Math.min(fade, (audibleBeats - pos) / config.fadeBeats);
+    }
+    return fade;
   }
-  return 0;
+  return 1;
 };
 
 const ensureAudioCtx = (existing: AudioContext | null): AudioContext => {
