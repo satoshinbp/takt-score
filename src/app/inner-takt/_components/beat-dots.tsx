@@ -11,14 +11,14 @@ type Props = {
 };
 
 const ACCENT_STYLES = {
-  size: "size-[30px]",
+  size: "size-8",
   active: "bg-chart-accent border-chart-accent",
   dim: "bg-chart-accent/15 border-chart-accent/40",
   glow: "shadow-lg shadow-chart-accent/60",
 };
 
 const REGULAR_STYLES = {
-  size: "size-[22px]",
+  size: "size-6",
   active: "bg-chart-regular border-chart-regular",
   dim: "bg-chart-regular/15 border-chart-regular/40",
   glow: "shadow-lg shadow-chart-regular/60",
@@ -45,7 +45,7 @@ const BeatDots = ({
               "rounded-full border-2 transition-all duration-100",
               styles.size,
               isCurrent ? styles.active : styles.dim,
-              isCurrent && !isSilent && styles.glow
+              isCurrent && !isSilent && styles.glow,
             )}
             style={{ opacity }}
           />

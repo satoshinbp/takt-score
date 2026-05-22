@@ -8,7 +8,7 @@ type Props = {
   config: InnerTaktConfig;
   update: <K extends keyof InnerTaktConfig>(
     key: K,
-    val: InnerTaktConfig[K]
+    val: InnerTaktConfig[K],
   ) => void;
 };
 
@@ -47,7 +47,7 @@ const ConfigKnobs = ({ config, update }: Props) => {
           config.accentEvery === 1
             ? "innerTakt.knob.accentUnitOne"
             : "innerTakt.knob.accentUnitOther",
-          { count: config.accentEvery }
+          { count: config.accentEvery },
         )}
       />
       <Knob

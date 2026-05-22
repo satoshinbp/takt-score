@@ -121,7 +121,7 @@ export const useBeatScheduler = (cfg: InnerTaktConfig): BeatScheduler => {
       nextBeatTimeRef.current += 60 / config.bpm;
       beatIdxRef.current += 1;
     },
-    []
+    [],
   );
 
   useLayoutEffect(() => {
@@ -139,7 +139,7 @@ export const useBeatScheduler = (cfg: InnerTaktConfig): BeatScheduler => {
       }
       timerRef.current = setTimeout(
         () => schedulerRef.current(),
-        SCHEDULER_TICK_MS
+        SCHEDULER_TICK_MS,
       );
     };
   });

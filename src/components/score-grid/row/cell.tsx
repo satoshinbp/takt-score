@@ -13,28 +13,26 @@ const isFilled = (v: number) => v !== STEP.OFF;
 const getStepCellClass = (
   velocity: number,
   isCurrent: boolean,
-  isGhost: boolean
-) =>
-  cn(
-    "relative h-6 flex-1 mx-px rounded-sm border cursor-pointer transition duration-75",
+  isGhost: boolean,
+  isEditable: boolean,
+) => {
+  const isOn = isFilled(velocity);
+  return cn(
+    "relative h-6 flex-1 mx-px rounded-sm border transition duration-75",
+    isEditable ? "cursor-pointer" : "cursor-default",
     isCurrent && "bg-accent",
     isGhost && "border-dashed",
-    isCurrent && isFilled(velocity)
-      ? "border-transparent"
-      : isCurrent
-        ? "border-[rgba(245,200,66,0.3)]"
-        : isFilled(velocity) && !isGhost
-          ? "border-transparent"
-          : !isFilled(velocity)
-            ? "border-border"
-            : "",
-    !isCurrent && !isFilled(velocity) && "hover:bg-[var(--surface-3)]"
+    !isOn && !isCurrent && "border-border",
+    !isOn && isCurrent && "border-[rgba(245,200,66,0.3)]",
+    isOn && (!isGhost || isCurrent) && "border-transparent",
+    isEditable && !isOn && !isCurrent && "hover:bg-accent",
   );
+};
 
 const getStepCellStyle = (
   velocity: number,
   isCurrent: boolean,
-  color: string
+  color: string,
 ) => {
   if (!isFilled(velocity)) return undefined;
 
@@ -79,7 +77,7 @@ const ScoreGridCell = ({
 
   const isAccent = velocity === STEP.ACCENT;
   const isGhost = velocity === STEP.GHOST;
-  const className = getStepCellClass(velocity, isCurrent, isGhost);
+  const className = getStepCellClass(velocity, isCurrent, isGhost, !!onClick);
   const style = getStepCellStyle(velocity, isCurrent, color);
 
   const fireContext = (target: HTMLElement) => {
@@ -136,7 +134,7 @@ const ScoreGridCell = ({
       {ornamentCount > 0 && (
         <span
           aria-hidden
-          className="absolute left-0.5 top-0.5 flex flex-col gap-[1px] pointer-events-none"
+          className="absolute left-0.5 top-0.5 flex flex-col gap-px pointer-events-none"
         >
           {Array.from({ length: ornamentCount }).map((_, i) => (
             <span key={i} className="block size-1 rounded-full bg-foreground" />

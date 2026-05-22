@@ -41,7 +41,7 @@ const Transport = ({
       : { measureIndex: -1, beatIndex: -1 };
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 border-b bg-card">
+    <div className="flex items-center gap-2 px-4 py-2 border-t bg-card">
       <Toggle
         pressed={isPlaying}
         onPressedChange={onToggle}

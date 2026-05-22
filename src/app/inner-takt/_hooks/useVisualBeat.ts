@@ -11,7 +11,7 @@ import {
 // The ring is ordered by time, so scanning from the tail and taking the first entry <= now is sufficient.
 const findActiveBeat = (
   now: number,
-  ring: ScheduledBeat[]
+  ring: ScheduledBeat[],
 ): ScheduledBeat | null => {
   for (let i = ring.length - 1; i >= 0; i--) {
     if (ring[i].timeSec <= now) return ring[i];
@@ -51,7 +51,7 @@ export const useVisualBeat = (refs: SchedulerRefs) => {
           const fadeNext = fadeAt(bi + 1, c);
           const intoBeat = Math.min(
             1,
-            Math.max(0, (now - active.timeSec) / beatLen)
+            Math.max(0, (now - active.timeSec) / beatLen),
           );
           const fade = fadeNow + (fadeNext - fadeNow) * intoBeat;
           setFadeAmount(fade);

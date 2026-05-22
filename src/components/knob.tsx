@@ -158,7 +158,7 @@ const Knob = ({
         className={cn(
           "relative rounded-full border border-zinc-700/60 bg-radial",
           "from-zinc-800 to-zinc-950 shadow-lg",
-          isEditing ? "cursor-text" : "cursor-ns-resize"
+          isEditing ? "cursor-text" : "cursor-ns-resize",
         )}
         style={{
           width: size,
@@ -193,9 +193,8 @@ const Knob = ({
 
         <div
           className={cn(
-            "absolute top-1/2 left-1/2 -translate-x-1/2 origin-top",
-            "rounded-sm w-[3px] m-[-1px]",
-            accentStyles.glow
+            "absolute top-1/2 left-1/2 -translate-x-1/2 origin-top rounded-sm w-1",
+            accentStyles.glow,
           )}
           style={{
             height: size / 2 - 14,
@@ -209,7 +208,7 @@ const Knob = ({
           className={cn(
             "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
             "rounded-full border border-zinc-700/60 bg-radial",
-            "from-zinc-800 to-zinc-950"
+            "from-zinc-800 to-zinc-950",
           )}
           style={{
             width: size * 0.42,
@@ -238,7 +237,7 @@ const Knob = ({
               "rounded-sm border bg-zinc-950 font-bold font-mono",
               "text-center outline-none px-0.5 py-1",
               accentStyles.border,
-              accentStyles.text
+              accentStyles.text,
             )}
             style={{
               width: size * 0.62,
@@ -250,7 +249,7 @@ const Knob = ({
             className={cn(
               "absolute inset-0 flex items-center justify-center",
               "pointer-events-none font-bold font-mono tracking-tight",
-              accentStyles.text
+              accentStyles.text,
             )}
             style={{
               fontSize: size * 0.18,

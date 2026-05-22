@@ -255,11 +255,11 @@ export const setLang = (lang: Lang) => {
 export const translate = (
   lang: Lang,
   key: DictKey,
-  params?: Record<string, string | number>
+  params?: Record<string, string | number>,
 ): string => {
   const template = dict[lang][key];
   if (!params) return template;
   return template.replace(/\{(\w+)\}/g, (_, k: string) =>
-    k in params ? String(params[k]) : `{${k}}`
+    k in params ? String(params[k]) : `{${k}}`,
   );
 };

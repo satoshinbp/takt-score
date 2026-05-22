@@ -27,7 +27,7 @@ const Header = () => {
   const isMounted = useSyncExternalStore(
     () => () => undefined,
     () => true,
-    () => false
+    () => false,
   );
 
   const isDark = isMounted && resolvedTheme === "dark";
@@ -36,7 +36,7 @@ const Header = () => {
     <header
       className={cn(
         "sticky top-0 z-50 w-full bg-card text-card-foreground",
-        "flex items-center gap-4 px-6 min-h-12 border-b"
+        "flex items-center gap-4 px-6 min-h-12 border-b",
       )}
     >
       <Link href="/" className="flex items-center gap-2 text-lg font-bold">
@@ -55,7 +55,7 @@ const Header = () => {
                 "px-3 py-1 text-xs font-bold tracking-wider transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {tab.label}

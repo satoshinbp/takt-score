@@ -30,6 +30,9 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
         }}
         onDelete={onDelete}
       />
+      <div className="flex-1 overflow-auto px-4 py-3.5">
+        <ScoreGrid measures={score.measures} currentStep={pb.currentStep} />
+      </div>
       <Transport
         isPlaying={pb.isPlaying}
         currentStep={pb.currentStep}
@@ -42,9 +45,6 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
         onSeek={pb.seekTo}
         onLoopToggle={() => pb.setLoop((l) => !l)}
       />
-      <div className="flex-1 overflow-auto px-4 py-3.5 pb-2.5">
-        <ScoreGrid measures={score.measures} currentStep={pb.currentStep} />
-      </div>
     </div>
   );
 };

@@ -10,7 +10,7 @@ import {
 const findNearestBeat = (
   now: number,
   ring: ScheduledBeat[],
-  projected: ScheduledBeat
+  projected: ScheduledBeat,
 ): { beat: ScheduledBeat; diffSec: number } | null => {
   let nearest: ScheduledBeat | null = null;
   let minDiff = Infinity;
@@ -46,7 +46,7 @@ export const useTapRecorder = (refs: SchedulerRefs) => {
     const targetBeat = findNearestBeat(
       now,
       refs.beatTimesRef.current,
-      projected
+      projected,
     );
     if (!targetBeat) return;
 
