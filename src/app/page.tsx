@@ -7,7 +7,6 @@ import NewScoreCard from "@/app/_components/new-score-card";
 import ScoreCard from "@/app/_components/score-card";
 import { useTranslation } from "@/hooks/use-translation";
 import { cloneMeasure, type Score } from "@/lib/constants";
-import { makeSamples } from "@/lib/samples";
 import { loadScores, saveScores } from "@/lib/storage";
 
 const Page = () => {
@@ -18,14 +17,7 @@ const Page = () => {
   useEffect(() => {
     void (async () => {
       const data = await loadScores();
-
-      if (data.length === 0) {
-        const samples = makeSamples();
-        await saveScores(samples);
-        setScores(samples);
-      } else {
-        setScores(data);
-      }
+      setScores(data);
     })();
   }, []);
 
