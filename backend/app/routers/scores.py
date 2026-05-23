@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from ulid import ULID
@@ -9,12 +9,22 @@ from app.db import get_db
 from app.models.score import Score
 from app.schemas.score import ScoreCreate, ScoreRead, ScoreUpdate
 
+# TODO: add authentication. The API is currently public and trusts any caller.
 router = APIRouter(prefix="/scores", tags=["scores"])
 
 
 @router.get("", response_model=list[ScoreRead])
-def list_scores(db: Annotated[Session, Depends(get_db)]) -> list[Score]:
-    stmt = select(Score).order_by(Score.updated_at.desc())
+def list_scores(
+    db: Annotated[Session, Depends(get_db)],
+    max_items: Annotated[int, Query(ge=1, le=200)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> list[Score]:
+    stmt = (
+        select(Score)
+        .order_by(Score.updated_at.desc())
+        .offset(offset)
+        .limit(max_items)
+    )
     return list(db.scalars(stmt))
 
 
@@ -30,12 +40,11 @@ def get_score(score_id: str, db: Annotated[Session, Depends(get_db)]) -> Score:
 def create_score(
     payload: ScoreCreate, db: Annotated[Session, Depends(get_db)]
 ) -> Score:
-    data = payload.model_dump()
     score = Score(
         id=str(ULID()),
-        title=data["title"],
-        bpm=data["bpm"],
-        measures=data["measures"],
+        title=payload.title,
+        bpm=payload.bpm,
+        measures=payload.model_dump()["measures"],
     )
     db.add(score)
     db.commit()
@@ -52,10 +61,9 @@ def update_score(
     score = db.get(Score, score_id)
     if score is None:
         raise HTTPException(status_code=404, detail="Score not found")
-    data = payload.model_dump()
-    score.title = data["title"]
-    score.bpm = data["bpm"]
-    score.measures = data["measures"]
+    score.title = payload.title
+    score.bpm = payload.bpm
+    score.measures = payload.model_dump()["measures"]
     db.commit()
     db.refresh(score)
     return score
