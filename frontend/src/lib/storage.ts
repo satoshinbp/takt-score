@@ -20,14 +20,17 @@ const parseScore = (dto: ScoreDTO): Score => ({
 
 export const loadScores = async (): Promise<Score[]> => {
   const res = await fetch(`${API_BASE}/scores`);
-  if (!res.ok) return [];
+  if (!res.ok) throw new Error(`Failed to load scores (${res.status})`);
   const dtos = (await res.json()) as ScoreDTO[];
   return dtos.map(parseScore);
 };
 
+// Returns null only when the score truly doesn't exist (404). Any other error
+// is thrown so the caller can distinguish "missing" from "server failed".
 export const getScore = async (id: string): Promise<Score | null> => {
   const res = await fetch(`${API_BASE}/scores/${id}`);
-  if (!res.ok) return null;
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Failed to fetch score (${res.status})`);
   return parseScore((await res.json()) as ScoreDTO);
 };
 
