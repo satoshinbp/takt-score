@@ -1,3 +1,5 @@
+import type { Beat, Measure, ScoreDetail } from "@/types/common";
+
 export const BEATS_PER_MEASURE = 4;
 
 export type Subdivision = 4 | 3 | 6;
@@ -62,24 +64,6 @@ export const ORNAMENT = {
 } as const;
 export type OrnamentValue = (typeof ORNAMENT)[keyof typeof ORNAMENT];
 
-export type Beat = {
-  subdivision: Subdivision;
-  steps: Record<PartId, number[]>; // length === subdivision; values are one of STEP
-  ornaments?: Record<PartId, number[]>; // omitted means all NONE
-};
-
-/** Beat[] length === BEATS_PER_MEASURE */
-export type Measure = Beat[];
-
-export type Score = {
-  id: string;
-  title: string;
-  bpm: number;
-  measures: Measure[];
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export const emptyBeat = (subdivision: Subdivision = 4): Beat => ({
   subdivision,
   steps: Object.fromEntries(
@@ -106,7 +90,7 @@ export const cloneMeasure = (m: Measure): Measure =>
     return cloned;
   });
 
-export const newScore = (title = "New Score", bpm = 120): Score => ({
+export const newScore = (title = "New Score", bpm = 120): ScoreDetail => ({
   id: "",
   title,
   bpm,

@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DetailPage from "@/app/scores/[id]/_components/detail-page";
 import { useTranslation } from "@/hooks/use-translation";
-import { type Score } from "@/lib/constants";
-import { deleteScore, getScore, updateScore } from "@/lib/storage";
+import { deleteScore, getScore, updateScore } from "@/services/score";
+import { type ScoreDetail } from "@/types/common";
 
 const ScoreDetailPage = () => {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const [score, setScore] = useState<Score | null | undefined>(undefined);
+  const [score, setScore] = useState<ScoreDetail | null | undefined>(undefined);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const ScoreDetailPage = () => {
 
   if (score === undefined) return null;
 
-  const handleSave = async (updated: Score) => {
+  const handleSave = async (updated: ScoreDetail) => {
     const next = await updateScore(updated.id, {
       title: updated.title,
       bpm: updated.bpm,

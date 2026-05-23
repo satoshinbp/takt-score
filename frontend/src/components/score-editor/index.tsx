@@ -11,13 +11,13 @@ import ScoreEditorToolbar from "@/components/score-editor/toolbar";
 import ScoreGrid from "@/components/score-grid";
 import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
-import type { Measure, Score } from "@/lib/constants";
 import { decodeStep } from "@/lib/playback-utils";
+import type { Measure, ScoreDetail } from "@/types/common";
 
 type Props = {
-  score: Score;
+  score: ScoreDetail;
   isNew?: boolean;
-  onSave: (s: Score) => void;
+  onSave: (s: ScoreDetail) => void;
   onBack: () => void;
 };
 

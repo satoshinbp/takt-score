@@ -1,5 +1,6 @@
-import type { Beat, PartId } from "@/lib/constants";
+import type { PartId } from "@/lib/constants";
 import { ORNAMENT, PART_IDS } from "@/lib/constants";
+import type { Beat } from "@/types/common";
 
 export const readOrnament = (
   beat: Beat,

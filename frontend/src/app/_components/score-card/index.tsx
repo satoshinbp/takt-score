@@ -6,12 +6,12 @@ import ScorePreview from "@/app/_components/score-card/preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
-import type { Score } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import type { ScoreDetail } from "@/types/common";
 
 type Props = {
-  score: Score;
-  onCopy: (s: Score) => void;
+  score: ScoreDetail;
+  onCopy: (s: ScoreDetail) => void;
 };
 
 const ScoreCard = ({ score, onCopy }: Props) => {

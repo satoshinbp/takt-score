@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { Score, Subdivision } from "@/lib/constants";
+import type { Subdivision } from "@/lib/constants";
 import {
   cloneMeasure,
   emptyBeat,
@@ -10,11 +10,12 @@ import {
   STEP,
 } from "@/lib/constants";
 import { readOrnament, writeOrnament } from "@/lib/ornament";
+import type { ScoreDetail } from "@/types/common";
 
 type NextStep = { velocity: number; ornament: number };
 
-export const useDraftScore = (score: Score) => {
-  const [draft, setDraft] = useState<Score>(() => ({
+export const useDraftScore = (score: ScoreDetail) => {
+  const [draft, setDraft] = useState<ScoreDetail>(() => ({
     ...score,
     measures: score.measures.map(cloneMeasure),
   }));

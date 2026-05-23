@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { useTranslation } from "@/hooks/use-translation";
-import type { Measure } from "@/lib/constants";
 import { decodeStep, getTotalSteps } from "@/lib/playback-utils";
+import type { Measure } from "@/types/common";
 
 type TransportProps = {
   isPlaying: boolean;

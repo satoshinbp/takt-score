@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SOUNDS } from "@/lib/audio";
-import type { Beat, Measure, Score, Subdivision } from "@/lib/constants";
+import type { Subdivision } from "@/lib/constants";
 import { PART_IDS, STEP } from "@/lib/constants";
 import {
   decodeStep,
   getTotalSteps,
   stepDurationSec,
 } from "@/lib/playback-utils";
+import type { Beat, Measure, ScoreDetail } from "@/types/common";
 
 // Gain multiplier per STEP value. NORMAL=1.0, ACCENT=1.4, GHOST=0.35.
 const VELOCITY_GAIN: Record<number, number> = { 1: 1.0, 2: 1.4, 3: 0.35 };
@@ -46,7 +47,7 @@ class PlaybackEngine {
   private readonly cb: EngineCallbacks;
   bpm: number;
   loop = true;
-  score: Score | null = null;
+  score: ScoreDetail | null = null;
 
   constructor(bpm: number, callbacks: EngineCallbacks) {
     this.bpm = bpm;
@@ -208,7 +209,7 @@ class PlaybackEngine {
   }
 }
 
-export const usePlayback = (score: Score | null): PlaybackState => {
+export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpmState] = useState(score?.bpm ?? 120);

@@ -3,8 +3,9 @@
 import { PlusIcon } from "lucide-react";
 import { BEAT_WIDTH_PX } from "@/components/score-grid/row/cell";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import type { Measure, Subdivision } from "@/lib/constants";
+import type { Subdivision } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import type { Measure } from "@/types/common";
 
 const SUBDIVISIONS: Subdivision[] = [3, 4, 6];
 

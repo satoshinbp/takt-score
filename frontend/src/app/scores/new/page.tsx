@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ScoreEditor from "@/components/score-editor";
-import { newScore, type Score } from "@/lib/constants";
-import { createScore } from "@/lib/storage";
+import { newScore } from "@/lib/constants";
+import { createScore } from "@/services/score";
+import { type ScoreDetail } from "@/types/common";
 
 const NewScorePage = () => {
   const router = useRouter();
   const [score] = useState(() => newScore("New Score", 120));
 
-  const handleSave = async (s: Score) => {
+  const handleSave = async (s: ScoreDetail) => {
     const created = await createScore({
       title: s.title,
       bpm: s.bpm,

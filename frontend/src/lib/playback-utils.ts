@@ -1,4 +1,5 @@
-import type { Measure, Subdivision } from "@/lib/constants";
+import type { Subdivision } from "@/lib/constants";
+import type { Measure } from "@/types/common";
 
 export const getMeasureTotalSteps = (measure: Measure): number =>
   measure.reduce((acc, beat) => acc + beat.subdivision, 0);

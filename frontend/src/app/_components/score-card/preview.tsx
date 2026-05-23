@@ -1,6 +1,7 @@
 "use client";
 
-import { type Measure, PARTS } from "@/lib/constants";
+import { PARTS } from "@/lib/constants";
+import { type Measure } from "@/types/common";
 
 type Props = { measure: Measure };
 

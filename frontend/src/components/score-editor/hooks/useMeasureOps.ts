@@ -2,12 +2,12 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
-import type { Score } from "@/lib/constants";
 import { cloneMeasure, emptyMeasure } from "@/lib/constants";
+import type { ScoreDetail } from "@/types/common";
 
 type Args = {
-  draft: Score;
-  setDraft: Dispatch<SetStateAction<Score>>;
+  draft: ScoreDetail;
+  setDraft: Dispatch<SetStateAction<ScoreDetail>>;
   sel: number[];
   clearSel: () => void;
 };

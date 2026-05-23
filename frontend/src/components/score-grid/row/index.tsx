@@ -2,8 +2,9 @@
 
 import ScoreGridCell, { BEAT_WIDTH_PX } from "@/components/score-grid/row/cell";
 import ScoreGridRowHeader from "@/components/score-grid/row/header";
-import type { Measure, PartConfig, PartId } from "@/lib/constants";
+import type { PartConfig, PartId } from "@/lib/constants";
 import { readOrnament } from "@/lib/ornament";
+import type { Measure } from "@/types/common";
 
 type Props = {
   id: PartId;

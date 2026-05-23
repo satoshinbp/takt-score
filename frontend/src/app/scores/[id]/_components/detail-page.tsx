@@ -3,11 +3,11 @@
 import { useState } from "react";
 import ScoreEditor from "@/components/score-editor";
 import ScoreViewer from "@/components/score-viewer";
-import type { Score } from "@/lib/constants";
+import type { ScoreDetail } from "@/types/common";
 
 type Props = {
-  score: Score;
-  onSave: (s: Score) => void;
+  score: ScoreDetail;
+  onSave: (s: ScoreDetail) => void;
   onBack: () => void;
   onDelete?: () => void;
 };

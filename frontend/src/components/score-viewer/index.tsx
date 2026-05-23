@@ -4,10 +4,10 @@ import ScoreGrid from "@/components/score-grid";
 import ScoreViewerHeader from "@/components/score-viewer/header";
 import Transport from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
-import type { Score } from "@/lib/constants";
+import type { ScoreDetail } from "@/types/common";
 
 type Props = {
-  score: Score;
+  score: ScoreDetail;
   onEdit: () => void;
   onBack: () => void;
   onDelete?: () => void;

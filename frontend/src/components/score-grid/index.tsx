@@ -4,10 +4,11 @@ import { memo, useLayoutEffect, useRef, useState } from "react";
 import BeatRuler from "@/components/score-grid/beat-ruler";
 import CellPopover from "@/components/score-grid/cell-popover";
 import ScoreGridRow from "@/components/score-grid/row";
-import type { Measure, Subdivision } from "@/lib/constants";
+import type { Subdivision } from "@/lib/constants";
 import { PART_IDS, PARTS } from "@/lib/constants";
 import { readOrnament } from "@/lib/ornament";
 import { decodeStep, getMeasureStepOffset } from "@/lib/playback-utils";
+import type { Measure } from "@/types/common";
 
 type Props = {
   measures: Measure[];

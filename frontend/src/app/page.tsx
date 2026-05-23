@@ -6,23 +6,24 @@ import DashboardHeader from "@/app/_components/header";
 import NewScoreCard from "@/app/_components/new-score-card";
 import ScoreCard from "@/app/_components/score-card";
 import { useTranslation } from "@/hooks/use-translation";
-import { cloneMeasure, type Score } from "@/lib/constants";
-import { createScore, loadScores } from "@/lib/storage";
+import { cloneMeasure } from "@/lib/constants";
+import { createScore, listScores } from "@/services/score";
+import { type ScoreDetail } from "@/types/common";
 
 const Page = () => {
-  const [scores, setScores] = useState<Score[] | null>(null);
+  const [scores, setScores] = useState<ScoreDetail[] | null>(null);
   const router = useRouter();
   const { t } = useTranslation();
 
   useEffect(() => {
     void (async () => {
-      setScores(await loadScores());
+      setScores(await listScores());
     })();
   }, []);
 
   if (!scores) return null;
 
-  const handleCopy = async (s: Score) => {
+  const handleCopy = async (s: ScoreDetail) => {
     const copied = await createScore({
       title: `${s.title} ${t("scoreCard.copySuffix")}`,
       bpm: s.bpm,

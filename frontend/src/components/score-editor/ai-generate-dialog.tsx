@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "@/hooks/use-translation";
-import type { Measure } from "@/lib/constants";
 import { detectBpm } from "@/lib/detect-bpm";
+import type { Measure } from "@/types/common";
 
 type Props = {
   open: boolean;

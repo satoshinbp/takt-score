@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import {
-  type Beat,
   BEATS_PER_MEASURE,
-  type Measure,
   PART_IDS,
   type PartId,
   type Subdivision,
 } from "@/lib/constants";
+import { type Beat, type Measure } from "@/types/common";
 
 export type GenerateRequest = {
   songTitle: string;
