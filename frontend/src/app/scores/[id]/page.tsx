@@ -14,9 +14,15 @@ const ScoreDetailPage = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
+    // Guard against a stale response winning if `id` changes mid-fetch.
+    let isCancelled = false;
     void (async () => {
-      setScore(await getScore(id));
+      const fetched = await getScore(id);
+      if (!isCancelled) setScore(fetched);
     })();
+    return () => {
+      isCancelled = true;
+    };
   }, [id]);
 
   if (score === undefined) return null;
