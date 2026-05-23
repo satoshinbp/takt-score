@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: taktscore
+      POSTGRES_PASSWORD: taktscore
+      POSTGRES_DB: taktscore
+    ports:
+      - "5432:5432"
+    volumes:
+      - taktscore_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taktscore"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  taktscore_pgdata:
