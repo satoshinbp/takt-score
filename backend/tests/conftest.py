@@ -26,6 +26,15 @@ TEST_DATABASE_URL = os.getenv(
 ADMIN_URL = TEST_DATABASE_URL.rsplit("/", 1)[0] + "/postgres"
 TEST_DB_NAME = TEST_DATABASE_URL.rsplit("/", 1)[1]
 
+# Safety guard: the fixture drops and recreates this database every session, so refuse
+# to run unless the name is clearly marked as a test database. Prevents wiping a real DB
+# if TEST_DATABASE_URL is ever misconfigured.
+if not TEST_DB_NAME.endswith("_test"):
+    raise RuntimeError(
+        f"Refusing to use {TEST_DB_NAME!r} as a test database: "
+        "TEST_DATABASE_URL must point at a database whose name ends with '_test'."
+    )
+
 
 @pytest.fixture(scope="session")
 def engine() -> Generator[Engine, None, None]:
