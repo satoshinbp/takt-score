@@ -55,7 +55,7 @@ describe("getMeasureStepOffset", () => {
 
   it("mi=2 equals the sum of the first 2 measures", () => {
     expect(
-      getMeasureStepOffset([measure16(), measure12(), measure16()], 2)
+      getMeasureStepOffset([measure16(), measure12(), measure16()], 2),
     ).toBe(28);
   });
 });

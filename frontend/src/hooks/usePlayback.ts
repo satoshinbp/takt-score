@@ -138,7 +138,7 @@ class PlaybackEngine {
 
     // Drop events outside the lookahead window to prevent re-highlighting past steps.
     this.scheduledEvents = this.scheduledEvents.filter(
-      (e) => e.time > now - 0.05
+      (e) => e.time > now - 0.05,
     );
 
     let lastPlayedStep = -1;
@@ -243,7 +243,7 @@ export const usePlayback = (score: Score | null): PlaybackState => {
   const stop = useCallback(() => engineRef.current!.stop(), []);
   const seekTo = useCallback(
     (step: number) => engineRef.current!.seekTo(step),
-    []
+    [],
   );
 
   const toggle = useCallback(() => {

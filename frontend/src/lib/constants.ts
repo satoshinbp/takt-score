@@ -83,7 +83,7 @@ export type Score = {
 export const emptyBeat = (subdivision: Subdivision = 4): Beat => ({
   subdivision,
   steps: Object.fromEntries(
-    PART_IDS.map((id) => [id, Array<number>(subdivision).fill(0)])
+    PART_IDS.map((id) => [id, Array<number>(subdivision).fill(0)]),
   ) as Record<PartId, number[]>,
 });
 
@@ -95,12 +95,12 @@ export const cloneMeasure = (m: Measure): Measure =>
     const cloned: Beat = {
       subdivision: beat.subdivision,
       steps: Object.fromEntries(
-        PART_IDS.map((id) => [id, [...beat.steps[id]]])
+        PART_IDS.map((id) => [id, [...beat.steps[id]]]),
       ) as Record<PartId, number[]>,
     };
     if (beat.ornaments) {
       cloned.ornaments = Object.fromEntries(
-        PART_IDS.map((id) => [id, [...(beat.ornaments![id] ?? [])]])
+        PART_IDS.map((id) => [id, [...(beat.ornaments![id] ?? [])]]),
       ) as Record<PartId, number[]>;
     }
     return cloned;

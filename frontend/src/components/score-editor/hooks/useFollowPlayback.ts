@@ -6,13 +6,13 @@ import { useEffect } from "react";
 // Auto-scrolls so the currently playing measure stays near the center of the scroll area.
 export const useFollowPlayback = (
   currentMeasure: number,
-  areaRef: RefObject<HTMLDivElement | null>
+  areaRef: RefObject<HTMLDivElement | null>,
 ) => {
   useEffect(() => {
     if (currentMeasure < 0 || !areaRef.current) return;
     const container = areaRef.current;
     const el = container.querySelector(
-      `[data-measure="${currentMeasure}"]`
+      `[data-measure="${currentMeasure}"]`,
     ) as HTMLElement;
 
     if (!el) return;

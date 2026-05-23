@@ -20,7 +20,7 @@ const noise = (
   durSec: number,
   freq: number,
   q: number,
-  gain: number
+  gain: number,
 ) => {
   const source = ctx.createBufferSource();
   source.buffer = getNoiseBuffer(ctx, durSec);
@@ -48,7 +48,7 @@ const tone = (
   atk = 0,
   type: OscillatorType = "sine",
   // Relative position (fraction of durSec) at which the pitch drop completes. Smaller = quicker drop.
-  rampRatio = 0.6
+  rampRatio = 0.6,
 ) => {
   const osc = ctx.createOscillator();
   osc.type = type;
@@ -60,7 +60,7 @@ const tone = (
   if (f1)
     osc.frequency.exponentialRampToValueAtTime(
       f1,
-      startSec + durSec * rampRatio
+      startSec + durSec * rampRatio,
     );
 
   if (atk > 0) {
@@ -78,7 +78,7 @@ const tone = (
 export type SoundFn = (
   ctx: AudioContext,
   startSec: number,
-  gain: number
+  gain: number,
 ) => void;
 
 export const SOUNDS: Partial<Record<string, SoundFn>> = {
