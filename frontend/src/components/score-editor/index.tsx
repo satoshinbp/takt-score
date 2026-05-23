@@ -55,7 +55,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
     pb.stop();
   };
 
-  const handleSave = () => onSave({ ...draft, updatedAt: Date.now() });
+  const handleSave = () => onSave(draft);
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">

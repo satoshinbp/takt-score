@@ -76,8 +76,8 @@ export type Score = {
   title: string;
   bpm: number;
   measures: Measure[];
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export const emptyBeat = (subdivision: Subdivision = 4): Beat => ({
@@ -106,12 +106,11 @@ export const cloneMeasure = (m: Measure): Measure =>
     return cloned;
   });
 
-let _sid = 0;
 export const newScore = (title = "New Score", bpm = 120): Score => ({
-  id: `s${Date.now()}_${++_sid}`,
+  id: "",
   title,
   bpm,
   measures: [emptyMeasure()],
-  createdAt: Date.now(),
-  updatedAt: Date.now(),
+  createdAt: new Date(),
+  updatedAt: new Date(),
 });

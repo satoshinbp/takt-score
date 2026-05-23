@@ -7,7 +7,7 @@ import NewScoreCard from "@/app/_components/new-score-card";
 import ScoreCard from "@/app/_components/score-card";
 import { useTranslation } from "@/hooks/use-translation";
 import { cloneMeasure, type Score } from "@/lib/constants";
-import { loadScores, saveScores } from "@/lib/storage";
+import { createScore, loadScores } from "@/lib/storage";
 
 const Page = () => {
   const [scores, setScores] = useState<Score[] | null>(null);
@@ -16,12 +16,20 @@ const Page = () => {
 
   useEffect(() => {
     void (async () => {
-      const data = await loadScores();
-      setScores(data);
+      setScores(await loadScores());
     })();
   }, []);
 
   if (!scores) return null;
+
+  const handleCopy = async (s: Score) => {
+    const copied = await createScore({
+      title: `${s.title} ${t("scoreCard.copySuffix")}`,
+      bpm: s.bpm,
+      measures: s.measures.map(cloneMeasure),
+    });
+    setScores([copied, ...scores]);
+  };
 
   return (
     <div className="h-full overflow-y-auto">
@@ -36,19 +44,7 @@ const Page = () => {
               <ScoreCard
                 key={s.id}
                 score={s}
-                onCopy={(s) => {
-                  const copied: Score = {
-                    ...s,
-                    id: `s${Date.now()}`,
-                    title: `${s.title} ${t("scoreCard.copySuffix")}`,
-                    measures: s.measures.map(cloneMeasure),
-                    createdAt: Date.now(),
-                    updatedAt: Date.now(),
-                  };
-                  const next = [...scores, copied];
-                  setScores(next);
-                  void saveScores(next);
-                }}
+                onCopy={(s) => void handleCopy(s)}
               />
             ))}
             <NewScoreCard />

@@ -5,33 +5,35 @@ import { useParams, useRouter } from "next/navigation";
 import DetailPage from "@/app/scores/[id]/_components/detail-page";
 import { useTranslation } from "@/hooks/use-translation";
 import { type Score } from "@/lib/constants";
-import { loadScores, saveScores } from "@/lib/storage";
+import { deleteScore, getScore, updateScore } from "@/lib/storage";
 
 const ScoreDetailPage = () => {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const [scores, setScores] = useState<Score[] | null>(null);
+  const [score, setScore] = useState<Score | null | undefined>(undefined);
   const { t } = useTranslation();
 
   useEffect(() => {
     void (async () => {
-      setScores(await loadScores());
+      setScore(await getScore(id));
     })();
-  }, []);
+  }, [id]);
 
-  if (!scores) return null;
-
-  const score = scores.find((s) => s.id === id) ?? null;
+  if (score === undefined) return null;
 
   const handleSave = async (updated: Score) => {
-    const next = scores.map((s) => (s.id === updated.id ? updated : s));
-    await saveScores(next);
-    setScores(next);
+    const next = await updateScore(updated.id, {
+      title: updated.title,
+      bpm: updated.bpm,
+      measures: updated.measures,
+    });
+    setScore(next);
   };
 
   const handleDelete = async () => {
-    if (!confirm(t("detail.confirmDelete", { title: score!.title }))) return;
-    await saveScores(scores.filter((s) => s.id !== id));
+    if (!score) return;
+    if (!confirm(t("detail.confirmDelete", { title: score.title }))) return;
+    await deleteScore(score.id);
     router.push("/");
   };
 
