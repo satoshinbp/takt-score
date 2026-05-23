@@ -20,14 +20,18 @@ def _from_ms(ms: int) -> datetime:
 
 
 def seed() -> int:
-    data = json.loads(SEED_PATH.read_text(encoding="utf-8"))
+    entries = json.loads(SEED_PATH.read_text(encoding="utf-8"))
     inserted = 0
     with SessionLocal() as session:
-        for entry in data:
-            ScoreBase(
-                title=entry["title"],
-                bpm=entry["bpm"],
-                measures=entry["measures"],
+        for entry in entries:
+            # Validate shape before insert so a malformed seed fails fast
+            # instead of corrupting the table.
+            ScoreBase.model_validate(
+                {
+                    "title": entry["title"],
+                    "bpm": entry["bpm"],
+                    "measures": entry["measures"],
+                }
             )
             stmt = (
                 pg_insert(Score)
