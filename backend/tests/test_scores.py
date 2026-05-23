@@ -92,3 +92,37 @@ def test_invalid_steps_keys_returns_422(client: TestClient) -> None:
     bad_measure = [bad_beat for _ in range(4)]
     response = client.post("/scores", json=_valid_payload(measures=[bad_measure]))
     assert response.status_code == 422
+
+
+def test_bpm_boundaries_are_valid(client: TestClient) -> None:
+    assert client.post("/scores", json=_valid_payload(bpm=1)).status_code == 201
+    assert client.post("/scores", json=_valid_payload(bpm=400)).status_code == 201
+
+
+def test_unknown_ornament_part_returns_422(client: TestClient) -> None:
+    beat = _empty_beat()
+    beat["ornaments"] = {"NOT_A_PART": [0, 0, 0, 0]}
+    measure = [beat] + [_empty_beat() for _ in range(3)]
+    response = client.post("/scores", json=_valid_payload(measures=[measure]))
+    assert response.status_code == 422
+
+
+def test_ornament_length_mismatch_returns_422(client: TestClient) -> None:
+    beat = _empty_beat()
+    beat["ornaments"] = {p: [0, 0, 0] for p in PART_IDS}  # length 3, subdivision 4
+    measure = [beat] + [_empty_beat() for _ in range(3)]
+    response = client.post("/scores", json=_valid_payload(measures=[measure]))
+    assert response.status_code == 422
+
+
+def test_pagination_max_items_and_offset(client: TestClient) -> None:
+    for i in range(3):
+        client.post("/scores", json=_valid_payload(title=f"S{i}"))
+
+    page = client.get("/scores", params={"max_items": 2}).json()
+    assert len(page) == 2
+
+    second_page = client.get(
+        "/scores", params={"max_items": 2, "offset": 2}
+    ).json()
+    assert len(second_page) == 1
