@@ -19,9 +19,17 @@ class ScoreUpdate(ScoreBase):
     pass
 
 
-class ScoreRead(ScoreBase):
+class ScoreSummaryRead(BaseModel):
     id: str
+    title: str
+    bpm: int
+    preview_measure: Measure | None
+    measures_count: int = Field(ge=0)
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ScoreRead(ScoreSummaryRead):
+    measures: list[Measure]

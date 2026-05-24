@@ -7,25 +7,39 @@ from ulid import ULID
 
 from app.db import get_db
 from app.models.score import Score
-from app.schemas.score import ScoreCreate, ScoreRead, ScoreUpdate
+from app.schemas.score import ScoreCreate, ScoreRead, ScoreSummaryRead, ScoreUpdate
 
 # TODO: add authentication. The API is currently public and trusts any caller.
 router = APIRouter(prefix="/scores", tags=["scores"])
 
 
-@router.get("", response_model=list[ScoreRead])
+@router.get("", response_model=list[ScoreSummaryRead])
 def list_scores(
     db: Annotated[Session, Depends(get_db)],
     max_items: Annotated[int, Query(ge=1, le=200)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
-) -> list[Score]:
+) -> list[ScoreSummaryRead]:
     stmt = (
         select(Score)
         .order_by(Score.updated_at.desc())
         .offset(offset)
         .limit(max_items)
     )
-    return list(db.scalars(stmt))
+    scores = list(db.scalars(stmt))
+    return [
+        ScoreSummaryRead.model_validate(
+            {
+                "id": score.id,
+                "title": score.title,
+                "bpm": score.bpm,
+                "preview_measure": score.measures[0] if score.measures else None,
+                "measures_count": len(score.measures),
+                "created_at": score.created_at,
+                "updated_at": score.updated_at,
+            }
+        )
+        for score in scores
+    ]
 
 
 @router.get("/{score_id}", response_model=ScoreRead)
