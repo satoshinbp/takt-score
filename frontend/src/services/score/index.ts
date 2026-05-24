@@ -1,18 +1,26 @@
-import { isScoreDTO, parseScore } from "@/services/score/parsers";
-import type { ScoreDetail } from "@/types/common";
+import {
+  isScoreDTO,
+  isScoreSummaryDTO,
+  parseScore,
+  parseScoreSummary,
+} from "@/services/score/parsers";
+import type { ScoreDetail, ScoreSummary } from "@/types/common";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
 
-export type ScoreInput = Omit<ScoreDetail, "id" | "createdAt" | "updatedAt">;
+export type ScoreInput = Omit<
+  ScoreDetail,
+  "id" | "previewMeasure" | "measuresCount" | "createdAt" | "updatedAt"
+>;
 
-export const listScores = async (): Promise<ScoreDetail[]> => {
+export const listScores = async (): Promise<ScoreSummary[]> => {
   const res = await fetch(`${API_BASE}/scores`);
   if (!res.ok) throw new Error(`Failed to load scores (${res.status})`);
   const data = (await res.json()) as unknown;
-  if (!Array.isArray(data) || !data.every(isScoreDTO)) {
+  if (!Array.isArray(data) || !data.every(isScoreSummaryDTO)) {
     throw new Error("Invalid scores data");
   }
-  return data.map(parseScore);
+  return data.map(parseScoreSummary);
 };
 
 export const getScore = async (id: string): Promise<ScoreDetail | null> => {

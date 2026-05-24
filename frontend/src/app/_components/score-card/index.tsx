@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
-import type { ScoreDetail } from "@/types/common";
+import type { ScoreSummary } from "@/types/common";
 
 type Props = {
-  score: ScoreDetail;
-  onCopy: (s: ScoreDetail) => void;
+  score: ScoreSummary;
+  onCopy: (s: ScoreSummary) => void;
 };
 
 const ScoreCard = ({ score, onCopy }: Props) => {
@@ -23,14 +23,12 @@ const ScoreCard = ({ score, onCopy }: Props) => {
         "hover:-translate-y-px hover:shadow-lg",
       )}
     >
-      {score.measures.length > 0 && (
-        <ScorePreview measure={score.measures[0]} />
-      )}
+      {score.previewMeasure && <ScorePreview measure={score.previewMeasure} />}
       <div className="text-base font-semibold truncate">{score.title}</div>
       <div className="flex items-center gap-1 mt-2">
         <Badge variant="outline">{score.bpm} BPM</Badge>
         <Badge variant="outline">
-          {t("scoreCard.measures", { count: score.measures.length })}
+          {t("scoreCard.measures", { count: score.measuresCount })}
         </Badge>
         <Button
           variant="ghost"

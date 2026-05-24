@@ -90,11 +90,17 @@ export const cloneMeasure = (m: Measure): Measure =>
     return cloned;
   });
 
-export const newScore = (title = "New Score", bpm = 120): ScoreDetail => ({
-  id: "",
-  title,
-  bpm,
-  measures: [emptyMeasure()],
-  createdAt: new Date(),
-  updatedAt: new Date(),
-});
+export const newScore = (title = "New Score", bpm = 120): ScoreDetail => {
+  const measures = [emptyMeasure()];
+
+  return {
+    id: "",
+    title,
+    bpm,
+    previewMeasure: measures[0],
+    measuresCount: measures.length,
+    measures,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+};

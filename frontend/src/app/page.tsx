@@ -7,11 +7,11 @@ import NewScoreCard from "@/app/_components/new-score-card";
 import ScoreCard from "@/app/_components/score-card";
 import { useTranslation } from "@/hooks/use-translation";
 import { cloneMeasure } from "@/lib/constants";
-import { createScore, listScores } from "@/services/score";
-import { type ScoreDetail } from "@/types/common";
+import { createScore, getScore, listScores } from "@/services/score";
+import { type ScoreSummary } from "@/types/common";
 
 const Page = () => {
-  const [scores, setScores] = useState<ScoreDetail[] | null>(null);
+  const [scores, setScores] = useState<ScoreSummary[] | null>(null);
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -23,11 +23,14 @@ const Page = () => {
 
   if (!scores) return null;
 
-  const handleCopy = async (s: ScoreDetail) => {
+  const handleCopy = async (s: ScoreSummary) => {
+    const detail = await getScore(s.id);
+    if (!detail) return;
+
     const copied = await createScore({
-      title: `${s.title} ${t("scoreCard.copySuffix")}`,
-      bpm: s.bpm,
-      measures: s.measures.map(cloneMeasure),
+      title: `${detail.title} ${t("scoreCard.copySuffix")}`,
+      bpm: detail.bpm,
+      measures: detail.measures.map(cloneMeasure),
     });
     setScores([copied, ...scores]);
   };
@@ -45,7 +48,7 @@ const Page = () => {
               <ScoreCard
                 key={s.id}
                 score={s}
-                onCopy={(s) => void handleCopy(s)}
+                onCopy={(score) => void handleCopy(score)}
               />
             ))}
             <NewScoreCard />

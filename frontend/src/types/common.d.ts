@@ -4,6 +4,8 @@ export type ScoreSummary = {
   id: string;
   title: string;
   bpm: number;
+  previewMeasure: Measure | null;
+  measuresCount: number;
   createdAt: Date;
   updatedAt: Date;
 };
