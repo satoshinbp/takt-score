@@ -115,6 +115,7 @@ func (s *Service) Create(ctx context.Context, in *ScoreInput) (*ScoreDetail, err
 	}
 	now := time.Now().UTC()
 
+	var detail *ScoreDetail
 	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
 		q := store.New(tx)
 		if err := q.CreateScore(ctx, store.CreateScoreParams{
@@ -126,12 +127,20 @@ func (s *Service) Create(ctx context.Context, in *ScoreInput) (*ScoreDetail, err
 		}); err != nil {
 			return err
 		}
-		return insertMeasures(ctx, q, scoreID, in.Measures)
+		if err := insertMeasures(ctx, q, scoreID, in.Measures); err != nil {
+			return err
+		}
+		sc, err := q.GetScore(ctx, scoreID)
+		if err != nil {
+			return err
+		}
+		detail, err = loadDetail(ctx, q, sc)
+		return err
 	})
 	if err != nil {
 		return nil, err
 	}
-	return s.Get(ctx, scoreID)
+	return detail, nil
 }
 
 func (s *Service) Update(ctx context.Context, id uuid.UUID, in *ScoreInput) (*ScoreDetail, error) {
@@ -139,6 +148,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in *ScoreInput) (*Sc
 		return nil, err
 	}
 	now := time.Now().UTC()
+	var detail *ScoreDetail
 	err := pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
 		q := store.New(tx)
 		affected, err := q.UpdateScoreMeta(ctx, store.UpdateScoreMetaParams{
@@ -157,12 +167,20 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in *ScoreInput) (*Sc
 		if err := q.DeleteMeasuresByScore(ctx, id); err != nil {
 			return err
 		}
-		return insertMeasures(ctx, q, id, in.Measures)
+		if err := insertMeasures(ctx, q, id, in.Measures); err != nil {
+			return err
+		}
+		sc, err := q.GetScore(ctx, id)
+		if err != nil {
+			return err
+		}
+		detail, err = loadDetail(ctx, q, sc)
+		return err
 	})
 	if err != nil {
 		return nil, err
 	}
-	return s.Get(ctx, id)
+	return detail, nil
 }
 
 func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
