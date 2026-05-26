@@ -346,7 +346,7 @@ func flushHitBatch(ctx context.Context, tx pgx.Tx, params []store.InsertHitParam
 		batch.Queue(insertHitSQL, p.BeatID, p.PartID, p.StepIndex, p.Velocity, p.Ornament)
 	}
 	br := tx.SendBatch(ctx, batch)
-	defer br.Close()
+	defer func() { _ = br.Close() }()
 	for range params {
 		if _, err := br.Exec(); err != nil {
 			return err
