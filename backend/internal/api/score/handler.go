@@ -14,6 +14,7 @@ import (
 const (
 	defaultMaxItems = 50
 	hardMaxItems    = 200
+	maxBodyBytes    = 1 << 20 // 1 MiB; a score payload is bounded, so this is generous
 )
 
 type Handler struct {
@@ -34,7 +35,7 @@ func (h *Handler) Routes(r chi.Router) {
 }
 
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
-	maxItems := parseBoundedInt(r.URL.Query().Get("max_items"), defaultMaxItems, 1, hardMaxItems)
+	maxItems := parseBoundedInt(r.URL.Query().Get("maxItems"), defaultMaxItems, 1, hardMaxItems)
 	offset := parseBoundedInt(r.URL.Query().Get("offset"), 0, 0, 1<<30)
 	out, err := h.svc.List(r.Context(), maxItems, offset)
 	if err != nil {
@@ -110,10 +111,16 @@ func parseID(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {
 }
 
 func decodeInput(w http.ResponseWriter, r *http.Request) (*ScoreInput, bool) {
+	r.Body = http.MaxBytesReader(w, r.Body, maxBodyBytes)
 	var in ScoreInput
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&in); err != nil {
+		var maxErr *http.MaxBytesError
+		if errors.As(err, &maxErr) {
+			writeJSON(w, http.StatusRequestEntityTooLarge, errBody{Detail: "request body too large"})
+			return nil, false
+		}
 		writeJSON(w, http.StatusBadRequest, errBody{Detail: "invalid request body: " + err.Error()})
 		return nil, false
 	}
