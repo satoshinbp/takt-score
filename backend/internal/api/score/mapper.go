@@ -81,16 +81,19 @@ func assembleMeasures(
 	beatRows []store.Beat,
 	hitRows []store.Hit,
 ) []Measure {
-	// Group beats by measure_id while preserving the existing sort by position.
-	beatsByMeasure := make(map[uuid.UUID][]store.Beat, len(measureRows))
-	for _, b := range beatRows {
-		beatsByMeasure[b.MeasureID] = append(beatsByMeasure[b.MeasureID], b)
-	}
-	hitsByBeat := make(map[uuid.UUID][]store.Hit, len(beatRows))
-	for _, h := range hitRows {
-		hitsByBeat[h.BeatID] = append(hitsByBeat[h.BeatID], h)
-	}
+	beatsByMeasure := buildBeatsByMeasure(beatRows)
+	hitsByBeat := buildHitsByBeat(hitRows)
+	return assembleMeasuresFromMaps(measureRows, beatsByMeasure, hitsByBeat)
+}
 
+// assembleMeasuresFromMaps is the map-accepting variant of assembleMeasures.
+// Callers that process many measures (e.g. List) should build the maps once
+// and pass them here to avoid O(B+H) reconstruction per score.
+func assembleMeasuresFromMaps(
+	measureRows []store.Measure,
+	beatsByMeasure map[uuid.UUID][]store.Beat,
+	hitsByBeat map[uuid.UUID][]store.Hit,
+) []Measure {
 	out := make([]Measure, 0, len(measureRows))
 	for _, m := range measureRows {
 		beats := beatsByMeasure[m.ID]
@@ -121,4 +124,20 @@ func assembleMeasures(
 		out = append(out, measure)
 	}
 	return out
+}
+
+func buildBeatsByMeasure(beatRows []store.Beat) map[uuid.UUID][]store.Beat {
+	m := make(map[uuid.UUID][]store.Beat, len(beatRows))
+	for _, b := range beatRows {
+		m[b.MeasureID] = append(m[b.MeasureID], b)
+	}
+	return m
+}
+
+func buildHitsByBeat(hitRows []store.Hit) map[uuid.UUID][]store.Hit {
+	m := make(map[uuid.UUID][]store.Hit, len(hitRows))
+	for _, h := range hitRows {
+		m[h.BeatID] = append(m[h.BeatID], h)
+	}
+	return m
 }

@@ -89,13 +89,15 @@ func (s *Service) List(ctx context.Context, maxItems, offset int) ([]ScoreSummar
 		}
 	}
 
+	// Build lookup maps once for all scores rather than per-score inside the loop.
+	beatsByMeasure := buildBeatsByMeasure(beats)
+	hitsByBeat := buildHitsByBeat(hits)
+
 	out := make([]ScoreSummary, 0, len(scores))
 	for _, sc := range scores {
 		var preview Measure
 		if m, ok := measureByScore[sc.ID]; ok {
-			// assembleMeasures groups by measure ID, so passing all beats/hits is
-			// fine — only the matching measure's rows are picked up.
-			assembled := assembleMeasures([]store.Measure{m}, beats, hits)
+			assembled := assembleMeasuresFromMaps([]store.Measure{m}, beatsByMeasure, hitsByBeat)
 			if len(assembled) > 0 && len(assembled[0]) > 0 {
 				preview = assembled[0]
 			}
