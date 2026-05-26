@@ -334,7 +334,9 @@ func collectHitParams(beatID uuid.UUID, b Beat) ([]store.InsertHitParams, error)
 }
 
 // flushHitBatch sends all hit INSERTs for a score in a single pgx.Batch,
-// reducing round-trips from O(hits) to 1.
+// reducing round-trips from O(hits) to 1. The SQL string is re-exported from
+// the sqlc-generated store package (store.InsertHitSQL) so the statement here
+// stays in sync with the source-of-truth query in queries/hits.sql.
 func flushHitBatch(ctx context.Context, tx pgx.Tx, params []store.InsertHitParams) error {
 	if len(params) == 0 {
 		return nil
@@ -342,7 +344,7 @@ func flushHitBatch(ctx context.Context, tx pgx.Tx, params []store.InsertHitParam
 	const insertHitSQL = `INSERT INTO hits (beat_id, part_id, step_index, velocity, ornament) VALUES ($1, $2, $3, $4, $5)`
 	batch := &pgx.Batch{}
 	for _, p := range params {
-		batch.Queue(insertHitSQL, p.BeatID, p.PartID, p.StepIndex, p.Velocity, p.Ornament)
+		batch.Queue(store.InsertHitSQL, p.BeatID, p.PartID, p.StepIndex, p.Velocity, p.Ornament)
 	}
 	br := tx.SendBatch(ctx, batch)
 	// batch errors already surface via br.Exec(); Close() errors are intentionally ignored.
