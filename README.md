@@ -10,20 +10,20 @@ A personal web app for entering, saving, and playing drum patterns transcribed b
 
 ## Tech Stack
 
-| Layer    | Technology                            |
-| -------- | ------------------------------------- |
-| Frontend | Next.js 16 (App Router), TypeScript   |
-| UI       | shadcn/ui (Radix UI), Tailwind CSS v4 |
-| Backend  | FastAPI, Pydantic v2, SQLAlchemy 2.0  |
-| Database | PostgreSQL 16                         |
-| Tooling  | pnpm (frontend), uv (backend), Docker |
+| Layer    | Technology                                      |
+| -------- | ----------------------------------------------- |
+| Frontend | Next.js 16 (App Router), TypeScript             |
+| UI       | shadcn/ui (Radix UI), Tailwind CSS v4           |
+| Backend  | Go, chi, sqlc, pgx                              |
+| Database | PostgreSQL 16                                   |
+| Tooling  | pnpm (frontend), go / goose / sqlc (backend), Docker |
 
 ## Repository Layout
 
 ```
 takt-score/
 ├── frontend/          # Next.js app (pnpm)
-├── backend/           # FastAPI app (uv) + Alembic + seed
+├── backend/           # Go app (chi + sqlc) + goose migrations + seed
 └── docker-compose.yml # PostgreSQL for local dev
 ```
 
@@ -35,11 +35,10 @@ docker compose up -d postgres
 
 # 2. Backend
 cd backend
-uv sync
-uv run alembic upgrade head
-uv run python -m app.seed
-uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-# API docs: http://localhost:8000/docs
+make migrate-up
+make seed
+make run
+# API: http://localhost:8000
 
 # 3. Frontend (in a separate shell)
 cd frontend
@@ -63,10 +62,12 @@ The frontend reads `NEXT_PUBLIC_API_BASE` from `frontend/.env.local` (defaults t
 
 ### Backend (`cd backend`)
 
-| Command                                    | Description                       |
-| ------------------------------------------ | --------------------------------- |
-| `uv run uvicorn app.main:app --reload`     | Start API server                  |
-| `uv run alembic upgrade head`              | Apply database migrations         |
-| `uv run python -m app.seed`                | Load `seeds/scores.json` into DB  |
-| `uv run pytest`                            | Run integration tests (needs DB)  |
-| `uv run ruff check app tests`              | Lint                              |
+| Command             | Description                       |
+| ------------------- | --------------------------------- |
+| `make run`          | Start API server                  |
+| `make build`        | Build server / seed binaries      |
+| `make migrate-up`   | Apply goose database migrations   |
+| `make seed`         | Load `seeds/scores.json` into DB  |
+| `make test`         | Run Go tests                      |
+| `make sqlc`         | Regenerate sqlc Go code from SQL  |
+| `make fmt`          | Run `go fmt`                      |
