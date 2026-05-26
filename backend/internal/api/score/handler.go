@@ -34,7 +34,7 @@ func (h *Handler) Routes(r chi.Router) {
 }
 
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
-	maxItems := parseBoundedInt(r.URL.Query().Get("max_items"), defaultMaxItems, 1, hardMaxItems)
+	maxItems := parseBoundedInt(r.URL.Query().Get("maxItems"), defaultMaxItems, 1, hardMaxItems)
 	offset := parseBoundedInt(r.URL.Query().Get("offset"), 0, 0, 1<<30)
 	out, err := h.svc.List(r.Context(), maxItems, offset)
 	if err != nil {
