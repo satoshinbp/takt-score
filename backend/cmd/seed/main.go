@@ -88,8 +88,7 @@ func main() {
 		updatedAt := timeFromMs(e.UpdatedAt)
 
 		err = pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
-			tq := store.New(tx)
-			if err := tq.CreateScore(ctx, store.CreateScoreParams{
+			if err := store.New(tx).CreateScore(ctx, store.CreateScoreParams{
 				ID:        scoreID,
 				Title:     e.Title,
 				Bpm:       int16(e.BPM),
@@ -98,7 +97,7 @@ func main() {
 			}); err != nil {
 				return err
 			}
-			return scoreapi.InsertMeasuresForSeed(ctx, tq, scoreID, e.Measures)
+			return scoreapi.InsertMeasuresForSeed(ctx, tx, scoreID, e.Measures)
 		})
 		if err != nil {
 			fail(log, fmt.Sprintf("insert %q", e.Title), err)

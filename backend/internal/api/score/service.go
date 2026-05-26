@@ -127,7 +127,7 @@ func (s *Service) Create(ctx context.Context, in *ScoreInput) (*ScoreDetail, err
 		}); err != nil {
 			return err
 		}
-		if err := insertMeasures(ctx, q, scoreID, in.Measures); err != nil {
+		if err := insertMeasures(ctx, tx, scoreID, in.Measures); err != nil {
 			return err
 		}
 		sc, err := q.GetScore(ctx, scoreID)
@@ -167,7 +167,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in *ScoreInput) (*Sc
 		if err := q.DeleteMeasuresByScore(ctx, id); err != nil {
 			return err
 		}
-		if err := insertMeasures(ctx, q, id, in.Measures); err != nil {
+		if err := insertMeasures(ctx, tx, id, in.Measures); err != nil {
 			return err
 		}
 		sc, err := q.GetScore(ctx, id)
@@ -245,13 +245,18 @@ func summaryFromScore(sc store.Score, count int, preview Measure) ScoreSummary {
 // InsertMeasuresForSeed exposes insertMeasures to the seed CLI so it can reuse
 // the same Measure/Beat/Hit insertion logic against its own transaction.
 // Production code paths should go through Service methods instead.
-func InsertMeasuresForSeed(ctx context.Context, q *store.Queries, scoreID uuid.UUID, measures []Measure) error {
-	return insertMeasures(ctx, q, scoreID, measures)
+func InsertMeasuresForSeed(ctx context.Context, tx pgx.Tx, scoreID uuid.UUID, measures []Measure) error {
+	return insertMeasures(ctx, tx, scoreID, measures)
 }
 
 // insertMeasures writes the full nested Measure/Beat/Hit graph for a score.
+// Measures and beats are inserted row-by-row (counts are small). Hits are
+// queued into a single pgx.Batch and sent in one round-trip at the end.
 // Caller must ensure the score row already exists and is in the same tx.
-func insertMeasures(ctx context.Context, q *store.Queries, scoreID uuid.UUID, measures []Measure) error {
+func insertMeasures(ctx context.Context, tx pgx.Tx, scoreID uuid.UUID, measures []Measure) error {
+	q := store.New(tx)
+
+	var hitParams []store.InsertHitParams
 	for mi, m := range measures {
 		mID, err := uuid.NewV7()
 		if err != nil {
@@ -277,15 +282,21 @@ func insertMeasures(ctx context.Context, q *store.Queries, scoreID uuid.UUID, me
 			}); err != nil {
 				return err
 			}
-			if err := insertHits(ctx, q, bID, b); err != nil {
+			params, err := collectHitParams(bID, b)
+			if err != nil {
 				return err
 			}
+			hitParams = append(hitParams, params...)
 		}
 	}
-	return nil
+
+	return flushHitBatch(ctx, tx, hitParams)
 }
 
-func insertHits(ctx context.Context, q *store.Queries, beatID uuid.UUID, b Beat) error {
+// collectHitParams converts a single Beat into InsertHitParams for every
+// active (non-OFF) step. Returns an error only for invalid step/ornament values.
+func collectHitParams(beatID uuid.UUID, b Beat) ([]store.InsertHitParams, error) {
+	var out []store.InsertHitParams
 	for _, part := range domain.PartIDs {
 		steps := b.Steps[part]
 		var orns []int
@@ -298,25 +309,45 @@ func insertHits(ctx context.Context, q *store.Queries, beatID uuid.UUID, b Beat)
 			}
 			vel, ok := velocityFromStepValue(v)
 			if !ok {
-				return fmt.Errorf("invalid step value %d for %s[%d]", v, part, i)
+				return nil, fmt.Errorf("invalid step value %d for %s[%d]", v, part, i)
 			}
 			var orn *store.Ornament
 			if i < len(orns) {
 				o, ok := ornamentEnumFromValue(orns[i])
 				if !ok {
-					return fmt.Errorf("invalid ornament value %d for %s[%d]", orns[i], part, i)
+					return nil, fmt.Errorf("invalid ornament value %d for %s[%d]", orns[i], part, i)
 				}
 				orn = o
 			}
-			if err := q.InsertHit(ctx, store.InsertHitParams{
+			out = append(out, store.InsertHitParams{
 				BeatID:    beatID,
 				PartID:    store.PartID(part),
 				StepIndex: int16(i),
 				Velocity:  vel,
 				Ornament:  orn,
-			}); err != nil {
-				return err
-			}
+			})
+		}
+	}
+	return out, nil
+}
+
+const insertHitSQL = `INSERT INTO hits (beat_id, part_id, step_index, velocity, ornament) VALUES ($1, $2, $3, $4, $5)`
+
+// flushHitBatch sends all hit INSERTs for a score in a single pgx.Batch,
+// reducing round-trips from O(hits) to 1.
+func flushHitBatch(ctx context.Context, tx pgx.Tx, params []store.InsertHitParams) error {
+	if len(params) == 0 {
+		return nil
+	}
+	batch := &pgx.Batch{}
+	for _, p := range params {
+		batch.Queue(insertHitSQL, p.BeatID, p.PartID, p.StepIndex, p.Velocity, p.Ornament)
+	}
+	br := tx.SendBatch(ctx, batch)
+	defer br.Close()
+	for range params {
+		if _, err := br.Exec(); err != nil {
+			return err
 		}
 	}
 	return nil
