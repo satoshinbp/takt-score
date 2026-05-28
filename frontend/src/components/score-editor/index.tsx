@@ -73,6 +73,10 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         onTitleChange={(title) => setDraft((d) => ({ ...d, title }))}
         onSave={handleSave}
         isNew={isNew}
+        spotifyTrackId={draft.spotifyTrackId}
+        onSpotifyTrackChange={(spotifyTrackId) =>
+          setDraft((d) => ({ ...d, spotifyTrackId }))
+        }
       />
       <ScoreEditorToolbar
         sel={sel}
