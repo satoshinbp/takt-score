@@ -341,7 +341,6 @@ func flushHitBatch(ctx context.Context, tx pgx.Tx, params []store.InsertHitParam
 	if len(params) == 0 {
 		return nil
 	}
-	const insertHitSQL = `INSERT INTO hits (beat_id, part_id, step_index, velocity, ornament) VALUES ($1, $2, $3, $4, $5)`
 	batch := &pgx.Batch{}
 	for _, p := range params {
 		batch.Queue(store.InsertHitSQL, p.BeatID, p.PartID, p.StepIndex, p.Velocity, p.Ornament)
