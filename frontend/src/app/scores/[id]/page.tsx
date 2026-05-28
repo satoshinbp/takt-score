@@ -31,6 +31,7 @@ const ScoreDetailPage = () => {
     const next = await updateScore(updated.id, {
       title: updated.title,
       bpm: updated.bpm,
+      spotifyTrackId: updated.spotifyTrackId,
       measures: updated.measures,
     });
     setScore(next);
