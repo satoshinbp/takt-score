@@ -205,9 +205,10 @@ type Measure struct {
 }
 
 type Score struct {
-	ID        uuid.UUID
-	Title     string
-	Bpm       int16
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	ID             uuid.UUID
+	Title          string
+	Bpm            int16
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+	SpotifyTrackID *string
 }

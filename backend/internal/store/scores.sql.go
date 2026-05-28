@@ -58,16 +58,17 @@ func (q *Queries) CountMeasuresForScores(ctx context.Context, dollar_1 []uuid.UU
 }
 
 const createScore = `-- name: CreateScore :exec
-INSERT INTO scores (id, title, bpm, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO scores (id, title, bpm, spotify_track_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6)
 `
 
 type CreateScoreParams struct {
-	ID        uuid.UUID
-	Title     string
-	Bpm       int16
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	ID             uuid.UUID
+	Title          string
+	Bpm            int16
+	SpotifyTrackID *string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
 }
 
 func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) error {
@@ -75,6 +76,7 @@ func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) error 
 		arg.ID,
 		arg.Title,
 		arg.Bpm,
+		arg.SpotifyTrackID,
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
@@ -105,7 +107,7 @@ func (q *Queries) FindScoreIDByTitle(ctx context.Context, title string) (uuid.UU
 }
 
 const getScore = `-- name: GetScore :one
-SELECT id, title, bpm, created_at, updated_at
+SELECT id, title, bpm, created_at, updated_at, spotify_track_id
 FROM scores
 WHERE id = $1
 `
@@ -119,12 +121,13 @@ func (q *Queries) GetScore(ctx context.Context, id uuid.UUID) (Score, error) {
 		&i.Bpm,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SpotifyTrackID,
 	)
 	return i, err
 }
 
 const listScores = `-- name: ListScores :many
-SELECT id, title, bpm, created_at, updated_at
+SELECT id, title, bpm, created_at, updated_at, spotify_track_id
 FROM scores
 ORDER BY updated_at DESC
 LIMIT $1 OFFSET $2
@@ -150,6 +153,7 @@ func (q *Queries) ListScores(ctx context.Context, arg ListScoresParams) ([]Score
 			&i.Bpm,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.SpotifyTrackID,
 		); err != nil {
 			return nil, err
 		}
@@ -163,15 +167,16 @@ func (q *Queries) ListScores(ctx context.Context, arg ListScoresParams) ([]Score
 
 const updateScoreMeta = `-- name: UpdateScoreMeta :execrows
 UPDATE scores
-SET title = $2, bpm = $3, updated_at = $4
+SET title = $2, bpm = $3, spotify_track_id = $4, updated_at = $5
 WHERE id = $1
 `
 
 type UpdateScoreMetaParams struct {
-	ID        uuid.UUID
-	Title     string
-	Bpm       int16
-	UpdatedAt pgtype.Timestamptz
+	ID             uuid.UUID
+	Title          string
+	Bpm            int16
+	SpotifyTrackID *string
+	UpdatedAt      pgtype.Timestamptz
 }
 
 func (q *Queries) UpdateScoreMeta(ctx context.Context, arg UpdateScoreMetaParams) (int64, error) {
@@ -179,6 +184,7 @@ func (q *Queries) UpdateScoreMeta(ctx context.Context, arg UpdateScoreMetaParams
 		arg.ID,
 		arg.Title,
 		arg.Bpm,
+		arg.SpotifyTrackID,
 		arg.UpdatedAt,
 	)
 	if err != nil {
