@@ -333,14 +333,13 @@ func collectHitParams(beatID uuid.UUID, b Beat) ([]store.InsertHitParams, error)
 	return out, nil
 }
 
-const insertHitSQL = `INSERT INTO hits (beat_id, part_id, step_index, velocity, ornament) VALUES ($1, $2, $3, $4, $5)`
-
 // flushHitBatch sends all hit INSERTs for a score in a single pgx.Batch,
 // reducing round-trips from O(hits) to 1.
 func flushHitBatch(ctx context.Context, tx pgx.Tx, params []store.InsertHitParams) error {
 	if len(params) == 0 {
 		return nil
 	}
+	const insertHitSQL = `INSERT INTO hits (beat_id, part_id, step_index, velocity, ornament) VALUES ($1, $2, $3, $4, $5)`
 	batch := &pgx.Batch{}
 	for _, p := range params {
 		batch.Queue(insertHitSQL, p.BeatID, p.PartID, p.StepIndex, p.Velocity, p.Ornament)
