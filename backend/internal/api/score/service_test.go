@@ -74,21 +74,47 @@ func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 	return err
 }
 
+// extractGooseUpSQL returns the concatenated SQL of every StatementBegin/End
+// block in the Up section of a goose migration file. If no StatementBegin
+// markers are present, the entire Up section is returned.
 func extractGooseUpSQL(content string) string {
+	const upMarker = "-- +goose Up"
+	const downMarker = "-- +goose Down"
 	const beginMarker = "-- +goose StatementBegin"
 	const endMarker = "-- +goose StatementEnd"
 
-	start := strings.Index(content, beginMarker)
-	if start < 0 {
+	upStart := strings.Index(content, upMarker)
+	if upStart < 0 {
 		return content
 	}
-	start += len(beginMarker)
-
-	end := strings.Index(content[start:], endMarker)
-	if end < 0 {
-		return strings.TrimSpace(content[start:])
+	upSection := content[upStart+len(upMarker):]
+	if downIdx := strings.Index(upSection, downMarker); downIdx >= 0 {
+		upSection = upSection[:downIdx]
 	}
-	return strings.TrimSpace(content[start : start+end])
+
+	var statements []string
+	rest := upSection
+	for {
+		bIdx := strings.Index(rest, beginMarker)
+		if bIdx < 0 {
+			break
+		}
+		rest = rest[bIdx+len(beginMarker):]
+
+		eIdx := strings.Index(rest, endMarker)
+		if eIdx < 0 {
+			statements = append(statements, strings.TrimSpace(rest))
+			rest = ""
+			break
+		}
+		statements = append(statements, strings.TrimSpace(rest[:eIdx]))
+		rest = rest[eIdx+len(endMarker):]
+	}
+
+	if len(statements) == 0 {
+		return strings.TrimSpace(upSection)
+	}
+	return strings.Join(statements, "\n")
 }
 
 // truncateScores removes all scores (cascades to measures/beats/hits) before a test
@@ -413,5 +439,81 @@ func TestService_List_EmptyReturnsSlice(t *testing.T) {
 	}
 	if len(results) != 0 {
 		t.Errorf("len = %d, want 0", len(results))
+	}
+}
+
+func TestExtractGooseUpSQL(t *testing.T) {
+	cases := []struct {
+		name    string
+		content string
+		want    string
+	}{
+		{
+			name: "single statement block",
+			content: `-- +goose Up
+-- +goose StatementBegin
+CREATE TABLE a (id int);
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE a;
+-- +goose StatementEnd
+`,
+			want: "CREATE TABLE a (id int);",
+		},
+		{
+			name: "multiple statement blocks in Up",
+			content: `-- +goose Up
+-- +goose StatementBegin
+CREATE TABLE a (id int);
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+CREATE TABLE b (id int);
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE b;
+-- +goose StatementEnd
+-- +goose StatementBegin
+DROP TABLE a;
+-- +goose StatementEnd
+`,
+			want: "CREATE TABLE a (id int);\nCREATE TABLE b (id int);",
+		},
+		{
+			name: "no statement markers returns Up section",
+			content: `-- +goose Up
+CREATE TABLE a (id int);
+
+-- +goose Down
+DROP TABLE a;
+`,
+			want: "CREATE TABLE a (id int);",
+		},
+		{
+			name: "Down statement blocks are not included",
+			content: `-- +goose Up
+-- +goose StatementBegin
+CREATE TABLE a (id int);
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE a;
+-- +goose StatementEnd
+`,
+			want: "CREATE TABLE a (id int);",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := extractGooseUpSQL(tc.content)
+			if got != tc.want {
+				t.Errorf("extractGooseUpSQL() =\n%q\nwant\n%q", got, tc.want)
+			}
+		})
 	}
 }
