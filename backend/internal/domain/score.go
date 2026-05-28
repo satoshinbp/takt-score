@@ -3,10 +3,11 @@
 package domain
 
 const (
-	BeatsPerMeasure = 4
-	MinBPM          = 1
-	MaxBPM          = 400
-	MaxTitleLen     = 200
+	BeatsPerMeasure       = 4
+	MinBPM                = 1
+	MaxBPM                = 400
+	MaxTitleLen           = 200
+	MaxSpotifyTrackIDLen  = 64
 )
 
 type PartID string

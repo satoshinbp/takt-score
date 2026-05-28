@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"testing"
 
@@ -58,20 +59,37 @@ func runTests(m *testing.M) int {
 	return m.Run()
 }
 
-// applyMigrations reads the goose Up section from the first migration file and
-// executes it against the given pool.
+// applyMigrations executes the goose Up section of every migration file in
+// numeric order, mirroring `goose up` for the test database.
 func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 	_, thisFile, _, _ := runtime.Caller(0)
 	migrationsDir := filepath.Join(filepath.Dir(thisFile), "../../../migrations")
 
-	raw, err := os.ReadFile(filepath.Join(migrationsDir, "00001_init.sql"))
+	entries, err := os.ReadDir(migrationsDir)
 	if err != nil {
 		return err
 	}
 
-	upSQL := extractGooseUpSQL(string(raw))
-	_, err = pool.Exec(ctx, upSQL)
-	return err
+	files := make([]string, 0, len(entries))
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".sql") {
+			continue
+		}
+		files = append(files, e.Name())
+	}
+	sort.Strings(files)
+
+	for _, name := range files {
+		raw, err := os.ReadFile(filepath.Join(migrationsDir, name))
+		if err != nil {
+			return err
+		}
+		upSQL := extractGooseUpSQL(string(raw))
+		if _, err := pool.Exec(ctx, upSQL); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func extractGooseUpSQL(content string) string {

@@ -30,6 +30,12 @@ func validateAll(in *ScoreInput) error {
 	if in.BPM < domain.MinBPM || in.BPM > domain.MaxBPM {
 		return fmt.Errorf("bpm %d not in [%d,%d]", in.BPM, domain.MinBPM, domain.MaxBPM)
 	}
+	if in.SpotifyTrackID != nil {
+		l := len(*in.SpotifyTrackID)
+		if l < 1 || l > domain.MaxSpotifyTrackIDLen {
+			return fmt.Errorf("spotifyTrackId length %d not in [1,%d]", l, domain.MaxSpotifyTrackIDLen)
+		}
+	}
 	if len(in.Measures) == 0 {
 		return fmt.Errorf("measures must contain at least one measure")
 	}

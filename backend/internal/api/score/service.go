@@ -121,11 +121,12 @@ func (s *Service) Create(ctx context.Context, in *ScoreInput) (*ScoreDetail, err
 	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
 		q := store.New(tx)
 		if err := q.CreateScore(ctx, store.CreateScoreParams{
-			ID:        scoreID,
-			Title:     in.Title,
-			Bpm:       int16(in.BPM),
-			CreatedAt: tsFromTime(now),
-			UpdatedAt: tsFromTime(now),
+			ID:             scoreID,
+			Title:          in.Title,
+			Bpm:            int16(in.BPM),
+			SpotifyTrackID: in.SpotifyTrackID,
+			CreatedAt:      tsFromTime(now),
+			UpdatedAt:      tsFromTime(now),
 		}); err != nil {
 			return err
 		}
@@ -154,10 +155,11 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, in *ScoreInput) (*Sc
 	err := pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
 		q := store.New(tx)
 		affected, err := q.UpdateScoreMeta(ctx, store.UpdateScoreMetaParams{
-			ID:        id,
-			Title:     in.Title,
-			Bpm:       int16(in.BPM),
-			UpdatedAt: tsFromTime(now),
+			ID:             id,
+			Title:          in.Title,
+			Bpm:            int16(in.BPM),
+			SpotifyTrackID: in.SpotifyTrackID,
+			UpdatedAt:      tsFromTime(now),
 		})
 		if err != nil {
 			return err
@@ -237,6 +239,7 @@ func summaryFromScore(sc store.Score, count int, preview Measure) ScoreSummary {
 		ID:             sc.ID,
 		Title:          sc.Title,
 		BPM:            int(sc.Bpm),
+		SpotifyTrackID: sc.SpotifyTrackID,
 		PreviewMeasure: preview,
 		MeasuresCount:  count,
 		CreatedAt:      sc.CreatedAt.Time,
