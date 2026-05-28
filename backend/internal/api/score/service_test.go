@@ -276,6 +276,7 @@ func TestService_Delete_CascadesAndErrNotFound(t *testing.T) {
 }
 
 func TestService_Get_ErrNotFound(t *testing.T) {
+	truncateScores(t)
 	ctx := context.Background()
 	svc := score.NewService(testPool)
 
@@ -286,6 +287,7 @@ func TestService_Get_ErrNotFound(t *testing.T) {
 }
 
 func TestService_Update_ErrNotFound(t *testing.T) {
+	truncateScores(t)
 	ctx := context.Background()
 	svc := score.NewService(testPool)
 
