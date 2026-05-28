@@ -10,8 +10,15 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
 
 export type ScoreInput = Omit<
   ScoreDetail,
-  "id" | "previewMeasure" | "measuresCount" | "createdAt" | "updatedAt"
->;
+  | "id"
+  | "spotifyTrackId"
+  | "previewMeasure"
+  | "measuresCount"
+  | "createdAt"
+  | "updatedAt"
+> & {
+  spotifyTrackId?: string | null;
+};
 
 export const listScores = async (): Promise<ScoreSummary[]> => {
   const res = await fetch(`${API_BASE}/scores`);
