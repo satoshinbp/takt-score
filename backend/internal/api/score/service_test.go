@@ -114,7 +114,10 @@ func extractGooseUpSQL(content string) string {
 	if len(statements) == 0 {
 		return strings.TrimSpace(upSection)
 	}
-	return strings.Join(statements, "\n")
+	// Insert a bare `;` between blocks so a block whose last line lacks a
+	// terminator (e.g. PL/pgSQL `END $$`) is still safely separated when
+	// executed as a single string.
+	return strings.Join(statements, "\n;\n")
 }
 
 // truncateScores removes all scores (cascades to measures/beats/hits) before a test
@@ -481,7 +484,7 @@ DROP TABLE b;
 DROP TABLE a;
 -- +goose StatementEnd
 `,
-			want: "CREATE TABLE a (id int);\nCREATE TABLE b (id int);",
+			want: "CREATE TABLE a (id int);\n;\nCREATE TABLE b (id int);",
 		},
 		{
 			name: "no statement markers returns Up section",
@@ -499,6 +502,19 @@ DROP TABLE a;
 -- +goose StatementBegin
 CREATE TABLE a (id int);
 -- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE a;
+-- +goose StatementEnd
+`,
+			want: "CREATE TABLE a (id int);",
+		},
+		{
+			name: "StatementBegin without StatementEnd consumes rest of Up section",
+			content: `-- +goose Up
+-- +goose StatementBegin
+CREATE TABLE a (id int);
 
 -- +goose Down
 -- +goose StatementBegin
