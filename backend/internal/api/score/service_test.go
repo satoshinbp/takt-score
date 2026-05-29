@@ -70,12 +70,15 @@ func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 	if err != nil {
 		return err
 	}
+	if len(files) == 0 {
+		return fmt.Errorf("no migrations found in %s", migrationsDir)
+	}
 	sort.Strings(files)
 
 	for _, f := range files {
 		raw, err := os.ReadFile(f)
 		if err != nil {
-			return err
+			return fmt.Errorf("read %s: %w", filepath.Base(f), err)
 		}
 		upSQL := extractGooseUpSQL(string(raw))
 		if _, err := pool.Exec(ctx, upSQL); err != nil {
