@@ -3,9 +3,11 @@ package score_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"testing"
 
@@ -58,20 +60,32 @@ func runTests(m *testing.M) int {
 	return m.Run()
 }
 
-// applyMigrations reads the goose Up section from the first migration file and
-// executes it against the given pool.
+// applyMigrations reads the goose Up section from every migration file in
+// lexicographic order and executes them against the given pool.
 func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 	_, thisFile, _, _ := runtime.Caller(0)
 	migrationsDir := filepath.Join(filepath.Dir(thisFile), "../../../migrations")
 
-	raw, err := os.ReadFile(filepath.Join(migrationsDir, "00001_init.sql"))
+	files, err := filepath.Glob(filepath.Join(migrationsDir, "*.sql"))
 	if err != nil {
 		return err
 	}
+	if len(files) == 0 {
+		return fmt.Errorf("no migrations found in %s", migrationsDir)
+	}
+	sort.Strings(files)
 
-	upSQL := extractGooseUpSQL(string(raw))
-	_, err = pool.Exec(ctx, upSQL)
-	return err
+	for _, f := range files {
+		raw, err := os.ReadFile(f)
+		if err != nil {
+			return fmt.Errorf("read %s: %w", filepath.Base(f), err)
+		}
+		upSQL := extractGooseUpSQL(string(raw))
+		if _, err := pool.Exec(ctx, upSQL); err != nil {
+			return fmt.Errorf("apply %s: %w", filepath.Base(f), err)
+		}
+	}
+	return nil
 }
 
 // extractGooseUpSQL returns the concatenated SQL of every StatementBegin/End
