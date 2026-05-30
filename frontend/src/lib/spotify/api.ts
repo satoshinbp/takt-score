@@ -56,16 +56,12 @@ const fetchWithToken = async (path: string): Promise<Response> => {
   });
 };
 
-export const searchTracks = async (
-  query: string,
-  maxItems = 20,
-): Promise<SpotifyTrack[]> => {
+export const searchTracks = async (query: string): Promise<SpotifyTrack[]> => {
   const trimmed = query.trim();
   if (!trimmed) return [];
   const params = new URLSearchParams({
     q: trimmed,
     type: "track",
-    limit: String(maxItems),
   });
   const res = await fetchWithToken(`/search?${params.toString()}`);
   if (!res.ok) throw new Error(`Spotify search failed (${res.status})`);
