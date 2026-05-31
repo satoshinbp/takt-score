@@ -1,6 +1,6 @@
-// Thin wrapper over the Spotify Web API endpoints we need: track search,
-// per-track lookup, and audio-features (for BPM). Every call goes through
-// getValidAccessToken so callers don't have to handle refresh themselves.
+// Thin wrapper over the Spotify Web API endpoints we need: track search and
+// per-track lookup. Every call goes through getValidAccessToken so callers
+// don't have to handle refresh themselves.
 
 import { getValidAccessToken } from "@/lib/spotify/auth";
 
@@ -15,11 +15,6 @@ export type SpotifyTrack = {
   uri: string;
 };
 
-export type SpotifyAudioFeatures = {
-  tempo: number;
-  timeSignature: number;
-};
-
 type SpotifyTrackResponse = {
   id: string;
   name: string;
@@ -31,11 +26,6 @@ type SpotifyTrackResponse = {
 
 type SpotifySearchResponse = {
   tracks: { items: SpotifyTrackResponse[] };
-};
-
-type AudioFeaturesResponse = {
-  tempo: number;
-  time_signature: number;
 };
 
 const parseTrack = (t: SpotifyTrackResponse): SpotifyTrack => ({
@@ -73,19 +63,4 @@ export const getTrack = async (trackId: string): Promise<SpotifyTrack> => {
   const res = await fetchWithToken(`/tracks/${trackId}`);
   if (!res.ok) throw new Error(`Spotify track lookup failed (${res.status})`);
   return parseTrack((await res.json()) as SpotifyTrackResponse);
-};
-
-// audio-features is deprecated for new Spotify apps as of late 2024 — apps
-// without extended access will see 403. Callers must handle null and fall back
-// to the score's own bpm.
-export const getAudioFeatures = async (
-  trackId: string,
-): Promise<SpotifyAudioFeatures | null> => {
-  const res = await fetchWithToken(`/audio-features/${trackId}`);
-  if (res.status === 403 || res.status === 404) return null;
-  if (!res.ok) {
-    throw new Error(`Spotify audio-features failed (${res.status})`);
-  }
-  const data = (await res.json()) as AudioFeaturesResponse;
-  return { tempo: data.tempo, timeSignature: data.time_signature };
 };

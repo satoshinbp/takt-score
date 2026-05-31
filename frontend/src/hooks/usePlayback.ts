@@ -25,12 +25,8 @@ export type PlaybackState = {
   setBpm: (v: number) => void;
   loop: boolean;
   setLoop: (v: boolean | ((prev: boolean) => boolean)) => void;
-  isSilent: boolean;
-  setSilent: (v: boolean) => void;
   toggle: () => void;
-  play: () => void;
   stop: () => void;
-  pause: () => void;
   seekTo: (step: number) => void;
 };
 
@@ -50,7 +46,6 @@ class PlaybackEngine {
   private readonly cb: EngineCallbacks;
   bpm: number;
   loop = true;
-  isSilent = false;
   score: ScoreDetail | null = null;
 
   constructor(bpm: number, callbacks: EngineCallbacks) {
@@ -184,9 +179,7 @@ class PlaybackEngine {
       const beat: Beat | undefined = beatMeasure?.[beatIndex];
       const subdivision: Subdivision = beat?.subdivision ?? 4;
 
-      // In silent mode the cursor still advances on schedule but no sounds are
-      // scheduled — used when external audio (e.g. Spotify) drives the music.
-      if (beat && !this.isSilent) {
+      if (beat) {
         const ctx = this.ctx;
         PART_IDS.forEach((id) => {
           const v = beat.steps[id]?.[stepIndex] ?? STEP.OFF;
@@ -220,7 +213,6 @@ export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpmState] = useState(score?.bpm ?? 120);
   const [shouldLoop, setShouldLoop] = useState(true);
-  const [isSilent, setSilentState] = useState(false);
 
   const engineRef = useRef<PlaybackEngine | null>(null);
 
@@ -240,9 +232,6 @@ export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
   useEffect(() => {
     engineRef.current!.loop = shouldLoop;
   }, [shouldLoop]);
-  useEffect(() => {
-    engineRef.current!.isSilent = isSilent;
-  }, [isSilent]);
 
   const setBpm = useCallback((v: number) => {
     setBpmState(v);
@@ -250,9 +239,6 @@ export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
     if (eng.score) eng.score = { ...eng.score, bpm: v };
   }, []);
 
-  const setSilent = useCallback((v: boolean) => setSilentState(v), []);
-  const play = useCallback(() => engineRef.current!.play(), []);
-  const pause = useCallback(() => engineRef.current!.pause(), []);
   const stop = useCallback(() => engineRef.current!.stop(), []);
   const seekTo = useCallback(
     (step: number) => engineRef.current!.seekTo(step),
@@ -275,12 +261,8 @@ export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
     setBpm,
     loop: shouldLoop,
     setLoop: setShouldLoop,
-    isSilent,
-    setSilent,
     toggle,
-    play,
     stop,
-    pause,
     seekTo,
   };
 };
