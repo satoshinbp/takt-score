@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { ORNAMENT, STEP } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -58,9 +58,11 @@ type Props = {
   isCurrent: boolean;
   color: string;
   anchor?: number;
-  onClick?: () => void;
+  bi: number;
+  si: number;
+  onClick?: (bi: number, si: number) => void;
   // Called on right-click or long-press. The rect is used as the popover anchor.
-  onContextMenu?: (rect: DOMRect) => void;
+  onContextMenu?: (bi: number, si: number, rect: DOMRect) => void;
 };
 
 const ScoreGridCell = ({
@@ -69,6 +71,8 @@ const ScoreGridCell = ({
   isCurrent,
   color,
   anchor,
+  bi,
+  si,
   onClick,
   onContextMenu,
 }: Props) => {
@@ -81,7 +85,7 @@ const ScoreGridCell = ({
   const style = getStepCellStyle(velocity, isCurrent, color);
 
   const fireContext = (target: HTMLElement) => {
-    onContextMenu?.(target.getBoundingClientRect());
+    onContextMenu?.(bi, si, target.getBoundingClientRect());
   };
 
   const handleContextMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -112,7 +116,7 @@ const ScoreGridCell = ({
       longPressFired.current = false;
       return;
     }
-    onClick?.();
+    onClick?.(bi, si);
   };
 
   const ornamentCount =
@@ -153,4 +157,4 @@ const ScoreGridCell = ({
   );
 };
 
-export default ScoreGridCell;
+export default memo(ScoreGridCell);
