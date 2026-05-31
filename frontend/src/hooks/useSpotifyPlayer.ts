@@ -27,11 +27,32 @@ const loadSpotifySDK = (): Promise<void> => {
   return sdkReadyPromise;
 };
 
+// The Web Playback SDK fires "ready" before Spotify's backend lists the device
+// as an active target, so a play call sent immediately after ready can 404.
+// Transferring playback to the device first makes it the active target.
+const transferPlayback = async (
+  deviceId: string,
+  accessToken: string,
+): Promise<void> => {
+  const res = await fetch("https://api.spotify.com/v1/me/player", {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ device_ids: [deviceId], play: false }),
+  });
+  if (!res.ok && res.status !== 204) {
+    throw new Error(`Spotify transfer failed (${res.status})`);
+  }
+};
+
 const startTrackPlayback = async (
   deviceId: string,
   trackUri: string,
   accessToken: string,
 ): Promise<void> => {
+  await transferPlayback(deviceId, accessToken);
   const res = await fetch(
     `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
     {
