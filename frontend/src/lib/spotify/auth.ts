@@ -1,6 +1,13 @@
 // Spotify Authorization Code with PKCE flow for SPAs. Tokens are stored in
 // localStorage so they survive page reloads; the refresh token is rotated on
 // every refresh per Spotify's spec.
+//
+// Security note: access and refresh tokens in localStorage are reachable from
+// any script that runs on this origin and are therefore exposed to XSS. This
+// is the standard SPA OAuth tradeoff; tightening it would require a backend
+// session or an httpOnly cookie proxy. Short-lived per-login secrets (PKCE
+// verifier, OAuth state) live in sessionStorage instead so they cannot leak
+// across tabs and are discarded as soon as the tab closes.
 
 import {
   SPOTIFY_CLIENT_ID,
@@ -10,6 +17,7 @@ import {
 
 const STORAGE_KEY = "takt-score:spotify-auth";
 const VERIFIER_KEY = "takt-score:spotify-verifier";
+const STATE_KEY = "takt-score:spotify-state";
 const RETURN_TO_KEY = "takt-score:spotify-return-to";
 
 const AUTHORIZE_URL = "https://accounts.spotify.com/authorize";
@@ -41,6 +49,15 @@ const base64UrlEncode = (bytes: Uint8Array): string => {
 
 const randomVerifier = (): string => {
   const bytes = new Uint8Array(64);
+  crypto.getRandomValues(bytes);
+  return base64UrlEncode(bytes);
+};
+
+// OAuth state is a per-flow nonce echoed back on the callback. Comparing the
+// stored value against the returned one closes the CSRF gap that PKCE alone
+// does not cover (RFC 6749 §10.12).
+const randomState = (): string => {
+  const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   return base64UrlEncode(bytes);
 };
@@ -92,7 +109,8 @@ export const subscribeSpotifyAuth = (cb: () => void): (() => void) => {
 
 export const clearSpotifyTokens = (): void => {
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(VERIFIER_KEY);
+  sessionStorage.removeItem(VERIFIER_KEY);
+  sessionStorage.removeItem(STATE_KEY);
   notify();
 };
 
@@ -107,7 +125,9 @@ export const startSpotifyLogin = async (returnTo: string): Promise<void> => {
   }
   const verifier = randomVerifier();
   const challenge = base64UrlEncode(await sha256(verifier));
-  localStorage.setItem(VERIFIER_KEY, verifier);
+  const state = randomState();
+  sessionStorage.setItem(VERIFIER_KEY, verifier);
+  sessionStorage.setItem(STATE_KEY, state);
   localStorage.setItem(RETURN_TO_KEY, returnTo);
 
   const params = new URLSearchParams({
@@ -117,6 +137,7 @@ export const startSpotifyLogin = async (returnTo: string): Promise<void> => {
     code_challenge_method: "S256",
     code_challenge: challenge,
     scope: SPOTIFY_SCOPES,
+    state,
   });
   window.location.assign(`${AUTHORIZE_URL}?${params.toString()}`);
 };
@@ -152,13 +173,26 @@ const exchangeCodeForTokens = async (
   };
 };
 
-// Called by the OAuth callback route to finalize the flow.
-export const completeSpotifyLogin = async (code: string): Promise<void> => {
-  const verifier = localStorage.getItem(VERIFIER_KEY);
+// Called by the OAuth callback route to finalize the flow. The state arg comes
+// from the redirect URL and is compared against the value stashed before the
+// authorize redirect — a mismatch means the callback didn't originate from our
+// own startSpotifyLogin, so we refuse the exchange.
+export const completeSpotifyLogin = async (
+  code: string,
+  state: string | null,
+): Promise<void> => {
+  const expectedState = sessionStorage.getItem(STATE_KEY);
+  if (!expectedState || expectedState !== state) {
+    sessionStorage.removeItem(VERIFIER_KEY);
+    sessionStorage.removeItem(STATE_KEY);
+    throw new Error("Spotify auth state mismatch");
+  }
+  const verifier = sessionStorage.getItem(VERIFIER_KEY);
   if (!verifier) throw new Error("Spotify auth verifier missing");
   const tokens = await exchangeCodeForTokens(code, verifier);
   storeTokens(tokens);
-  localStorage.removeItem(VERIFIER_KEY);
+  sessionStorage.removeItem(VERIFIER_KEY);
+  sessionStorage.removeItem(STATE_KEY);
 };
 
 const refreshTokens = async (refreshToken: string): Promise<SpotifyTokens> => {

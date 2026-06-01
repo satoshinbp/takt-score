@@ -8,6 +8,7 @@ const SpotifyCallbackInner = () => {
   const router = useRouter();
   const params = useSearchParams();
   const code = params.get("code");
+  const state = params.get("state");
   const oauthError = params.get("error");
   // Failures from the async token exchange feed in here; the OAuth-level error
   // is derived directly from the query string above.
@@ -17,14 +18,14 @@ const SpotifyCallbackInner = () => {
     if (oauthError || !code) return;
     void (async () => {
       try {
-        await completeSpotifyLogin(code);
+        await completeSpotifyLogin(code, state);
         const returnTo = consumeReturnTo() ?? "/";
         router.replace(returnTo);
       } catch (e) {
         setExchangeError(e instanceof Error ? e.message : String(e));
       }
     })();
-  }, [code, oauthError, router]);
+  }, [code, state, oauthError, router]);
 
   const errorMessage = oauthError ?? (code ? exchangeError : "missing code");
 
