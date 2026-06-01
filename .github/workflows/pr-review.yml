@@ -1,0 +1,29 @@
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            PR #${{ github.event.pull_request.number }} をレビューしてください。
+            diff の範囲だけを対象に、バグ・セキュリティ問題・明らかな改善点を中心に指摘し、
+            `gh pr review --comment` でまとめコメントを投稿してください。
+            軽微なスタイルや好みの問題は無視してかまいません。
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
