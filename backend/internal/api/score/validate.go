@@ -3,9 +3,15 @@ package score
 import (
 	"errors"
 	"fmt"
+	"regexp"
 
 	"github.com/shinyasato/takt-score/backend/internal/domain"
 )
+
+// Spotify track IDs are base62 strings of exactly 22 characters. Validating
+// against this format rejects malformed IDs at the API boundary, before they
+// can be persisted and later surface as a 404 at playback time.
+var spotifyTrackIDPattern = regexp.MustCompile(`^[A-Za-z0-9]{22}$`)
 
 // ErrValidation wraps every error returned by ValidateInput so handlers can
 // distinguish bad-request input from internal failures.
@@ -30,11 +36,8 @@ func validateAll(in *ScoreInput) error {
 	if in.BPM < domain.MinBPM || in.BPM > domain.MaxBPM {
 		return fmt.Errorf("bpm %d not in [%d,%d]", in.BPM, domain.MinBPM, domain.MaxBPM)
 	}
-	if in.SpotifyTrackID != nil {
-		l := len(*in.SpotifyTrackID)
-		if l < 1 || l > domain.MaxSpotifyTrackIDLen {
-			return fmt.Errorf("spotifyTrackId length %d not in [1,%d]", l, domain.MaxSpotifyTrackIDLen)
-		}
+	if in.SpotifyTrackID != nil && !spotifyTrackIDPattern.MatchString(*in.SpotifyTrackID) {
+		return fmt.Errorf("spotifyTrackId %q is not a valid Spotify track ID (expected 22 base62 chars)", *in.SpotifyTrackID)
 	}
 	if len(in.Measures) == 0 {
 		return fmt.Errorf("measures must contain at least one measure")
