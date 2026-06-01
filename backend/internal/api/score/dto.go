@@ -23,6 +23,7 @@ type ScoreSummary struct {
 	ID             uuid.UUID `json:"id"`
 	Title          string    `json:"title"`
 	BPM            int       `json:"bpm"`
+	SpotifyTrackID *string   `json:"spotifyTrackId"`
 	PreviewMeasure Measure   `json:"previewMeasure"`
 	MeasuresCount  int       `json:"measuresCount"`
 	CreatedAt      time.Time `json:"createdAt"`
@@ -36,7 +37,8 @@ type ScoreDetail struct {
 
 // ScoreInput is the wire format for POST/PUT request bodies.
 type ScoreInput struct {
-	Title    string    `json:"title"`
-	BPM      int       `json:"bpm"`
-	Measures []Measure `json:"measures"`
+	Title          string    `json:"title"`
+	BPM            int       `json:"bpm"`
+	SpotifyTrackID *string   `json:"spotifyTrackId,omitempty"`
+	Measures       []Measure `json:"measures"`
 }

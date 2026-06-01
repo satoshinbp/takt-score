@@ -15,6 +15,7 @@ const NewScorePage = () => {
     const created = await createScore({
       title: s.title,
       bpm: s.bpm,
+      spotifyTrackId: s.spotifyTrackId,
       measures: s.measures,
     });
     router.push(`/scores/${created.id}`);

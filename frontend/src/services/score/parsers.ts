@@ -28,6 +28,8 @@ export const isScoreSummaryDTO = (value: unknown): value is WireScoreSummary =>
   typeof (value as WireScoreSummary).id === "string" &&
   typeof (value as WireScoreSummary).title === "string" &&
   typeof (value as WireScoreSummary).bpm === "number" &&
+  ((value as WireScoreSummary).spotifyTrackId === null ||
+    typeof (value as WireScoreSummary).spotifyTrackId === "string") &&
   ((value as WireScoreSummary).previewMeasure === null ||
     isMeasureLike((value as WireScoreSummary).previewMeasure)) &&
   typeof (value as WireScoreSummary).measuresCount === "number" &&
@@ -42,6 +44,7 @@ export const parseScoreSummary = (dto: WireScoreSummary): ScoreSummary => ({
   id: dto.id,
   title: dto.title,
   bpm: dto.bpm,
+  spotifyTrackId: dto.spotifyTrackId,
   previewMeasure: dto.previewMeasure,
   measuresCount: dto.measuresCount,
   createdAt: new Date(dto.createdAt),

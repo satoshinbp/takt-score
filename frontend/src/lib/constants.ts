@@ -97,6 +97,7 @@ export const newScore = (title = "New Score", bpm = 120): ScoreDetail => {
     id: "",
     title,
     bpm,
+    spotifyTrackId: null,
     previewMeasure: measures[0],
     measuresCount: measures.length,
     measures,

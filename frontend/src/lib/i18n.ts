@@ -83,6 +83,26 @@ const en = {
   "scoreViewer.edit": "Edit",
   "scoreViewer.delete": "Delete",
   "scoreViewer.back": "Back",
+  "scoreViewer.spotifyPlay": "Play with Spotify",
+  "scoreViewer.spotifyPause": "Pause Spotify",
+  "scoreViewer.spotifyConnect": "Connect Spotify",
+  "scoreViewer.spotifyLoading": "Loading…",
+  "scoreViewer.spotifyDeviceWaiting": "Waiting for Spotify device…",
+  "scoreViewer.spotifyError": "Spotify error",
+  "scoreViewer.spotifyNoTrack": "No Spotify track linked",
+
+  "spotifyDialog.title": "Link Spotify track",
+  "spotifyDialog.loginPrompt":
+    "Sign in to Spotify (Premium required) to search and link a track.",
+  "spotifyDialog.login": "Sign in to Spotify",
+  "spotifyDialog.logout": "Sign out",
+  "spotifyDialog.searchPlaceholder": "Search song or artist…",
+  "spotifyDialog.notAuthed": "Please sign in to Spotify first.",
+  "spotifyDialog.unlink": "Unlink",
+  "spotifyDialog.missingClientId":
+    "NEXT_PUBLIC_SPOTIFY_CLIENT_ID is not configured.",
+  "spotifyEditor.linkTrack": "Link Spotify track",
+  "spotifyEditor.changeTrack": "Change Spotify track",
 
   "innerTakt.subtitle": "Rhythm Trainer · Tap <SPACE> on each beat",
   "innerTakt.statusIdle": "PRESS SPACE TO BEGIN",
@@ -192,6 +212,26 @@ const ja: Record<DictKey, string> = {
   "scoreViewer.edit": "編集",
   "scoreViewer.delete": "削除",
   "scoreViewer.back": "戻る",
+  "scoreViewer.spotifyPlay": "Spotifyで再生",
+  "scoreViewer.spotifyPause": "Spotify一時停止",
+  "scoreViewer.spotifyConnect": "Spotifyに接続",
+  "scoreViewer.spotifyLoading": "読み込み中…",
+  "scoreViewer.spotifyDeviceWaiting": "Spotifyデバイス準備中…",
+  "scoreViewer.spotifyError": "Spotifyエラー",
+  "scoreViewer.spotifyNoTrack": "Spotifyトラック未設定",
+
+  "spotifyDialog.title": "Spotifyトラックを紐付け",
+  "spotifyDialog.loginPrompt":
+    "Spotify（Premiumが必要）にサインインして検索・紐付けします。",
+  "spotifyDialog.login": "Spotifyにサインイン",
+  "spotifyDialog.logout": "サインアウト",
+  "spotifyDialog.searchPlaceholder": "曲名 / アーティスト…",
+  "spotifyDialog.notAuthed": "先にSpotifyへサインインしてください。",
+  "spotifyDialog.unlink": "紐付け解除",
+  "spotifyDialog.missingClientId":
+    "NEXT_PUBLIC_SPOTIFY_CLIENT_ID が設定されていません。",
+  "spotifyEditor.linkTrack": "Spotifyトラックを紐付け",
+  "spotifyEditor.changeTrack": "Spotifyトラック変更",
 
   "innerTakt.subtitle": "リズムトレーナー ・ 各ビートで <SPACE> をタップ",
   "innerTakt.statusIdle": "スペースキーで開始",

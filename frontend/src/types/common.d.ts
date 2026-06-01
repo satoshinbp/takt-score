@@ -4,6 +4,7 @@ export type ScoreSummary = {
   id: string;
   title: string;
   bpm: number;
+  spotifyTrackId: string | null;
   previewMeasure: Measure | null;
   measuresCount: number;
   createdAt: Date;

@@ -1,6 +1,13 @@
 "use client";
 
-import { memo, useLayoutEffect, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import BeatRuler from "@/components/score-grid/beat-ruler";
 import CellPopover from "@/components/score-grid/cell-popover";
 import ScoreGridRow from "@/components/score-grid/row";
@@ -51,6 +58,27 @@ const ScoreGrid = ({
   const [rowStarts, setRowStarts] = useState<Set<number>>(() => new Set([0]));
   const [popoverTarget, setPopoverTarget] = useState<PopoverTarget | null>(
     null,
+  );
+
+  // Stabilize onToggle via a ref so the callback passed down to memoized rows
+  // does not change identity when the parent re-renders (e.g. on currentStep
+  // updates during playback). The ref always points to the latest onToggle.
+  const onToggleRef = useRef(onToggle);
+  useEffect(() => {
+    onToggleRef.current = onToggle;
+  }, [onToggle]);
+  const handleToggle = useCallback(
+    (mi: number, vi: number, bi: number, si: number) =>
+      onToggleRef.current?.(mi, vi, bi, si),
+    [],
+  );
+
+  // setPopoverTarget is a React setState updater and is already stable, so a
+  // useCallback with empty deps is sufficient to give rows a stable handler.
+  const handleCellContextMenu = useCallback(
+    (mi: number, vi: number, bi: number, si: number, rect: DOMRect) =>
+      setPopoverTarget({ mi, partIdx: vi, bi, si, rect }),
+    [],
   );
 
   useLayoutEffect(() => {
@@ -125,16 +153,13 @@ const ScoreGrid = ({
                   config={PARTS[id]}
                   measure={measure}
                   stepOffset={stepOffset}
-                  currentStep={currentStep}
+                  currentStep={isCur ? currentStep : -1}
+                  measureIndex={mi}
+                  partIndex={vi}
                   anchoreEnabled={vi === 0}
-                  onToggle={
-                    onToggle ? (bi, si) => onToggle(mi, vi, bi, si) : undefined
-                  }
+                  onToggle={onToggle ? handleToggle : undefined}
                   onCellContextMenu={
-                    isEditable
-                      ? (bi, si, rect) =>
-                          setPopoverTarget({ mi, partIdx: vi, bi, si, rect })
-                      : undefined
+                    isEditable ? handleCellContextMenu : undefined
                   }
                   isRowStart={isRowStart}
                 />

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import ScoreGridCell, { BEAT_WIDTH_PX } from "@/components/score-grid/row/cell";
 import ScoreGridRowHeader from "@/components/score-grid/row/header";
 import type { PartConfig, PartId } from "@/lib/constants";
@@ -11,10 +12,21 @@ type Props = {
   config: PartConfig;
   measure: Measure;
   stepOffset: number;
+  // Global step index when the cursor is in this measure, -1 otherwise. Holding
+  // -1 for non-current measures lets memo skip every row outside the current
+  // measure during playback.
   currentStep: number;
+  measureIndex: number;
+  partIndex: number;
   anchoreEnabled?: boolean;
-  onToggle?: (bi: number, si: number) => void;
-  onCellContextMenu?: (bi: number, si: number, rect: DOMRect) => void;
+  onToggle?: (mi: number, vi: number, bi: number, si: number) => void;
+  onCellContextMenu?: (
+    mi: number,
+    vi: number,
+    bi: number,
+    si: number,
+    rect: DOMRect,
+  ) => void;
   isRowStart: boolean;
 };
 
@@ -24,6 +36,8 @@ const ScoreGridRow = ({
   measure,
   stepOffset,
   currentStep,
+  measureIndex,
+  partIndex,
   anchoreEnabled = false,
   onToggle,
   onCellContextMenu,
@@ -33,6 +47,17 @@ const ScoreGridRow = ({
     acc.push(bi === 0 ? stepOffset : acc[bi - 1] + measure[bi - 1].subdivision);
     return acc;
   }, []);
+
+  const handleCellClick = useCallback(
+    (bi: number, si: number) => onToggle?.(measureIndex, partIndex, bi, si),
+    [onToggle, measureIndex, partIndex],
+  );
+
+  const handleCellContextMenu = useCallback(
+    (bi: number, si: number, rect: DOMRect) =>
+      onCellContextMenu?.(measureIndex, partIndex, bi, si, rect),
+    [onCellContextMenu, measureIndex, partIndex],
+  );
 
   return (
     <div className="flex items-center mb-0.5">
@@ -48,16 +73,16 @@ const ScoreGridRow = ({
             return (
               <ScoreGridCell
                 key={`${bi}-${si}`}
+                bi={bi}
+                si={si}
                 velocity={val}
                 ornament={readOrnament(beat, id, si)}
                 isCurrent={global === currentStep}
                 color={config.color}
                 anchor={anchoreEnabled ? global : undefined}
-                onClick={onToggle ? () => onToggle(bi, si) : undefined}
+                onClick={onToggle ? handleCellClick : undefined}
                 onContextMenu={
-                  onCellContextMenu
-                    ? (rect) => onCellContextMenu(bi, si, rect)
-                    : undefined
+                  onCellContextMenu ? handleCellContextMenu : undefined
                 }
               />
             );
@@ -68,4 +93,4 @@ const ScoreGridRow = ({
   );
 };
 
-export default ScoreGridRow;
+export default memo(ScoreGridRow);

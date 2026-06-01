@@ -27,7 +27,6 @@ export type PlaybackState = {
   setLoop: (v: boolean | ((prev: boolean) => boolean)) => void;
   toggle: () => void;
   stop: () => void;
-  pause: () => void;
   seekTo: (step: number) => void;
 };
 
@@ -240,7 +239,6 @@ export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
     if (eng.score) eng.score = { ...eng.score, bpm: v };
   }, []);
 
-  const pause = useCallback(() => engineRef.current!.pause(), []);
   const stop = useCallback(() => engineRef.current!.stop(), []);
   const seekTo = useCallback(
     (step: number) => engineRef.current!.seekTo(step),
@@ -265,7 +263,6 @@ export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
     setLoop: setShouldLoop,
     toggle,
     stop,
-    pause,
     seekTo,
   };
 };
