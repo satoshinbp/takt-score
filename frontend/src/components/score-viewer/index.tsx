@@ -28,7 +28,18 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
   const auth = useSpotifyAuth();
   const player = useSpotifyPlayer();
 
-  const [trackLabel, setTrackLabel] = useState<string | null>(null);
+  // Pair the resolved label with the trackId it was fetched for. Reading
+  // trackLabel during render only when fetchedLabel matches the current
+  // trackId prevents a stale label from a previous track or sign-in state
+  // from showing on screen.
+  const [fetchedLabel, setFetchedLabel] = useState<{
+    trackId: string;
+    label: string;
+  } | null>(null);
+  const trackLabel =
+    fetchedLabel && fetchedLabel.trackId === trackId
+      ? fetchedLabel.label
+      : null;
 
   const shouldFetchTrack = !!trackId && auth.isAuthed;
 
@@ -41,7 +52,10 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
       try {
         const track = await getTrack(trackId);
         if (!isCancelled) {
-          setTrackLabel(`${track.name} — ${track.artists.join(", ")}`);
+          setFetchedLabel({
+            trackId,
+            label: `${track.name} — ${track.artists.join(", ")}`,
+          });
         }
       } catch {
         // metadata is decorative; ignore failures

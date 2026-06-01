@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { Loader2, LogIn, LogOut, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,34 +35,44 @@ const SpotifyTrackDialog = ({
   const [results, setResults] = useState<SpotifyTrack[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Monotonic request counter — only the latest search may publish its
+  // result/loading/error to state. Without this guard, rapid consecutive
+  // searches could let an older response overwrite a newer one.
+  const latestReqIdRef = useRef(0);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {
       setQuery("");
       setResults([]);
       setError(null);
+      latestReqIdRef.current++;
     }
     onOpenChange(next);
   };
 
   const runSearch = async (q: string) => {
+    const reqId = ++latestReqIdRef.current;
+    const isLatest = () => reqId === latestReqIdRef.current;
+
     setError(null);
     if (!q.trim()) {
       setResults([]);
       return;
     }
     const token = await ensureToken();
+    if (!isLatest()) return;
     if (!token) {
       setError(t("spotifyDialog.notAuthed"));
       return;
     }
     setLoading(true);
     try {
-      setResults(await searchTracks(q));
+      const items = await searchTracks(q);
+      if (isLatest()) setResults(items);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      if (isLatest()) setError(e instanceof Error ? e.message : String(e));
     } finally {
-      setLoading(false);
+      if (isLatest()) setLoading(false);
     }
   };
 

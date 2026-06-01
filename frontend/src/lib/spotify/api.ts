@@ -52,6 +52,9 @@ export const searchTracks = async (query: string): Promise<SpotifyTrack[]> => {
   const params = new URLSearchParams({
     q: trimmed,
     type: "track",
+    // from_token restricts results to the user's market so we don't surface
+    // tracks that would fail playback with a relink-required playback_error.
+    market: "from_token",
   });
   const res = await fetchWithToken(`/search?${params.toString()}`);
   if (!res.ok) throw new Error(`Spotify search failed (${res.status})`);

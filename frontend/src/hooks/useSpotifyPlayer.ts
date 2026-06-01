@@ -114,9 +114,12 @@ export const useSpotifyPlayer = ({
         const player = new window.Spotify.Player({
           name: deviceName,
           getOAuthToken: (cb) => {
+            // Always invoke cb — passing "" when no valid token is available
+            // makes the SDK fire authentication_error so the UI can surface a
+            // re-login prompt instead of silently stalling.
             void (async () => {
               const token = await getValidAccessToken();
-              if (token) cb(token);
+              cb(token ?? "");
             })();
           },
           volume: 0.7,
