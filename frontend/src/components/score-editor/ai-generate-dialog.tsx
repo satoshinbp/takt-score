@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { detectBpm } from "@/lib/detect-bpm";
 import type { Measure } from "@/types/common";
 

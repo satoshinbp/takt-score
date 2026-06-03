@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 
 const DOT_STYLES = {

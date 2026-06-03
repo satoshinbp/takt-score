@@ -7,7 +7,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { ORNAMENT, STEP } from "@/lib/constants";
 import type { DictKey } from "@/lib/i18n";
 

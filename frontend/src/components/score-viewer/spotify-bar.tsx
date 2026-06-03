@@ -2,7 +2,7 @@
 
 import { Loader2, LogIn, Music2, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type Props = {
   isAuthed: boolean;

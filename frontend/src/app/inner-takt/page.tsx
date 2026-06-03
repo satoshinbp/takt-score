@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import BeatDots from "./_components/beat-dots";
 import ConfigKnobs from "./_components/config-knobs";
 import StatsPanel from "./_components/stats-panel";

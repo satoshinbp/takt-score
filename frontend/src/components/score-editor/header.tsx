@@ -5,7 +5,7 @@ import { ArrowLeft, Music2 } from "lucide-react";
 import SpotifyTrackDialog from "@/components/score-editor/spotify-track-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type Props = {
   onBack: () => void;

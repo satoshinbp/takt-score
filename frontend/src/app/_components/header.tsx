@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type Props = {
   count: number;

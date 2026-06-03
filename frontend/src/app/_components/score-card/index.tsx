@@ -5,7 +5,7 @@ import { Copy } from "lucide-react";
 import ScorePreview from "@/app/_components/score-card/preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import type { ScoreSummary } from "@/types/common";
 

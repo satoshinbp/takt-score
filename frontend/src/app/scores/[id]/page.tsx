@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DetailPage from "@/app/scores/[id]/_components/detail-page";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { deleteScore, getScore, updateScore } from "@/services/score";
 import { type ScoreDetail } from "@/types/common";
 

@@ -4,7 +4,7 @@ import { Pause, Play, Repeat, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { decodeStep, getTotalSteps } from "@/lib/playback-utils";
 import type { Measure } from "@/types/common";
 

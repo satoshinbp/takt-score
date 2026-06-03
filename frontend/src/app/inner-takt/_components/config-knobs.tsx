@@ -1,7 +1,7 @@
 "use client";
 
 import Knob from "@/components/knob";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { InnerTaktConfig } from "../_hooks/useInnerTakt";
 
 type Props = {

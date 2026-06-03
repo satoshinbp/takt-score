@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import DashboardHeader from "@/app/_components/header";
 import NewScoreCard from "@/app/_components/new-score-card";
 import ScoreCard from "@/app/_components/score-card";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cloneMeasure } from "@/lib/constants";
 import { createScore, getScore, listScores } from "@/services/score";
 import { type ScoreSummary } from "@/types/common";

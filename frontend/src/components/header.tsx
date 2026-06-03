@@ -7,7 +7,7 @@ import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { TaktScoreIcon } from "@/components/icon";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 
 const NAV_TABS = [
