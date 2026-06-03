@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -194,4 +193,4 @@ const ScoreGrid = ({
   );
 };
 
-export default memo(ScoreGrid);
+export default ScoreGrid;
