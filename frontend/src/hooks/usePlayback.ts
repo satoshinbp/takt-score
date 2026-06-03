@@ -35,144 +35,84 @@ type EngineCallbacks = {
   onPlayingChange: (playing: boolean) => void;
 };
 
-class PlaybackEngine {
-  private ctx: AudioContext | null = null;
-  private timer: ReturnType<typeof setTimeout> | null = null;
-  private raf: number | null = null;
-  private scheduleStep = 0;
-  private nextTime = 0;
-  private scheduledEvents: { step: number; time: number }[] = [];
-  private playingStep = -1;
-  private readonly cb: EngineCallbacks;
-  bpm: number;
-  loop = true;
-  score: ScoreDetail | null = null;
+type PlaybackEngine = {
+  play: () => void;
+  pause: () => void;
+  stop: () => void;
+  seekTo: (step: number) => void;
+  stopLoops: () => void;
+  setBpm: (v: number) => void;
+  setLoop: (v: boolean) => void;
+  setScore: (s: ScoreDetail | null) => void;
+  getScore: () => ScoreDetail | null;
+};
 
-  constructor(bpm: number, callbacks: EngineCallbacks) {
-    this.bpm = bpm;
-    this.cb = callbacks;
-  }
+const createPlaybackEngine = (
+  initialBpm: number,
+  cb: EngineCallbacks,
+): PlaybackEngine => {
+  let ctx: AudioContext | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let raf: number | null = null;
+  let scheduleStep = 0;
+  let nextTime = 0;
+  let scheduledEvents: { step: number; time: number }[] = [];
+  let playingStep = -1;
+  let bpm = initialBpm;
+  let shouldLoop = true;
+  let score: ScoreDetail | null = null;
 
-  play() {
-    if (this.isPlaying()) return;
-    if (!this.ctx) this.ctx = new AudioContext();
-    if (this.ctx.state === "suspended") void this.ctx.resume();
-    this.start();
-    this.cb.onPlayingChange(true);
-  }
+  const isPlaying = () => timer !== null;
 
-  pause() {
-    if (!this.isPlaying()) return;
-    this.stopLoops();
-    this.syncStep();
-    this.clearPlaybackState();
-    this.cb.onPlayingChange(false);
-  }
+  const clearPlaybackState = () => {
+    scheduledEvents = [];
+    playingStep = -1;
+  };
 
-  stop() {
-    this.stopLoops();
-    this.scheduleStep = 0;
-    this.clearPlaybackState();
-    this.cb.onPlayingChange(false);
-    this.cb.onStepChange(-1);
-  }
+  const totalStepsNow = () => (score ? getTotalSteps(score.measures) : 4);
 
-  seekTo(step: number) {
-    this.scheduleStep = step;
-    this.scheduledEvents = [];
-    this.cb.onStepChange(step);
-    if (!this.isPlaying()) return;
-    this.stopLoops();
-    this.start();
-  }
-
-  stopLoops() {
-    if (this.timer) {
-      clearTimeout(this.timer);
-      this.timer = null;
-    }
-
-    if (this.raf) {
-      cancelAnimationFrame(this.raf);
-      this.raf = null;
-    }
-  }
-
-  private start() {
-    if (!this.ctx) return;
-    // Start slightly in the future to avoid timing drift on immediate playback.
-    this.nextTime = this.ctx.currentTime + 0.05;
-    this.timer = setTimeout(() => this.scheduler(), 0);
-    this.raf = requestAnimationFrame(() => this.rafLoop());
-  }
-
-  private isPlaying() {
-    return this.timer !== null;
-  }
-
-  private clearPlaybackState() {
-    this.scheduledEvents = [];
-    this.playingStep = -1;
-  }
-
-  private getTotalSteps() {
-    return this.score ? getTotalSteps(this.score.measures) : 4;
-  }
-
-  private syncStep() {
-    const playingStep = this.playingStep;
+  const syncStep = () => {
     if (playingStep < 0) return;
-    const totalSteps = this.getTotalSteps();
-    this.scheduleStep = (playingStep + 1) % totalSteps;
-    this.cb.onStepChange(playingStep);
-  }
+    scheduleStep = (playingStep + 1) % totalStepsNow();
+    cb.onStepChange(playingStep);
+  };
 
-  /**
-   * ===== UI update loop (requestAnimationFrame) =====
-   * Computes which step is currently sounding and reflects it into React state.
-   */
-  private rafLoop() {
-    if (!this.isPlaying() || !this.ctx) return;
+  const rafLoop = () => {
+    if (!isPlaying() || !ctx) return;
 
-    const now = this.ctx.currentTime;
+    const now = ctx.currentTime;
 
     // Drop events outside the lookahead window to prevent re-highlighting past steps.
-    this.scheduledEvents = this.scheduledEvents.filter(
-      (e) => e.time > now - 0.05,
-    );
+    scheduledEvents = scheduledEvents.filter((e) => e.time > now - 0.05);
 
     let lastPlayedStep = -1;
 
     // Match the lookahead to start()'s initial offset (0.05s).
     // At 100ms the next step enters the window and causes an early jump.
-    for (const e of this.scheduledEvents) {
+    for (const e of scheduledEvents) {
       if (e.time <= now + 0.05) lastPlayedStep = e.step;
     }
 
     if (lastPlayedStep >= 0) {
-      this.playingStep = lastPlayedStep;
-      this.cb.onStepChange(lastPlayedStep);
+      playingStep = lastPlayedStep;
+      cb.onStepChange(lastPlayedStep);
     }
 
-    this.raf = requestAnimationFrame(() => this.rafLoop());
-  }
+    raf = requestAnimationFrame(rafLoop);
+  };
 
-  /**
-   * ===== Scheduler =====
-   * Pre-schedules future sounds in batches. This is the core of jitter-free playback.
-   */
-  private scheduler() {
-    if (!this.timer || !this.ctx) return;
+  const scheduler = () => {
+    if (!timer || !ctx) return;
 
     const lookAhead = 0.12;
-    const totalSteps = this.getTotalSteps();
-    const measures: Measure[] = this.score?.measures ?? [];
+    const totalSteps = totalStepsNow();
+    const measures: Measure[] = score?.measures ?? [];
 
-    while (this.nextTime < this.ctx.currentTime + lookAhead) {
-      const step = this.scheduleStep;
-      const time = this.nextTime;
+    while (nextTime < ctx.currentTime + lookAhead) {
+      const step = scheduleStep;
+      const time = nextTime;
 
-      this.scheduledEvents.push({ step, time });
+      scheduledEvents.push({ step, time });
 
       const { measureIndex, beatIndex, stepIndex } = decodeStep(step, measures);
       const beatMeasure: Measure | undefined = measures[measureIndex];
@@ -180,7 +120,7 @@ class PlaybackEngine {
       const subdivision: Subdivision = beat?.subdivision ?? 4;
 
       if (beat) {
-        const ctx = this.ctx;
+        const audioCtx = ctx;
         PART_IDS.forEach((id) => {
           const v = beat.steps[id]?.[stepIndex] ?? STEP.OFF;
           if (v === STEP.OFF) return;
@@ -188,25 +128,98 @@ class PlaybackEngine {
           // Grace notes are played softer before the main hit, spaced 25ms apart.
           const orn = beat.ornaments?.[id]?.[stepIndex] ?? 0;
           for (let g = orn; g >= 1; g--) {
-            const t = Math.max(time - g * GRACE_SEC, ctx.currentTime + 0.001);
-            SOUNDS[id]?.(ctx, t, gain * GRACE_GAIN);
+            const t = Math.max(
+              time - g * GRACE_SEC,
+              audioCtx.currentTime + 0.001,
+            );
+            SOUNDS[id]?.(audioCtx, t, gain * GRACE_GAIN);
           }
-          SOUNDS[id]?.(ctx, time, gain);
+          SOUNDS[id]?.(audioCtx, time, gain);
         });
       }
 
-      this.scheduleStep = (this.scheduleStep + 1) % totalSteps;
-      this.nextTime += stepDurationSec(this.bpm, subdivision);
+      scheduleStep = (scheduleStep + 1) % totalSteps;
+      nextTime += stepDurationSec(bpm, subdivision);
 
-      if (!this.loop && this.scheduleStep === 0) {
-        this.stop();
+      if (!shouldLoop && scheduleStep === 0) {
+        stop();
         return;
       }
     }
 
-    this.timer = setTimeout(() => this.scheduler(), 25);
-  }
-}
+    timer = setTimeout(scheduler, 25);
+  };
+
+  const start = () => {
+    if (!ctx) return;
+    // Start slightly in the future to avoid timing drift on immediate playback.
+    nextTime = ctx.currentTime + 0.05;
+    timer = setTimeout(scheduler, 0);
+    raf = requestAnimationFrame(rafLoop);
+  };
+
+  const stopLoops = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    if (raf) {
+      cancelAnimationFrame(raf);
+      raf = null;
+    }
+  };
+
+  const play = () => {
+    if (isPlaying()) return;
+    if (!ctx) ctx = new AudioContext();
+    if (ctx.state === "suspended") void ctx.resume();
+    start();
+    cb.onPlayingChange(true);
+  };
+
+  const pause = () => {
+    if (!isPlaying()) return;
+    stopLoops();
+    syncStep();
+    clearPlaybackState();
+    cb.onPlayingChange(false);
+  };
+
+  const stop = () => {
+    stopLoops();
+    scheduleStep = 0;
+    clearPlaybackState();
+    cb.onPlayingChange(false);
+    cb.onStepChange(-1);
+  };
+
+  const seekTo = (step: number) => {
+    scheduleStep = step;
+    scheduledEvents = [];
+    cb.onStepChange(step);
+    if (!isPlaying()) return;
+    stopLoops();
+    start();
+  };
+
+  return {
+    play,
+    pause,
+    stop,
+    seekTo,
+    stopLoops,
+    setBpm: (v) => {
+      bpm = v;
+    },
+    setLoop: (v) => {
+      shouldLoop = v;
+    },
+    setScore: (s) => {
+      score = s;
+    },
+    getScore: () => score,
+  };
+};
 
 export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -217,26 +230,27 @@ export const usePlayback = (score: ScoreDetail | null): PlaybackState => {
   const engineRef = useRef<PlaybackEngine | null>(null);
 
   if (engineRef.current === null) {
-    engineRef.current = new PlaybackEngine(score?.bpm ?? 120, {
+    engineRef.current = createPlaybackEngine(score?.bpm ?? 120, {
       onStepChange: setCurrentStep,
       onPlayingChange: setIsPlaying,
     });
   }
 
   useEffect(() => {
-    engineRef.current!.score = score;
+    engineRef.current!.setScore(score);
   }, [score]);
   useEffect(() => {
-    engineRef.current!.bpm = bpm;
+    engineRef.current!.setBpm(bpm);
   }, [bpm]);
   useEffect(() => {
-    engineRef.current!.loop = shouldLoop;
+    engineRef.current!.setLoop(shouldLoop);
   }, [shouldLoop]);
 
   const setBpm = useCallback((v: number) => {
     setBpmState(v);
     const eng = engineRef.current!;
-    if (eng.score) eng.score = { ...eng.score, bpm: v };
+    const current = eng.getScore();
+    if (current) eng.setScore({ ...current, bpm: v });
   }, []);
 
   const stop = useCallback(() => engineRef.current!.stop(), []);
