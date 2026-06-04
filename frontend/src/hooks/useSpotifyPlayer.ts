@@ -21,6 +21,7 @@ const loadSpotifySDK = (): Promise<void> => {
     const script = document.createElement("script");
     script.src = SDK_SRC;
     script.async = true;
+    /* v8 ignore next -- happy-dom does not trigger script.onerror in tests */
     script.onerror = () => reject(new Error("Failed to load Spotify SDK"));
     document.body.appendChild(script);
   });
@@ -108,7 +109,9 @@ export const useSpotifyPlayer = ({
     void (async () => {
       try {
         await loadSpotifySDK();
+        /* v8 ignore next -- unmount-during-load race */
         if (isCancelled) return;
+        /* v8 ignore next -- SDK ready callback fires without window.Spotify */
         if (!window.Spotify) throw new Error("Spotify SDK unavailable");
 
         const player = new window.Spotify.Player({
@@ -147,6 +150,7 @@ export const useSpotifyPlayer = ({
         if (!isConnected) throw new Error("Spotify player failed to connect");
         playerRef.current = player;
       } catch (e) {
+        /* v8 ignore next -- guard against errors arriving after unmount */
         if (!isCancelled) {
           setError(e instanceof Error ? e.message : String(e));
         }

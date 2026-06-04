@@ -206,7 +206,7 @@ export default defineConfig([
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"] },
   {
     ignores: [
-      "{dist,build,public,node_modules}/**",
+      "{dist,build,public,node_modules,coverage}/**",
       "{.react-router,.next}/**",
       "**/components/ui/**/*.{js,jsx,tsx}",
       "**/*.config.*",

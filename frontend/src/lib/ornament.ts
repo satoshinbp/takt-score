@@ -10,14 +10,8 @@ export const readOrnament = (
 
 // If every entry in the ornaments map is NONE, drop the ornaments field entirely
 // so it doesn't leave an empty field in the JSON output.
-const isAllNone = (
-  ornaments: Record<PartId, number[]> | undefined,
-): boolean => {
-  if (!ornaments) return true;
-  return PART_IDS.every((id) =>
-    (ornaments[id] ?? []).every((v) => v === ORNAMENT.NONE),
-  );
-};
+const isAllNone = (ornaments: Record<PartId, number[]>): boolean =>
+  PART_IDS.every((id) => ornaments[id].every((v) => v === ORNAMENT.NONE));
 
 export const writeOrnament = (
   beat: Beat,

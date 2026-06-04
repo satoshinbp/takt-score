@@ -102,6 +102,14 @@ describe("decodeStep", () => {
       stepIndex: 0,
     });
   });
+
+  it("globalStep beyond total falls back to {0, 0, 0}", () => {
+    expect(decodeStep(999, [measure16()])).toEqual({
+      measureIndex: 0,
+      beatIndex: 0,
+      stepIndex: 0,
+    });
+  });
 });
 
 describe("stepDurationSec", () => {

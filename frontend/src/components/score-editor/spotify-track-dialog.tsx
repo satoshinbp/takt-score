@@ -11,8 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/hooks/useTranslation";
 import { useSpotifyAuth } from "@/hooks/useSpotifyAuth";
+import { useTranslation } from "@/hooks/useTranslation";
 import { searchTracks, type SpotifyTrack } from "@/lib/spotify/api";
 import { SPOTIFY_CLIENT_ID } from "@/lib/spotify/config";
 
