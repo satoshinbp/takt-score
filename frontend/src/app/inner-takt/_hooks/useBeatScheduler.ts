@@ -94,6 +94,7 @@ export const useBeatScheduler = (cfg: InnerTaktConfig): BeatScheduler => {
   const beatIdxRef = useRef(0);
   const beatTimesRef = useRef<ScheduledBeat[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /* v8 ignore next 3 -- placeholder replaced by useLayoutEffect before any call */
   const schedulerRef = useRef<() => void>(() => {
     return;
   });
@@ -127,8 +128,10 @@ export const useBeatScheduler = (cfg: InnerTaktConfig): BeatScheduler => {
 
   useLayoutEffect(() => {
     schedulerRef.current = () => {
+      /* v8 ignore next -- stop() clears the pending timer, so this never fires while stopped */
       if (!runningRef.current) return;
       const audioContext = audioContextRef.current;
+      /* v8 ignore next -- start() always assigns the context before the scheduler runs */
       if (!audioContext) return;
       const config = configRef.current;
 

@@ -3,11 +3,17 @@ import { SOUNDS } from "@/lib/audio";
 
 type SpyCtx = {
   ctx: AudioContext;
-  sources: { start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn> }[];
+  sources: {
+    start: ReturnType<typeof vi.fn>;
+    stop: ReturnType<typeof vi.fn>;
+  }[];
   oscs: {
     start: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
-    frequency: { setValueAtTime: ReturnType<typeof vi.fn>; exponentialRampToValueAtTime: ReturnType<typeof vi.fn> };
+    frequency: {
+      setValueAtTime: ReturnType<typeof vi.fn>;
+      exponentialRampToValueAtTime: ReturnType<typeof vi.fn>;
+    };
     type: OscillatorType;
   }[];
   bufferCalls: [number, number, number][];

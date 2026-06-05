@@ -160,13 +160,14 @@ describe("completeSpotifyLogin", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({
-          access_token: "atk",
-          refresh_token: "rtk",
-          expires_in: 3600,
-          token_type: "Bearer",
-          scope: "",
-        }),
+        json: () =>
+          Promise.resolve({
+            access_token: "atk",
+            refresh_token: "rtk",
+            expires_in: 3600,
+            token_type: "Bearer",
+            scope: "",
+          }),
       }),
     );
     await completeSpotifyLogin("code", "s");
@@ -194,18 +195,23 @@ describe("completeSpotifyLogin", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({
-          access_token: "atk",
-          expires_in: 3600,
-          token_type: "Bearer",
-          scope: "",
-        }),
+        json: () =>
+          Promise.resolve({
+            access_token: "atk",
+            expires_in: 3600,
+            token_type: "Bearer",
+            scope: "",
+          }),
       }),
     );
     await completeSpotifyLogin("code", "s");
-    expect((JSON.parse(localStorage.getItem(STORAGE_KEY)!) as { refreshToken: string }).refreshToken).toBe(
-      "",
-    );
+    expect(
+      (
+        JSON.parse(localStorage.getItem(STORAGE_KEY)!) as {
+          refreshToken: string;
+        }
+      ).refreshToken,
+    ).toBe("");
   });
 });
 
@@ -225,19 +231,24 @@ describe("getValidAccessToken", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({
-          access_token: "new",
-          refresh_token: "newr",
-          expires_in: 3600,
-          token_type: "Bearer",
-          scope: "",
-        }),
+        json: () =>
+          Promise.resolve({
+            access_token: "new",
+            refresh_token: "newr",
+            expires_in: 3600,
+            token_type: "Bearer",
+            scope: "",
+          }),
       }),
     );
     expect(await getValidAccessToken()).toBe("new");
-    expect((JSON.parse(localStorage.getItem(STORAGE_KEY)!) as { refreshToken: string }).refreshToken).toBe(
-      "newr",
-    );
+    expect(
+      (
+        JSON.parse(localStorage.getItem(STORAGE_KEY)!) as {
+          refreshToken: string;
+        }
+      ).refreshToken,
+    ).toBe("newr");
   });
 
   it("keeps the old refresh token when Spotify omits it", async () => {
@@ -246,18 +257,23 @@ describe("getValidAccessToken", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({
-          access_token: "new",
-          expires_in: 3600,
-          token_type: "Bearer",
-          scope: "",
-        }),
+        json: () =>
+          Promise.resolve({
+            access_token: "new",
+            expires_in: 3600,
+            token_type: "Bearer",
+            scope: "",
+          }),
       }),
     );
     await getValidAccessToken();
-    expect((JSON.parse(localStorage.getItem(STORAGE_KEY)!) as { refreshToken: string }).refreshToken).toBe(
-      "rtk-old",
-    );
+    expect(
+      (
+        JSON.parse(localStorage.getItem(STORAGE_KEY)!) as {
+          refreshToken: string;
+        }
+      ).refreshToken,
+    ).toBe("rtk-old");
   });
 
   it("clears tokens and returns null when refresh fails", async () => {

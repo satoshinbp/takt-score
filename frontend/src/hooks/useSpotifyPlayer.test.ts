@@ -112,9 +112,7 @@ describe("useSpotifyPlayer", () => {
   it("playTrack issues transfer + play requests when ready", async () => {
     const { player } = installSpotify();
     vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue({ ok: true, status: 200 });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200 });
     vi.stubGlobal("fetch", fetchMock);
 
     const { result } = renderHook(() => useSpotifyPlayer());
@@ -280,5 +278,4 @@ describe("useSpotifyPlayer", () => {
       expect(result.current.errorMessage).toContain("failed to connect");
     });
   });
-
 });

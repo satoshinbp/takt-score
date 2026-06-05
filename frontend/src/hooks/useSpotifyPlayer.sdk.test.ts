@@ -66,5 +66,4 @@ describe("useSpotifyPlayer SDK loading", () => {
     });
     expect(result.current.errorMessage).toBeNull();
   });
-
 });

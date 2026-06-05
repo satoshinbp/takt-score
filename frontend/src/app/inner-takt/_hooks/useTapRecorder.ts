@@ -26,6 +26,7 @@ const findNearestBeat = (
     minDiff = projDiff;
     nearest = projected;
   }
+  /* v8 ignore next -- projected is always compared, so nearest is never null */
   return nearest ? { beat: nearest, diffSec: minDiff } : null;
 };
 
@@ -48,6 +49,7 @@ export const useTapRecorder = (refs: SchedulerRefs) => {
       refs.beatTimesRef.current,
       projected,
     );
+    /* v8 ignore next -- findNearestBeat always returns a beat here */
     if (!targetBeat) return;
 
     const isTargetBeatAmbiguous = targetBeat.diffSec > beatLen / 2;
