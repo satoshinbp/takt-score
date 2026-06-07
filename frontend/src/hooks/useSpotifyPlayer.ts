@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getValidAccessToken } from "@/lib/spotify/auth";
+import { sleep } from "@/lib/utils";
 
 const SDK_SRC = "https://sdk.scdn.co/spotify-player.js";
 
@@ -28,23 +29,32 @@ const loadSpotifySDK = (): Promise<void> => {
   return sdkReadyPromise;
 };
 
-// The Web Playback SDK fires "ready" before Spotify's backend lists the device
-// as an active target, so a play call sent immediately after ready can 404.
-// Transferring playback to the device first makes it the active target.
+// The Web Playback SDK fires "ready" before Spotify's backend finishes
+// registering the device as a transfer target, so a transfer sent immediately
+// after ready returns 404 "Device not found". Retry with a short backoff until
+// the backend catches up; a persistent 404 means the device is genuinely gone.
+const TRANSFER_MAX_ATTEMPTS = 5;
+const TRANSFER_RETRY_BASE_MS = 400;
+
 const transferPlayback = async (
   deviceId: string,
   accessToken: string,
 ): Promise<void> => {
-  const res = await fetch("https://api.spotify.com/v1/me/player", {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ device_ids: [deviceId], play: false }),
-  });
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Spotify transfer failed (${res.status})`);
+  for (let attempt = 0; attempt < TRANSFER_MAX_ATTEMPTS; attempt++) {
+    const res = await fetch("https://api.spotify.com/v1/me/player", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ device_ids: [deviceId], play: false }),
+    });
+    if (res.ok || res.status === 204) return;
+    const isLastAttempt = attempt === TRANSFER_MAX_ATTEMPTS - 1;
+    if (res.status !== 404 || isLastAttempt) {
+      throw new Error(`Spotify transfer failed (${res.status})`);
+    }
+    await sleep(TRANSFER_RETRY_BASE_MS * (attempt + 1));
   }
 };
 
@@ -133,6 +143,9 @@ export const useSpotifyPlayer = ({
           setReady(true);
         });
         player.addListener("not_ready", () => {
+          // Drop the device id so a later command cannot target a device that
+          // Spotify no longer lists (which would 404).
+          deviceIdRef.current = null;
           setReady(false);
         });
         player.addListener("player_state_changed", (state) => {

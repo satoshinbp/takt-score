@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer";
 import * as auth from "@/lib/spotify/auth";
+import * as utils from "@/lib/utils";
 
 type Listener = (...args: unknown[]) => void;
 
@@ -145,6 +146,65 @@ describe("useSpotifyPlayer", () => {
     });
     await expect(result.current.playTrack("spotify:track:x")).rejects.toThrow(
       /play failed/,
+    );
+  });
+
+  it("retries the transfer on 404 until the device registers, then plays", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    // Skip the real backoff so the test does not actually wait.
+    vi.spyOn(utils, "sleep").mockResolvedValue(undefined);
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 404 })
+      .mockResolvedValueOnce({ ok: true, status: 204 })
+      .mockResolvedValueOnce({ ok: true, status: 200 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    await act(async () => {
+      await result.current.playTrack("spotify:track:x");
+    });
+    // transfer(404) -> transfer(204) -> play(200)
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(utils.sleep).toHaveBeenCalledTimes(1);
+  });
+
+  it("gives up after exhausting transfer retries on persistent 404", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    vi.spyOn(utils, "sleep").mockResolvedValue(undefined);
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 404 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    await expect(result.current.playTrack("spotify:track:x")).rejects.toThrow(
+      /transfer failed \(404\)/,
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+  });
+
+  it("clears the device id on not_ready so playTrack rejects afterward", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    act(() => {
+      player.emit("not_ready", { device_id: "dev-1" });
+    });
+    await expect(result.current.playTrack("spotify:track:x")).rejects.toThrow(
+      /device not ready/,
     );
   });
 

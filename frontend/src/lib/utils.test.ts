@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { cn } from "@/lib/utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cn, sleep } from "@/lib/utils";
 
 describe("cn", () => {
   it("joins multiple class strings", () => {
@@ -16,5 +16,29 @@ describe("cn", () => {
 
   it("accepts arrays and objects via clsx", () => {
     expect(cn(["a", "b"], { c: true, d: false })).toBe("a b c");
+  });
+});
+
+describe("sleep", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("resolves only after the given delay elapses", async () => {
+    let isResolved = false;
+    const pending = sleep(1000).then(() => {
+      isResolved = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(999);
+    expect(isResolved).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(1);
+    await pending;
+    expect(isResolved).toBe(true);
   });
 });
