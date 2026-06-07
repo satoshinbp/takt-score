@@ -5,7 +5,7 @@ DB_URL ?= postgres://taktscore:taktscore@localhost:5432/taktscore?sslmode=disabl
 .PHONY: run build test tidy fmt sqlc migrate-up migrate-down migrate-status seed
 
 run:
-	go run ./cmd/server
+	set -a; [ -f .env ] && . ./.env; set +a; go run ./cmd/server
 
 build:
 	go build -o bin/server ./cmd/server
