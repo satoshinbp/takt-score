@@ -26,10 +26,21 @@ export type SpotifyTransport = {
   isAuthed: boolean;
   isReady: boolean;
   isPlaying: boolean;
+  positionMs: number;
+  durationMs: number;
   errorMessage: string | null;
   trackLabel: string | null;
   onToggle: () => void;
   onLogin: () => void;
+  onSeek: (positionMs: number) => void;
+};
+
+// Format a millisecond position as m:ss for the Spotify progress readout.
+const formatMs = (ms: number): string => {
+  const totalSec = Math.floor(ms / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  return `${min}:${String(sec).padStart(2, "0")}`;
 };
 
 type TransportProps = {
@@ -157,17 +168,31 @@ const Transport = ({
       )}
 
       {isSpotify ? (
-        <span
-          className={
-            spotify?.errorMessage
-              ? "flex-1 truncate text-xs text-destructive"
-              : "flex-1 truncate text-xs text-muted-foreground"
-          }
-        >
-          {spotify?.errorMessage
-            ? `${t("scoreViewer.spotifyError")}: ${spotify.errorMessage}`
-            : spotify?.trackLabel}
-        </span>
+        spotify?.errorMessage ? (
+          <span className="flex-1 truncate text-xs text-destructive">
+            {t("scoreViewer.spotifyError")}: {spotify.errorMessage}
+          </span>
+        ) : spotify?.isReady ? (
+          <>
+            {spotify.trackLabel && (
+              <span className="min-w-0 flex-shrink truncate text-xs text-muted-foreground">
+                {spotify.trackLabel}
+              </span>
+            )}
+            <Input
+              type="range"
+              min={0}
+              max={spotify.durationMs || 1}
+              value={Math.min(spotify.positionMs, spotify.durationMs || 1)}
+              onChange={(e) => spotify.onSeek(+e.target.value)}
+            />
+            <span className="flex-shrink-0 font-mono text-xs text-muted-foreground">
+              {formatMs(spotify.positionMs)} / {formatMs(spotify.durationMs)}
+            </span>
+          </>
+        ) : (
+          <span className="flex-1" />
+        )
       ) : (
         <>
           <span className="w-20 flex-shrink-0 font-mono text-xs text-muted-foreground">

@@ -19,6 +19,8 @@ const buildPlayer = () => {
     disconnect: vi.fn(),
     pause: vi.fn().mockResolvedValue(undefined),
     resume: vi.fn().mockResolvedValue(undefined),
+    seek: vi.fn().mockResolvedValue(undefined),
+    getCurrentState: vi.fn().mockResolvedValue(null),
     emit: (event: string, ...args: unknown[]) => {
       const arr = listeners.get(event);
       if (!arr) return;
@@ -256,6 +258,134 @@ describe("useSpotifyPlayer", () => {
     });
     expect(player.pause).toHaveBeenCalled();
     expect(player.resume).toHaveBeenCalled();
+  });
+
+  it("resumes in place when the requested track is already loaded", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    player.getCurrentState.mockResolvedValue({
+      paused: true,
+      position: 1000,
+      duration: 60000,
+      track_window: { current_track: { id: "x", uri: "spotify:track:x" } },
+    });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    await act(async () => {
+      await result.current.playTrack("spotify:track:x");
+    });
+    expect(player.resume).toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("starts from the top when a different track is requested", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    player.getCurrentState.mockResolvedValue({
+      paused: true,
+      position: 1000,
+      duration: 60000,
+      track_window: { current_track: { id: "y", uri: "spotify:track:y" } },
+    });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    await act(async () => {
+      await result.current.playTrack("spotify:track:x");
+    });
+    expect(player.resume).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("seek delegates to the player and updates positionMs", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    await act(async () => {
+      await result.current.seek(5000);
+    });
+    expect(player.seek).toHaveBeenCalledWith(5000);
+    expect(result.current.positionMs).toBe(5000);
+  });
+
+  it("reflects position and duration from player_state_changed", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("player_state_changed", {
+        paused: false,
+        position: 1500,
+        duration: 30000,
+        track_window: { current_track: { id: "x", uri: "spotify:track:x" } },
+      });
+    });
+    expect(result.current.positionMs).toBe(1500);
+    expect(result.current.durationMs).toBe(30000);
+
+    // A null state (no active device) leaves the last known position intact.
+    act(() => {
+      player.emit("player_state_changed", null);
+    });
+    expect(result.current.isPlaying).toBe(false);
+    expect(result.current.positionMs).toBe(1500);
+  });
+
+  it("polls the current position while playing", async () => {
+    vi.useFakeTimers();
+    try {
+      const { player } = installSpotify();
+      vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+      player.getCurrentState.mockResolvedValue({
+        paused: false,
+        position: 2222,
+        duration: 40000,
+        track_window: { current_track: { id: "x", uri: "spotify:track:x" } },
+      });
+      const { result } = renderHook(() => useSpotifyPlayer());
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
+      });
+      act(() => {
+        player.emit("ready", { device_id: "dev-1" });
+      });
+      act(() => {
+        player.emit("player_state_changed", {
+          paused: false,
+          position: 0,
+          duration: 40000,
+          track_window: { current_track: { id: "x", uri: "spotify:track:x" } },
+        });
+      });
+      expect(result.current.isPlaying).toBe(true);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(500);
+      });
+      expect(result.current.positionMs).toBe(2222);
+      expect(result.current.durationMs).toBe(40000);
+
+      // A poll that returns no state keeps the last known position.
+      player.getCurrentState.mockResolvedValue(null);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(500);
+      });
+      expect(result.current.positionMs).toBe(2222);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("onStateChange registers and unregisters listeners", async () => {
