@@ -91,6 +91,8 @@ export type SpotifyPlayerState = {
   playTrack: (trackUri: string) => Promise<void>;
   pause: () => Promise<void>;
   resume: () => Promise<void>;
+  // Halt playback and rewind to the start so a later play begins from the top.
+  stop: () => Promise<void>;
   seek: (positionMs: number) => Promise<void>;
   onStateChange: (
     cb: (state: Spotify.PlaybackState | null) => void,
@@ -213,6 +215,12 @@ export const useSpotifyPlayer = ({
     await playerRef.current?.resume();
   }, []);
 
+  const stop = useCallback(async () => {
+    await playerRef.current?.pause();
+    await playerRef.current?.seek(0);
+    setPositionMs(0);
+  }, []);
+
   const seek = useCallback(async (toPositionMs: number) => {
     await playerRef.current?.seek(toPositionMs);
     setPositionMs(toPositionMs);
@@ -255,6 +263,7 @@ export const useSpotifyPlayer = ({
     playTrack,
     pause,
     resume,
+    stop,
     seek,
     onStateChange,
   };

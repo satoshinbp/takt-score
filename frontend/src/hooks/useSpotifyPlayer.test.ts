@@ -308,6 +308,22 @@ describe("useSpotifyPlayer", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("stop pauses, rewinds to the start, and resets positionMs", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    await act(async () => {
+      await result.current.seek(5000);
+    });
+    await act(async () => {
+      await result.current.stop();
+    });
+    expect(player.pause).toHaveBeenCalled();
+    expect(player.seek).toHaveBeenLastCalledWith(0);
+    expect(result.current.positionMs).toBe(0);
+  });
+
   it("seek delegates to the player and updates positionMs", async () => {
     const { player } = installSpotify();
     vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");

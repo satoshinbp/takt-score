@@ -31,6 +31,7 @@ export type SpotifyTransport = {
   errorMessage: string | null;
   trackLabel: string | null;
   onToggle: () => void;
+  onStop: () => void;
   onLogin: () => void;
   onSeek: (positionMs: number) => void;
 };
@@ -106,17 +107,28 @@ const Transport = ({
       );
     }
     return (
-      <Toggle
-        pressed={spotify.isPlaying}
-        onPressedChange={spotify.onToggle}
-        title={
-          spotify.isPlaying
-            ? t("scoreViewer.spotifyPause")
-            : t("scoreViewer.spotifyPlay")
-        }
-      >
-        {spotify.isPlaying ? <Pause size={12} /> : <Play size={12} />}
-      </Toggle>
+      <>
+        <Toggle
+          pressed={spotify.isPlaying}
+          onPressedChange={spotify.onToggle}
+          title={
+            spotify.isPlaying
+              ? t("scoreViewer.spotifyPause")
+              : t("scoreViewer.spotifyPlay")
+          }
+        >
+          {spotify.isPlaying ? <Pause size={12} /> : <Play size={12} />}
+        </Toggle>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={spotify.onStop}
+          size="icon"
+          title={t("scoreViewer.spotifyStop")}
+        >
+          <Square size={12} />
+        </Button>
+      </>
     );
   };
 

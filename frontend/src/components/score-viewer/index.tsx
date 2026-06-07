@@ -130,6 +130,7 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
                 errorMessage: player.errorMessage,
                 trackLabel,
                 onToggle: () => void handleSpotifyToggle(),
+                onStop: () => void player.stop(),
                 onLogin: () => void auth.login(),
                 onSeek: (ms) => void player.seek(ms),
               }
