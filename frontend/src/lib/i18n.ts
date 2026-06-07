@@ -27,6 +27,8 @@ const en = {
   "transport.pause": "Pause",
   "transport.stop": "Stop",
   "transport.loop": "Loop",
+  "transport.modeDrum": "Drum playback",
+  "transport.modeSpotify": "Spotify playback",
 
   "cellPopover.velocity": "Velocity",
   "cellPopover.ornament": "Ornament",
@@ -157,6 +159,8 @@ const ja: Record<DictKey, string> = {
   "transport.pause": "一時停止",
   "transport.stop": "停止",
   "transport.loop": "ループ",
+  "transport.modeDrum": "ドラム再生",
+  "transport.modeSpotify": "Spotify再生",
 
   "cellPopover.velocity": "強弱",
   "cellPopover.ornament": "装飾音",

@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import ScoreGrid from "@/components/score-grid";
 import ScoreViewerHeader from "@/components/score-viewer/header";
-import SpotifyBar from "@/components/score-viewer/spotify-bar";
-import Transport from "@/components/transport";
+import Transport, { type PlaybackMode } from "@/components/transport";
 import { usePlayback } from "@/hooks/usePlayback";
 import { useSpotifyAuth } from "@/hooks/useSpotifyAuth";
 import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer";
@@ -18,15 +17,16 @@ type Props = {
   onDelete?: () => void;
 };
 
-// Spotify playback and the local drum playback are intentionally decoupled:
-// each Transport controls only its own engine. The two never mirror or sync
-// state. SpotifyBar just exposes Spotify's own play/pause, and Transport drives
-// the in-browser drum scheduler.
+// One Transport drives both engines, switched by a drum/Spotify toggle. Only
+// the engine for the active mode plays; switching modes stops the other so the
+// two never sound at once. The drum scheduler and Spotify SDK stay otherwise
+// independent (no position/tempo sync).
 const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
   const pb = usePlayback(score);
   const trackId = score.spotifyTrackId;
   const auth = useSpotifyAuth();
   const player = useSpotifyPlayer();
+  const [playbackMode, setPlaybackMode] = useState<PlaybackMode>("drum");
 
   // Pair the resolved label with the trackId it was fetched for. Reading
   // trackLabel during render only when fetchedLabel matches the current
@@ -44,7 +44,7 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
   const shouldFetchTrack = !!trackId && auth.isAuthed;
 
   // Pull track metadata when the user is signed in and the score has a linked
-  // track. Used only to label the SpotifyBar; failures are silent.
+  // track. Used only to label the Spotify transport; failures are silent.
   useEffect(() => {
     if (!shouldFetchTrack || !trackId) return;
     let isCancelled = false;
@@ -79,6 +79,16 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
 
   const handleStop = useCallback(() => pb.stop(), [pb]);
 
+  // Hand control to a single engine: stop the one being left so both never play.
+  const handleModeChange = useCallback(
+    (mode: PlaybackMode) => {
+      if (mode === "spotify") pb.stop();
+      else void player.pause();
+      setPlaybackMode(mode);
+    },
+    [pb, player],
+  );
+
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
       <ScoreViewerHeader
@@ -92,16 +102,6 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
           onEdit();
         }}
         onDelete={onDelete}
-      />
-      <SpotifyBar
-        isAuthed={auth.isAuthed}
-        isReady={player.isReady}
-        isPlaying={player.isPlaying}
-        errorMessage={player.errorMessage}
-        hasTrack={!!trackId}
-        trackLabel={trackLabel}
-        onLogin={() => void auth.login()}
-        onToggle={() => void handleSpotifyToggle()}
       />
       <div className="flex-1 overflow-auto px-4 py-3.5">
         <ScoreGrid measures={score.measures} currentStep={pb.currentStep} />
@@ -117,6 +117,21 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
         onBpmChange={pb.setBpm}
         onSeek={pb.seekTo}
         onLoopToggle={() => pb.setLoop((l) => !l)}
+        playbackMode={trackId ? playbackMode : undefined}
+        onPlaybackModeChange={trackId ? handleModeChange : undefined}
+        spotify={
+          trackId
+            ? {
+                isAuthed: auth.isAuthed,
+                isReady: player.isReady,
+                isPlaying: player.isPlaying,
+                errorMessage: player.errorMessage,
+                trackLabel,
+                onToggle: () => void handleSpotifyToggle(),
+                onLogin: () => void auth.login(),
+              }
+            : undefined
+        }
       />
     </div>
   );
