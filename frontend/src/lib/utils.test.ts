@@ -30,9 +30,10 @@ describe("sleep", () => {
 
   it("resolves only after the given delay elapses", async () => {
     let isResolved = false;
-    const pending = sleep(1000).then(() => {
+    const pending = (async () => {
+      await sleep(1000);
       isResolved = true;
-    });
+    })();
 
     await vi.advanceTimersByTimeAsync(999);
     expect(isResolved).toBe(false);
