@@ -14,6 +14,7 @@ import type { Subdivision } from "@/lib/constants";
 import { PART_IDS, PARTS } from "@/lib/constants";
 import { readOrnament } from "@/lib/ornament";
 import { decodeStep, getMeasureStepOffset } from "@/lib/playback-utils";
+import { cn } from "@/lib/utils";
 import type { Measure } from "@/types/common";
 
 type Props = {
@@ -31,6 +32,7 @@ type Props = {
   onSubdivisionChange?: (mi: number, bi: number, sub: Subdivision) => void;
   selMeasures?: number[];
   onSelMeasure?: (mi: number) => void;
+  onMoveMeasure?: (fromIndex: number, toIndex: number) => void;
 };
 
 type PopoverTarget = {
@@ -49,6 +51,7 @@ const ScoreGrid = ({
   onSubdivisionChange,
   selMeasures = [],
   onSelMeasure,
+  onMoveMeasure,
 }: Props) => {
   const curMeasure =
     currentStep >= 0 ? decodeStep(currentStep, measures).measureIndex : -1;
@@ -58,6 +61,21 @@ const ScoreGrid = ({
   const [popoverTarget, setPopoverTarget] = useState<PopoverTarget | null>(
     null,
   );
+
+  // Index of the measure currently being dragged and the one hovered as the
+  // drop target, used both to reorder on drop and to render the drop indicator.
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const endDrag = () => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (toIndex: number) => {
+    if (dragIndex !== null) onMoveMeasure?.(dragIndex, toIndex);
+    endDrag();
+  };
 
   // Stabilize onToggle via a ref so the callback passed down to memoized rows
   // does not change identity when the parent re-renders (e.g. on currentStep
@@ -129,8 +147,30 @@ const ScoreGrid = ({
           const isRowStart = rowStarts.has(mi);
           const stepOffset = getMeasureStepOffset(measures, mi);
 
+          const isDragging = dragIndex === mi;
+          const isDropTarget =
+            dragOverIndex === mi && dragIndex !== null && dragIndex !== mi;
+
           return (
-            <div key={mi} data-measure={mi} className="shrink-0">
+            <div
+              key={mi}
+              data-measure={mi}
+              className={cn(
+                "shrink-0 rounded-sm transition-opacity",
+                isDragging && "opacity-40",
+                isDropTarget && "ring-2 ring-primary",
+              )}
+              onDragOver={
+                onMoveMeasure
+                  ? (e) => {
+                      if (dragIndex === null) return;
+                      e.preventDefault();
+                      setDragOverIndex(mi);
+                    }
+                  : undefined
+              }
+              onDrop={onMoveMeasure ? () => handleDrop(mi) : undefined}
+            >
               <BeatRuler
                 isSelected={isSel}
                 isCurrent={isCur}
@@ -138,6 +178,9 @@ const ScoreGrid = ({
                 onSelectMeasure={() => onSelMeasure?.(mi)}
                 measureIndex={mi}
                 measure={measure}
+                draggable={onMoveMeasure !== undefined}
+                onDragStart={() => setDragIndex(mi)}
+                onDragEnd={endDrag}
                 onSubdivisionChange={
                   onSubdivisionChange
                     ? (bi, sub) => onSubdivisionChange(mi, bi, sub)

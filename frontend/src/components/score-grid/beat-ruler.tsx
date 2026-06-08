@@ -15,7 +15,10 @@ type Props = {
   isRowStart: boolean;
   measureIndex: number;
   measure: Measure;
+  draggable?: boolean;
   onSelectMeasure?: () => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
   onSubdivisionChange?: (beatIndex: number, subdivision: Subdivision) => void;
 };
 
@@ -25,7 +28,10 @@ const BeatRuler = ({
   isRowStart,
   measureIndex,
   measure,
+  draggable = false,
   onSelectMeasure,
+  onDragStart,
+  onDragEnd,
   onSubdivisionChange,
 }: Props) => {
   return (
@@ -33,9 +39,22 @@ const BeatRuler = ({
       <button
         type="button"
         onClick={onSelectMeasure}
+        draggable={draggable}
+        onDragStart={
+          onDragStart
+            ? (e) => {
+                e.dataTransfer.effectAllowed = "move";
+                // Firefox only starts a drag once some data is attached.
+                e.dataTransfer.setData("text/plain", String(measureIndex));
+                onDragStart();
+              }
+            : undefined
+        }
+        onDragEnd={onDragEnd}
         className={cn(
-          "shrink-0 cursor-pointer font-mono font-bold text-xs",
+          "shrink-0 font-mono font-bold text-xs",
           "pr-2 text-right border-b-2 transition-all",
+          draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
           isRowStart ? "w-16 min-w-16" : "w-12 min-w-12",
           isSelected || isCurrent ? "text-primary" : "text-muted-foreground",
           isSelected ? "border-primary" : "border-transparent",
