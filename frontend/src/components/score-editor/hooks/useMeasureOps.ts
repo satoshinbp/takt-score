@@ -44,6 +44,8 @@ export const useMeasureOps = ({ draft, setDraft, sel, clearSel }: Args) => {
       ms.splice(at, 0, ...clip.map(cloneMeasure));
       return { ...d, measures: ms };
     });
+    // Pasted measures shift the original indices, so the old selection is stale.
+    clearSel();
   };
 
   const clear = () => {
@@ -66,6 +68,25 @@ export const useMeasureOps = ({ draft, setDraft, sel, clearSel }: Args) => {
     clearSel();
   };
 
+  const cut = () => {
+    // Keep at least one measure; mirror remove()'s guard before copying.
+    if (draft.measures.length <= 1 || !sel.length) return;
+    copy();
+    remove();
+  };
+
+  const move = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    setDraft((d) => {
+      const ms = [...d.measures];
+      const [moved] = ms.splice(fromIndex, 1);
+      ms.splice(toIndex, 0, moved);
+      return { ...d, measures: ms };
+    });
+    // Reordering invalidates the indices the selection refers to.
+    clearSel();
+  };
+
   return {
     clipSize: clip?.length ?? 0,
     addBlank,
@@ -74,5 +95,7 @@ export const useMeasureOps = ({ draft, setDraft, sel, clearSel }: Args) => {
     paste,
     clear,
     remove,
+    cut,
+    move,
   };
 };

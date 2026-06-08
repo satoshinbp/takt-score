@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import AiGenerateDialog from "@/components/score-editor/ai-generate-dialog";
 import ScoreEditorHeader from "@/components/score-editor/header";
 import { useDraftScore } from "@/components/score-editor/hooks/useDraftScore";
+import { useEditorShortcuts } from "@/components/score-editor/hooks/useEditorShortcuts";
 import { useFollowPlayback } from "@/components/score-editor/hooks/useFollowPlayback";
 import { useMeasureOps } from "@/components/score-editor/hooks/useMeasureOps";
 import { useMeasureSelection } from "@/components/score-editor/hooks/useMeasureSelection";
@@ -57,6 +58,13 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
 
   const handleSave = () => onSave(draft);
 
+  useEditorShortcuts({
+    onSave: handleSave,
+    onCopy: ops.copy,
+    onPaste: ops.paste,
+    onCut: ops.cut,
+  });
+
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
       <AiGenerateDialog
@@ -86,6 +94,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         onAddDupe={ops.addDupe}
         onCopy={ops.copy}
         onPaste={ops.paste}
+        onCut={ops.cut}
         onClear={ops.clear}
         onDelete={ops.remove}
         onDeselect={clearSel}
@@ -100,6 +109,7 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
           onSubdivisionChange={handleSubdivisionChange}
           selMeasures={sel}
           onSelMeasure={toggleSel}
+          onMoveMeasure={ops.move}
         />
       </div>
       <Transport

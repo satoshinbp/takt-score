@@ -6,6 +6,7 @@ import {
   ClipboardPaste,
   Copy,
   Plus,
+  Scissors,
   Sparkles,
   Trash,
   X,
@@ -23,6 +24,7 @@ type Props = {
   onAddDupe: () => void;
   onCopy: () => void;
   onPaste: () => void;
+  onCut: () => void;
   onClear: () => void;
   onDelete: () => void;
   onDeselect: () => void;
@@ -37,6 +39,7 @@ const ScoreEditorToolbar = ({
   onAddDupe,
   onCopy,
   onPaste,
+  onCut,
   onClear,
   onDelete,
   onDeselect,
@@ -84,6 +87,9 @@ const ScoreEditorToolbar = ({
           </Badge>
           <Button variant="outline" onClick={onCopy} size="sm">
             <Copy size={12} /> {t("scoreEditorToolbar.copy")}
+          </Button>
+          <Button variant="outline" onClick={onCut} size="sm">
+            <Scissors size={12} /> {t("scoreEditorToolbar.cut")}
           </Button>
           {clipSize > 0 && (
             <Button variant="outline" onClick={onPaste} size="sm">
