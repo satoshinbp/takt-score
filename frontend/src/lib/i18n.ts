@@ -45,6 +45,8 @@ const en = {
   "scoreEditor.create": "Create",
   "scoreEditor.save": "Save",
 
+  "scoreEditorToolbar.undo": "Undo (Cmd/Ctrl+Z)",
+  "scoreEditorToolbar.redo": "Redo (Cmd/Ctrl+Shift+Z)",
   "scoreEditorToolbar.aiGenerate": "AI generate",
   "scoreEditorToolbar.add": "Add",
   "scoreEditorToolbar.addBlank": "Blank measure",
@@ -178,6 +180,8 @@ const ja: Record<DictKey, string> = {
   "scoreEditor.create": "作成",
   "scoreEditor.save": "保存",
 
+  "scoreEditorToolbar.undo": "元に戻す (Cmd/Ctrl+Z)",
+  "scoreEditorToolbar.redo": "やり直し (Cmd/Ctrl+Shift+Z)",
   "scoreEditorToolbar.aiGenerate": "AI 生成",
   "scoreEditorToolbar.add": "追加",
   "scoreEditorToolbar.addBlank": "空の小節",

@@ -7,6 +7,8 @@ type Handlers = {
   onCopy: () => void;
   onPaste: () => void;
   onCut: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 };
 
 const isTextFieldTarget = (target: EventTarget | null) => {
@@ -36,6 +38,19 @@ export const useEditorShortcuts = (handlers: Handlers) => {
       if (key === "s") {
         event.preventDefault();
         handlersRef.current.onSave();
+        return;
+      }
+
+      // Undo/redo: Cmd+Z and Cmd+Shift+Z (Cmd+Y also redoes on some layouts).
+      if (key === "z") {
+        event.preventDefault();
+        if (event.shiftKey) handlersRef.current.onRedo();
+        else handlersRef.current.onUndo();
+        return;
+      }
+      if (key === "y") {
+        event.preventDefault();
+        handlersRef.current.onRedo();
         return;
       }
 

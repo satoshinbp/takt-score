@@ -19,10 +19,18 @@ type Props = {
   score: ScoreDetail;
   isNew?: boolean;
   onSave: (s: ScoreDetail) => void;
+  // Persist without leaving the editor (Cmd+S). Falls back to onSave.
+  onSaveStay?: (s: ScoreDetail) => void;
   onBack: () => void;
 };
 
-const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
+const ScoreEditor = ({
+  score,
+  isNew = false,
+  onSave,
+  onSaveStay,
+  onBack,
+}: Props) => {
   const [isAiOpen, setAiOpen] = useState(false);
   const areaRef = useRef<HTMLDivElement>(null);
 
@@ -33,6 +41,10 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
     handleToggle,
     handleSetStep,
     handleSubdivisionChange,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useDraftScore(score);
   const pb = usePlayback(draft);
   const ops = useMeasureOps({ draft, setDraft, sel, clearSel });
@@ -57,12 +69,15 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
   };
 
   const handleSave = () => onSave(draft);
+  const handleSaveStay = () => (onSaveStay ?? onSave)(draft);
 
   useEditorShortcuts({
-    onSave: handleSave,
+    onSave: handleSaveStay,
     onCopy: ops.copy,
     onPaste: ops.paste,
     onCut: ops.cut,
+    onUndo: undo,
+    onRedo: redo,
   });
 
   return (
@@ -90,6 +105,10 @@ const ScoreEditor = ({ score, isNew = false, onSave, onBack }: Props) => {
         sel={sel}
         clipSize={ops.clipSize}
         canDelete={draft.measures.length > 1}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={undo}
+        onRedo={redo}
         onAddBlank={ops.addBlank}
         onAddDupe={ops.addDupe}
         onCopy={ops.copy}

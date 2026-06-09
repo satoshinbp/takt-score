@@ -6,9 +6,11 @@ import {
   ClipboardPaste,
   Copy,
   Plus,
+  Redo2,
   Scissors,
   Sparkles,
   Trash,
+  Undo2,
   X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +22,10 @@ type Props = {
   sel: number[];
   clipSize: number;
   canDelete: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
   onAddBlank: () => void;
   onAddDupe: () => void;
   onCopy: () => void;
@@ -35,6 +41,10 @@ const ScoreEditorToolbar = ({
   sel,
   clipSize,
   canDelete,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
   onAddBlank,
   onAddDupe,
   onCopy,
@@ -50,6 +60,27 @@ const ScoreEditorToolbar = ({
 
   return (
     <div className="flex items-center gap-2 px-4 py-2 flex-shrink-0 border-b flex-wrap">
+      <Button
+        variant="outline"
+        onClick={onUndo}
+        disabled={!canUndo}
+        size="sm"
+        title={t("scoreEditorToolbar.undo")}
+      >
+        <Undo2 size={12} />
+      </Button>
+      <Button
+        variant="outline"
+        onClick={onRedo}
+        disabled={!canRedo}
+        size="sm"
+        title={t("scoreEditorToolbar.redo")}
+      >
+        <Redo2 size={12} />
+      </Button>
+
+      <Separator orientation="vertical" />
+
       <Button variant="outline" onClick={onAiGenerate} size="sm">
         <Sparkles size={12} /> {t("scoreEditorToolbar.aiGenerate")}
       </Button>
