@@ -27,6 +27,7 @@ const en = {
   "transport.pause": "Pause",
   "transport.stop": "Stop",
   "transport.loop": "Loop",
+  "transport.modeToggle": "Toggle playback mode",
 
   "cellPopover.velocity": "Velocity",
   "cellPopover.ornament": "Ornament",
@@ -85,6 +86,7 @@ const en = {
   "scoreViewer.back": "Back",
   "scoreViewer.spotifyPlay": "Play with Spotify",
   "scoreViewer.spotifyPause": "Pause Spotify",
+  "scoreViewer.spotifyStop": "Stop Spotify",
   "scoreViewer.spotifyConnect": "Connect Spotify",
   "scoreViewer.spotifyLoading": "Loading…",
   "scoreViewer.spotifyDeviceWaiting": "Waiting for Spotify device…",
@@ -157,6 +159,7 @@ const ja: Record<DictKey, string> = {
   "transport.pause": "一時停止",
   "transport.stop": "停止",
   "transport.loop": "ループ",
+  "transport.modeToggle": "再生モード切替",
 
   "cellPopover.velocity": "強弱",
   "cellPopover.ornament": "装飾音",
@@ -214,6 +217,7 @@ const ja: Record<DictKey, string> = {
   "scoreViewer.back": "戻る",
   "scoreViewer.spotifyPlay": "Spotifyで再生",
   "scoreViewer.spotifyPause": "Spotify一時停止",
+  "scoreViewer.spotifyStop": "Spotify停止",
   "scoreViewer.spotifyConnect": "Spotifyに接続",
   "scoreViewer.spotifyLoading": "読み込み中…",
   "scoreViewer.spotifyDeviceWaiting": "Spotifyデバイス準備中…",

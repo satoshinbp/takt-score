@@ -83,11 +83,17 @@ const startTrackPlayback = async (
 export type SpotifyPlayerState = {
   isReady: boolean;
   isPlaying: boolean;
+  // Current playback position and track length.
+  positionMs: number;
+  durationMs: number;
   // Set when Spotify rejects auth/account/playback; null otherwise.
   errorMessage: string | null;
   playTrack: (trackUri: string) => Promise<void>;
   pause: () => Promise<void>;
   resume: () => Promise<void>;
+  // Halt playback and rewind to the start so a later play begins from the top.
+  stop: () => Promise<void>;
+  seek: (positionMs: number) => Promise<void>;
   onStateChange: (
     cb: (state: Spotify.PlaybackState | null) => void,
   ) => () => void;
@@ -111,6 +117,8 @@ export const useSpotifyPlayer = ({
   >([]);
   const [isReady, setReady] = useState(false);
   const [isPlaying, setPlaying] = useState(false);
+  const [positionMs, setPositionMs] = useState(0);
+  const [durationMs, setDurationMs] = useState(0);
   const [errorMessage, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -150,6 +158,10 @@ export const useSpotifyPlayer = ({
         });
         player.addListener("player_state_changed", (state) => {
           setPlaying(!!state && !state.paused);
+          if (state) {
+            setPositionMs(state.position);
+            setDurationMs(state.duration);
+          }
           for (const cb of stateListenersRef.current) cb(state);
         });
         const handleError = ({ message }: { message: string }) =>
@@ -183,6 +195,14 @@ export const useSpotifyPlayer = ({
   const playTrack = useCallback(async (trackUri: string) => {
     const deviceId = deviceIdRef.current;
     if (!deviceId) throw new Error("Spotify device not ready");
+    // Resume in place when the SDK already holds this track (e.g. it was
+    // paused) so play does not restart it from the beginning. current_track can
+    // be absent during ads or transitions, so guard the whole access chain.
+    const state = await playerRef.current?.getCurrentState();
+    if (state?.track_window?.current_track?.uri === trackUri) {
+      await playerRef.current?.resume();
+      return;
+    }
     const token = await getValidAccessToken();
     if (!token) throw new Error("Spotify session expired");
     await startTrackPlayback(deviceId, trackUri, token);
@@ -195,6 +215,38 @@ export const useSpotifyPlayer = ({
   const resume = useCallback(async () => {
     await playerRef.current?.resume();
   }, []);
+
+  const stop = useCallback(async () => {
+    await playerRef.current?.pause();
+    await playerRef.current?.seek(0);
+    setPositionMs(0);
+  }, []);
+
+  const seek = useCallback(async (toPositionMs: number) => {
+    await playerRef.current?.seek(toPositionMs);
+    setPositionMs(toPositionMs);
+  }, []);
+
+  // player_state_changed does not fire as playback advances, so poll the
+  // current position while playing to keep the progress bar moving.
+  useEffect(() => {
+    if (!isPlaying) return;
+    // getCurrentState() can resolve after the interval is cleared (unmount or
+    // pause), so drop late results to avoid the progress bar jumping back.
+    let isCancelled = false;
+    const intervalId = setInterval(() => {
+      void (async () => {
+        const state = await playerRef.current?.getCurrentState();
+        if (isCancelled || !state) return;
+        setPositionMs(state.position);
+        setDurationMs(state.duration);
+      })();
+    }, 500);
+    return () => {
+      isCancelled = true;
+      clearInterval(intervalId);
+    };
+  }, [isPlaying]);
 
   const onStateChange = useCallback(
     (cb: (state: Spotify.PlaybackState | null) => void) => {
@@ -211,10 +263,14 @@ export const useSpotifyPlayer = ({
   return {
     isReady,
     isPlaying,
+    positionMs,
+    durationMs,
     errorMessage,
     playTrack,
     pause,
     resume,
+    stop,
+    seek,
     onStateChange,
   };
 };
