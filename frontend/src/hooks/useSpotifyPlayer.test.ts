@@ -308,6 +308,26 @@ describe("useSpotifyPlayer", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("starts playback instead of resuming when no track is loaded yet", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    // Default getCurrentState resolves to null: nothing is loaded on first play.
+    player.getCurrentState.mockResolvedValue(null);
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    await act(async () => {
+      await result.current.playTrack("spotify:track:x");
+    });
+    expect(player.resume).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it("stop pauses, rewinds to the start, and resets positionMs", async () => {
     const { player } = installSpotify();
     vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");

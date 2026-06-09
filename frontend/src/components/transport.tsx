@@ -145,9 +145,7 @@ const Transport = ({
             onCheckedChange={(checked) =>
               onPlaybackModeChange?.(checked ? "spotify" : "drum")
             }
-            aria-label={
-              isSpotify ? t("transport.modeSpotify") : t("transport.modeDrum")
-            }
+            aria-label={t("transport.modeToggle")}
           />
           <Music2
             size={14}

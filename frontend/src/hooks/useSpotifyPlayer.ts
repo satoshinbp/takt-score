@@ -195,15 +195,16 @@ export const useSpotifyPlayer = ({
   const playTrack = useCallback(async (trackUri: string) => {
     const deviceId = deviceIdRef.current;
     if (!deviceId) throw new Error("Spotify device not ready");
-    const token = await getValidAccessToken();
-    if (!token) throw new Error("Spotify session expired");
     // Resume in place when the SDK already holds this track (e.g. it was
-    // paused) so play does not restart it from the beginning.
+    // paused) so play does not restart it from the beginning. current_track can
+    // be absent during ads or transitions, so guard the whole access chain.
     const state = await playerRef.current?.getCurrentState();
-    if (state?.track_window.current_track.uri === trackUri) {
+    if (state?.track_window?.current_track?.uri === trackUri) {
       await playerRef.current?.resume();
       return;
     }
+    const token = await getValidAccessToken();
+    if (!token) throw new Error("Spotify session expired");
     await startTrackPlayback(deviceId, trackUri, token);
   }, []);
 
@@ -230,16 +231,21 @@ export const useSpotifyPlayer = ({
   // current position while playing to keep the progress bar moving.
   useEffect(() => {
     if (!isPlaying) return;
+    // getCurrentState() can resolve after the interval is cleared (unmount or
+    // pause), so drop late results to avoid the progress bar jumping back.
+    let isCancelled = false;
     const intervalId = setInterval(() => {
       void (async () => {
         const state = await playerRef.current?.getCurrentState();
-        if (state) {
-          setPositionMs(state.position);
-          setDurationMs(state.duration);
-        }
+        if (isCancelled || !state) return;
+        setPositionMs(state.position);
+        setDurationMs(state.duration);
       })();
     }, 500);
-    return () => clearInterval(intervalId);
+    return () => {
+      isCancelled = true;
+      clearInterval(intervalId);
+    };
   }, [isPlaying]);
 
   const onStateChange = useCallback(

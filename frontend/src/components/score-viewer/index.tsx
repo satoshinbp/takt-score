@@ -79,7 +79,9 @@ const ScoreViewer = ({ score, onEdit, onBack, onDelete }: Props) => {
 
   const handleStop = useCallback(() => pb.stop(), [pb]);
 
-  // Hand control to a single engine: stop the one being left so both never play.
+  // Hand control to a single engine so both never play at once. Drum playback
+  // has no resume concept, so leaving it stops (rewinds to the start); Spotify
+  // pauses instead to keep the track position for when the user switches back.
   const handleModeChange = useCallback(
     (mode: PlaybackMode) => {
       if (mode === "spotify") pb.stop();
