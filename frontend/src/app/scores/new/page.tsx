@@ -11,23 +11,24 @@ const NewScorePage = () => {
   const router = useRouter();
   const [score] = useState(() => newScore("New Score", 120));
 
-  const handleSave = async (s: ScoreDetail) => {
+  const createAndGo = async (s: ScoreDetail, keepEditing: boolean) => {
     const created = await createScore({
       title: s.title,
       bpm: s.bpm,
       spotifyTrackId: s.spotifyTrackId,
       measures: s.measures,
     });
-    router.push(`/scores/${created.id}`);
+    // A new score has no id until it is created, so "save & continue" lands on
+    // the saved score's page already in edit mode rather than staying here.
+    router.push(`/scores/${created.id}${keepEditing ? "?edit=1" : ""}`);
   };
 
   return (
     <ScoreEditor
       score={score}
       isNew
-      onSave={(s) => {
-        void handleSave(s);
-      }}
+      onSave={(s) => void createAndGo(s, false)}
+      onSaveStay={(s) => void createAndGo(s, true)}
       onBack={() => router.push("/")}
     />
   );
