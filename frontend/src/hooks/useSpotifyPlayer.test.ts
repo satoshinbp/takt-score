@@ -1,6 +1,9 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer";
+import {
+  __resetSpotifyPlayerForTests,
+  useSpotifyPlayer,
+} from "@/hooks/useSpotifyPlayer";
 import * as auth from "@/lib/spotify/auth";
 import * as utils from "@/lib/utils";
 
@@ -46,7 +49,10 @@ const installSpotify = () => {
 };
 
 beforeEach(() => {
-  // Reset the module-level SDK loaded promise between tests.
+  // Drop the module-level singleton so each test installs into a fresh
+  // window.Spotify and gets a fresh Player instance. vi.resetModules() alone
+  // does not reach the bindings imported statically at the top of this file.
+  __resetSpotifyPlayerForTests();
   vi.resetModules();
 });
 
@@ -464,13 +470,100 @@ describe("useSpotifyPlayer", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it("disconnects the player on unmount", async () => {
+  it("does not disconnect the player on unmount so the SDK singleton persists", async () => {
     const { player } = installSpotify();
     vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
     const { unmount } = renderHook(() => useSpotifyPlayer());
     await waitFor(() => expect(player.connect).toHaveBeenCalled());
     unmount();
-    expect(player.disconnect).toHaveBeenCalled();
+    // The Web Playback SDK only reliably supports one Player per session, so
+    // a view/edit remount must not tear down the connection (#34).
+    expect(player.disconnect).not.toHaveBeenCalled();
+  });
+
+  it("reuses the same Player across remounts instead of spawning a second device", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+
+    const first = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalledTimes(1));
+    first.unmount();
+
+    const second = renderHook(() => useSpotifyPlayer());
+    // Drain microtasks so the second mount's effect would have re-connected
+    // if it were going to.
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(player.connect).toHaveBeenCalledTimes(1);
+    expect(player.disconnect).not.toHaveBeenCalled();
+    second.unmount();
+  });
+
+  it("a remounted hook immediately reflects the singleton's ready state", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+
+    const first = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    expect(first.result.current.isReady).toBe(true);
+    first.unmount();
+
+    // The singleton retained deviceId/isReady, so the new mount becomes ready
+    // without needing another "ready" event from the SDK.
+    const second = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(second.result.current.isReady).toBe(true));
+  });
+
+  it("a remounted hook mirrors the singleton's last playback state", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+
+    const first = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+      player.emit("player_state_changed", {
+        paused: false,
+        position: 4321,
+        duration: 60000,
+        track_window: { current_track: { id: "x", uri: "spotify:track:x" } },
+      });
+    });
+    first.unmount();
+
+    const second = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => {
+      expect(second.result.current.isPlaying).toBe(true);
+      expect(second.result.current.positionMs).toBe(4321);
+      expect(second.result.current.durationMs).toBe(60000);
+    });
+  });
+
+  it("a remounted hook can playTrack without waiting for a new ready event", async () => {
+    const { player } = installSpotify();
+    vi.spyOn(auth, "getValidAccessToken").mockResolvedValue("tok");
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const first = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(player.connect).toHaveBeenCalled());
+    act(() => {
+      player.emit("ready", { device_id: "dev-1" });
+    });
+    first.unmount();
+
+    const second = renderHook(() => useSpotifyPlayer());
+    await waitFor(() => expect(second.result.current.isReady).toBe(true));
+    await act(async () => {
+      await second.result.current.playTrack("spotify:track:x");
+    });
+    // transfer + play, both via the original device id from the singleton.
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("getOAuthToken passes an empty string when no token is available", async () => {
