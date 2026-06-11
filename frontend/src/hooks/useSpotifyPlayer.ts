@@ -172,6 +172,10 @@ const createPlayer = async (deviceName: string): Promise<PlayerInstance> => {
   }
 };
 
+// NOTE: the deviceName from the first caller wins — later mounts reuse the
+// already-created Player and their deviceName argument is ignored. All current
+// callers pass the default "TaktScore", so this is a non-issue today; revisit
+// only if per-page device names are ever needed.
 const getOrCreatePlayer = (deviceName: string): Promise<PlayerInstance> => {
   if (instancePromise) return instancePromise;
   instancePromise = createPlayer(deviceName);
@@ -281,9 +285,10 @@ export const useSpotifyPlayer = ({
       isCancelled = true;
       unsubscribe?.();
       instanceRef.current = null;
-      setReady(false);
-      setPlaying(false);
     };
+    // deviceName is in deps because it is captured by createPlayer, but the
+    // singleton means changing it on a later mount is silently ignored — see
+    // getOrCreatePlayer above.
   }, [deviceName]);
 
   const playTrack = useCallback(async (trackUri: string) => {
