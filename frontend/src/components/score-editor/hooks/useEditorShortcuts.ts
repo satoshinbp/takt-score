@@ -20,9 +20,10 @@ const isTextFieldTarget = (target: EventTarget | null) => {
   );
 };
 
-// Wires Cmd/Ctrl based editor shortcuts (save / copy / paste / cut) to the
-// window. Handlers are read through a ref so the listener is registered once
-// and never goes stale even though the ops are recreated each render.
+// Wires Cmd/Ctrl based editor shortcuts (save / copy / paste / cut / undo /
+// redo) to the window. Handlers are read through a ref so the listener is
+// registered once and never goes stale even though the ops are recreated each
+// render.
 export const useEditorShortcuts = (handlers: Handlers) => {
   const handlersRef = useRef(handlers);
   useEffect(() => {
@@ -31,6 +32,9 @@ export const useEditorShortcuts = (handlers: Handlers) => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // A keydown mid IME composition (日本語変換中) carries an in-flight
+      // candidate; never let it trigger an editor action.
+      if (event.isComposing) return;
       if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
       const key = event.key.toLowerCase();
 
@@ -40,6 +44,10 @@ export const useEditorShortcuts = (handlers: Handlers) => {
         handlersRef.current.onSave();
         return;
       }
+
+      // Every other shortcut is editor-scoped; inside a text field defer to the
+      // browser so Cmd+Z/C/V/X act on the input's own value as the user expects.
+      if (isTextFieldTarget(event.target)) return;
 
       // Undo/redo: Cmd+Z and Cmd+Shift+Z (Cmd+Y also redoes on some layouts).
       if (key === "z") {
@@ -53,9 +61,6 @@ export const useEditorShortcuts = (handlers: Handlers) => {
         handlersRef.current.onRedo();
         return;
       }
-
-      // Leave native clipboard behaviour intact inside text fields.
-      if (isTextFieldTarget(event.target)) return;
 
       switch (key) {
         case "c":

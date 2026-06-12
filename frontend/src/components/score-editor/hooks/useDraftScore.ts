@@ -94,6 +94,9 @@ export const useDraftScore = (score: ScoreDetail) => {
         const currVelocity = beat.steps[partId][stepIdx];
         const currOrnament = readOrnament(beat, partId, stepIdx);
         const { velocity, ornament } = computeNext(currVelocity, currOrnament);
+        // Re-picking the current value in the popover is a no-op; bail out so it
+        // does not push an identical snapshot onto the undo history.
+        if (velocity === currVelocity && ornament === currOrnament) return d;
         beat.steps[partId][stepIdx] = velocity;
         measures[measureIdx][beatIdx] = writeOrnament(
           beat,
