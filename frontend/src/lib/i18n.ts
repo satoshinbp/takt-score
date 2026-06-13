@@ -45,6 +45,8 @@ const en = {
   "scoreEditor.create": "Create",
   "scoreEditor.save": "Save",
 
+  "scoreEditorToolbar.undo": "Undo (Cmd/Ctrl+Z)",
+  "scoreEditorToolbar.redo": "Redo (Cmd/Ctrl+Shift+Z)",
   "scoreEditorToolbar.aiGenerate": "AI generate",
   "scoreEditorToolbar.add": "Add",
   "scoreEditorToolbar.addBlank": "Blank measure",
@@ -55,6 +57,7 @@ const en = {
     "Click an M-number below to select a measure",
   "scoreEditorToolbar.selectedBadge": "M{measures} selected",
   "scoreEditorToolbar.copy": "Copy",
+  "scoreEditorToolbar.cut": "Cut",
   "scoreEditorToolbar.paste": "Paste ({count})",
   "scoreEditorToolbar.clear": "Clear",
   "scoreEditorToolbar.delete": "Delete",
@@ -177,6 +180,8 @@ const ja: Record<DictKey, string> = {
   "scoreEditor.create": "作成",
   "scoreEditor.save": "保存",
 
+  "scoreEditorToolbar.undo": "元に戻す (Cmd/Ctrl+Z)",
+  "scoreEditorToolbar.redo": "やり直し (Cmd/Ctrl+Shift+Z)",
   "scoreEditorToolbar.aiGenerate": "AI 生成",
   "scoreEditorToolbar.add": "追加",
   "scoreEditorToolbar.addBlank": "空の小節",
@@ -186,6 +191,7 @@ const ja: Record<DictKey, string> = {
   "scoreEditorToolbar.selectPrompt": "下のM番号をクリックして小節を選択",
   "scoreEditorToolbar.selectedBadge": "M{measures} 選択中",
   "scoreEditorToolbar.copy": "コピー",
+  "scoreEditorToolbar.cut": "切り取り",
   "scoreEditorToolbar.paste": "貼り付け ({count})",
   "scoreEditorToolbar.clear": "クリア",
   "scoreEditorToolbar.delete": "削除",
