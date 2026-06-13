@@ -80,6 +80,116 @@ const startTrackPlayback = async (
   }
 };
 
+// The Web Playback SDK reliably supports a single active Player per browser
+// session. Creating a second Player while the first is still tearing down
+// leaves the backend confused: the new Player fires "ready" but transfers to
+// its device id return 404 "Device not found" indefinitely (#34). We share a
+// single Player across all useSpotifyPlayer mounts via this module-level
+// singleton and never disconnect it on hook unmount — view/edit toggles
+// (which remount the viewer) keep reusing the same registered device.
+type ReadyListener = (deviceId: string) => void;
+type NotReadyListener = () => void;
+type StateChangeListener = (state: Spotify.PlaybackState | null) => void;
+type ErrorListener = (message: string) => void;
+
+type PlayerInstance = {
+  player: Spotify.Player;
+  deviceId: string | null;
+  isReady: boolean;
+  lastState: Spotify.PlaybackState | null;
+  readyListeners: Set<ReadyListener>;
+  notReadyListeners: Set<NotReadyListener>;
+  stateChangeListeners: Set<StateChangeListener>;
+  errorListeners: Set<ErrorListener>;
+};
+
+let instancePromise: Promise<PlayerInstance> | null = null;
+
+const createPlayer = async (deviceName: string): Promise<PlayerInstance> => {
+  try {
+    await loadSpotifySDK();
+    /* v8 ignore next -- SDK ready callback fires without window.Spotify */
+    if (!window.Spotify) throw new Error("Spotify SDK unavailable");
+
+    const instance: PlayerInstance = {
+      player: null as unknown as Spotify.Player,
+      deviceId: null,
+      isReady: false,
+      lastState: null,
+      readyListeners: new Set(),
+      notReadyListeners: new Set(),
+      stateChangeListeners: new Set(),
+      errorListeners: new Set(),
+    };
+
+    const player = new window.Spotify.Player({
+      name: deviceName,
+      getOAuthToken: (cb) => {
+        // Always invoke cb — passing "" when no valid token is available
+        // makes the SDK fire authentication_error so the UI can surface a
+        // re-login prompt instead of silently stalling.
+        void (async () => {
+          const token = await getValidAccessToken();
+          cb(token ?? "");
+        })();
+      },
+      volume: 0.7,
+    });
+
+    player.addListener("ready", ({ device_id }) => {
+      instance.deviceId = device_id;
+      instance.isReady = true;
+      for (const cb of instance.readyListeners) cb(device_id);
+    });
+    player.addListener("not_ready", () => {
+      // Drop the device id so a later command cannot target a device that
+      // Spotify no longer lists (which would 404).
+      instance.deviceId = null;
+      instance.isReady = false;
+      for (const cb of instance.notReadyListeners) cb();
+    });
+    player.addListener("player_state_changed", (state) => {
+      instance.lastState = state;
+      for (const cb of instance.stateChangeListeners) cb(state);
+    });
+    const handleError = ({ message }: { message: string }) => {
+      for (const cb of instance.errorListeners) cb(message);
+    };
+    player.addListener("initialization_error", handleError);
+    player.addListener("authentication_error", handleError);
+    player.addListener("account_error", handleError);
+    player.addListener("playback_error", handleError);
+
+    instance.player = player;
+    const isConnected = await player.connect();
+    if (!isConnected) throw new Error("Spotify player failed to connect");
+    return instance;
+  } catch (e) {
+    // Let a future mount retry initialization rather than leaving a rejected
+    // promise cached forever.
+    instancePromise = null;
+    throw e;
+  }
+};
+
+// NOTE: the deviceName from the first caller wins — later mounts reuse the
+// already-created Player and their deviceName argument is ignored. All current
+// callers pass the default "TaktScore", so this is a non-issue today; revisit
+// only if per-page device names are ever needed.
+const getOrCreatePlayer = (deviceName: string): Promise<PlayerInstance> => {
+  if (instancePromise) return instancePromise;
+  instancePromise = createPlayer(deviceName);
+  return instancePromise;
+};
+
+// Exposed only for vitest to clear the singleton between cases — production
+// code should never call this. vi.resetModules() does not affect bindings
+// already imported via static `import` at the top of a test file, so the
+// singleton would otherwise leak across tests.
+export const __resetSpotifyPlayerForTests = () => {
+  instancePromise = null;
+};
+
 export type SpotifyPlayerState = {
   isReady: boolean;
   isPlaying: boolean;
@@ -103,15 +213,14 @@ type Options = {
   deviceName?: string;
 };
 
-// useSpotifyPlayer initializes a Web Playback SDK instance for the page and
-// exposes a small command surface. The hook does NOT auto-play anything; the
-// caller decides when to call playTrack. State callbacks include the raw SDK
-// PlaybackState so callers can read paused/position fields for sync.
+// useSpotifyPlayer attaches to the module-level Web Playback SDK singleton
+// and exposes a small command surface. The hook does NOT auto-play anything;
+// the caller decides when to call playTrack. State callbacks include the raw
+// SDK PlaybackState so callers can read paused/position fields for sync.
 export const useSpotifyPlayer = ({
   deviceName = "TaktScore",
 }: Options = {}): SpotifyPlayerState => {
-  const playerRef = useRef<Spotify.Player | null>(null);
-  const deviceIdRef = useRef<string | null>(null);
+  const instanceRef = useRef<PlayerInstance | null>(null);
   const stateListenersRef = useRef<
     ((state: Spotify.PlaybackState | null) => void)[]
   >([]);
@@ -123,57 +232,47 @@ export const useSpotifyPlayer = ({
 
   useEffect(() => {
     let isCancelled = false;
+    let unsubscribe: (() => void) | null = null;
 
     void (async () => {
       try {
-        await loadSpotifySDK();
+        const instance = await getOrCreatePlayer(deviceName);
         /* v8 ignore next -- unmount-during-load race */
         if (isCancelled) return;
-        /* v8 ignore next -- SDK ready callback fires without window.Spotify */
-        if (!window.Spotify) throw new Error("Spotify SDK unavailable");
+        instanceRef.current = instance;
 
-        const player = new window.Spotify.Player({
-          name: deviceName,
-          getOAuthToken: (cb) => {
-            // Always invoke cb — passing "" when no valid token is available
-            // makes the SDK fire authentication_error so the UI can surface a
-            // re-login prompt instead of silently stalling.
-            void (async () => {
-              const token = await getValidAccessToken();
-              cb(token ?? "");
-            })();
-          },
-          volume: 0.7,
-        });
+        // Mirror the live singleton state into local React state so a fresh
+        // mount picks up where the previous one left off (already-ready,
+        // already-playing) without waiting for the next SDK event.
+        if (instance.isReady) setReady(true);
+        if (instance.lastState) {
+          setPlaying(!instance.lastState.paused);
+          setPositionMs(instance.lastState.position);
+          setDurationMs(instance.lastState.duration);
+        }
 
-        player.addListener("ready", ({ device_id }) => {
-          deviceIdRef.current = device_id;
-          setReady(true);
-        });
-        player.addListener("not_ready", () => {
-          // Drop the device id so a later command cannot target a device that
-          // Spotify no longer lists (which would 404).
-          deviceIdRef.current = null;
-          setReady(false);
-        });
-        player.addListener("player_state_changed", (state) => {
+        const onReady = () => setReady(true);
+        const onNotReady = () => setReady(false);
+        const onStateChange = (state: Spotify.PlaybackState | null) => {
           setPlaying(!!state && !state.paused);
           if (state) {
             setPositionMs(state.position);
             setDurationMs(state.duration);
           }
           for (const cb of stateListenersRef.current) cb(state);
-        });
-        const handleError = ({ message }: { message: string }) =>
-          setError(message);
-        player.addListener("initialization_error", handleError);
-        player.addListener("authentication_error", handleError);
-        player.addListener("account_error", handleError);
-        player.addListener("playback_error", handleError);
+        };
+        const onError = (message: string) => setError(message);
 
-        const isConnected = await player.connect();
-        if (!isConnected) throw new Error("Spotify player failed to connect");
-        playerRef.current = player;
+        instance.readyListeners.add(onReady);
+        instance.notReadyListeners.add(onNotReady);
+        instance.stateChangeListeners.add(onStateChange);
+        instance.errorListeners.add(onError);
+        unsubscribe = () => {
+          instance.readyListeners.delete(onReady);
+          instance.notReadyListeners.delete(onNotReady);
+          instance.stateChangeListeners.delete(onStateChange);
+          instance.errorListeners.delete(onError);
+        };
       } catch (e) {
         /* v8 ignore next -- guard against errors arriving after unmount */
         if (!isCancelled) {
@@ -184,23 +283,24 @@ export const useSpotifyPlayer = ({
 
     return () => {
       isCancelled = true;
-      playerRef.current?.disconnect();
-      playerRef.current = null;
-      deviceIdRef.current = null;
-      setReady(false);
-      setPlaying(false);
+      unsubscribe?.();
+      instanceRef.current = null;
     };
+    // deviceName is in deps because it is captured by createPlayer, but the
+    // singleton means changing it on a later mount is silently ignored — see
+    // getOrCreatePlayer above.
   }, [deviceName]);
 
   const playTrack = useCallback(async (trackUri: string) => {
-    const deviceId = deviceIdRef.current;
-    if (!deviceId) throw new Error("Spotify device not ready");
+    const instance = instanceRef.current;
+    const deviceId = instance?.deviceId ?? null;
+    if (!instance || !deviceId) throw new Error("Spotify device not ready");
     // Resume in place when the SDK already holds this track (e.g. it was
-    // paused) so play does not restart it from the beginning. current_track can
-    // be absent during ads or transitions, so guard the whole access chain.
-    const state = await playerRef.current?.getCurrentState();
+    // paused) so play does not restart it from the beginning. current_track
+    // can be absent during ads or transitions, so guard the whole access chain.
+    const state = await instance.player.getCurrentState();
     if (state?.track_window?.current_track?.uri === trackUri) {
-      await playerRef.current?.resume();
+      await instance.player.resume();
       return;
     }
     const token = await getValidAccessToken();
@@ -209,21 +309,21 @@ export const useSpotifyPlayer = ({
   }, []);
 
   const pause = useCallback(async () => {
-    await playerRef.current?.pause();
+    await instanceRef.current?.player.pause();
   }, []);
 
   const resume = useCallback(async () => {
-    await playerRef.current?.resume();
+    await instanceRef.current?.player.resume();
   }, []);
 
   const stop = useCallback(async () => {
-    await playerRef.current?.pause();
-    await playerRef.current?.seek(0);
+    await instanceRef.current?.player.pause();
+    await instanceRef.current?.player.seek(0);
     setPositionMs(0);
   }, []);
 
   const seek = useCallback(async (toPositionMs: number) => {
-    await playerRef.current?.seek(toPositionMs);
+    await instanceRef.current?.player.seek(toPositionMs);
     setPositionMs(toPositionMs);
   }, []);
 
@@ -236,7 +336,7 @@ export const useSpotifyPlayer = ({
     let isCancelled = false;
     const intervalId = setInterval(() => {
       void (async () => {
-        const state = await playerRef.current?.getCurrentState();
+        const state = await instanceRef.current?.player.getCurrentState();
         if (isCancelled || !state) return;
         setPositionMs(state.position);
         setDurationMs(state.duration);
